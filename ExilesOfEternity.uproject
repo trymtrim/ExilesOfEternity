@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{FD18CD72-4221-5C7A-3089-BB8E7B230D5A}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "ExilesOfEternity",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

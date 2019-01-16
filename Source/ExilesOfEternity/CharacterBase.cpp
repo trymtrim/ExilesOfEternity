@@ -14,7 +14,7 @@ void ACharacterBase::BeginPlay ()
 {
 	Super::BeginPlay ();
 
-	GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "THIS IS A TEST YO!");
+	//GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "THIS IS A TEST YO!");
 }
 
 //Called every frame

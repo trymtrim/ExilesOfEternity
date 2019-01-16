@@ -10,4 +10,7 @@ UCLASS()
 class EXILESOFETERNITY_API AExilesOfEternityGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY ()
+
+public:
+	AExilesOfEternityGameModeBase ();
 };

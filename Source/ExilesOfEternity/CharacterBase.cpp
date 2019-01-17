@@ -75,11 +75,20 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	//Reduce the damage taken from current health
 	_currentHealth -= Damage;
 
-	//If current health is less than zero, make it zero
-	if (_currentHealth < 0.0f)
+	//If current health is zero or less, die
+	if (_currentHealth <= 0.0f)
+	{
 		_currentHealth = 0.0f;
 
+		Die ();
+	}
+
 	return Super::TakeDamage (Damage, DamageEvent, EventInstigator, DamageCauser);
+}
+
+void ACharacterBase::Die ()
+{
+	DieBP ();
 }
 
 FRotator ACharacterBase::GetAimRotation (FVector startPosition)

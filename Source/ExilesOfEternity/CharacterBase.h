@@ -46,6 +46,8 @@ protected:
 	void UseSpellBP (Spells spell);
 	UFUNCTION (BlueprintImplementableEvent)
 	void UseCharacterSpellBP (CharacterSpells spell);
+	UFUNCTION (BlueprintImplementableEvent)
+	void DieBP ();
 
 	UFUNCTION (BlueprintCallable)
 	FRotator GetAimRotation (FVector startPosition);
@@ -70,6 +72,8 @@ private:
 	//Basic and ultimate spell
 	UFUNCTION (Server, Reliable, WithValidation)
 	void UseCharacterSpell (CharacterSpells spell);
+
+	void Die ();
 
 	UCameraComponent* _cameraComponent;
 };

@@ -10,8 +10,9 @@
 UENUM (BlueprintType)
 enum Spells
 {
-	EXAMPLE_SPELL_1,
-	EXAMPLE_SPELL_2
+	EXAMPLE_PROJECTING_SPELL,
+	EXAMPLE_SPELL_2,
+	EXAMPLE_SPELL_3
 };
 
 UENUM (BlueprintType)
@@ -19,6 +20,14 @@ enum CharacterSpells
 {
 	BASIC,
 	ULTIMATE
+};
+
+UENUM (BlueprintType)
+enum SpellAnimations
+{
+	PROJECTION_UPWARDS,
+	PROJECTION_DOWNWARDS,
+	PROJECTILE
 };
 
 UCLASS()
@@ -47,10 +56,19 @@ protected:
 	UFUNCTION (BlueprintImplementableEvent)
 	void UseCharacterSpellBP (CharacterSpells spell);
 	UFUNCTION (BlueprintImplementableEvent)
+	void CancelProjectionSpellBP ();
+	UFUNCTION (BlueprintImplementableEvent)
+	void ActivateProjectionSpellBP (Spells spell);
+	UFUNCTION (BlueprintImplementableEvent)
 	void DieBP ();
 
 	UFUNCTION (BlueprintCallable)
 	FRotator GetAimRotation (FVector startPosition);
+	UFUNCTION (Blueprintcallable)
+	FVector GetAimLocation (float maxDistance, bool initialCheck);
+
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	TEnumAsByte <Spells> _currentlyActivatedSpell;
 
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _maxHealth = 100.0f;
@@ -73,7 +91,22 @@ private:
 	UFUNCTION (Server, Reliable, WithValidation)
 	void UseCharacterSpell (CharacterSpells spell);
 
+	//Projection spells
+	UFUNCTION (Server, Reliable, WithValidation)
+	void UseProjectionSpell (Spells spell);
+
+	//Projection spells
+	UFUNCTION (Server, Reliable, WithValidation)
+	void SetCurrentlyProjectingSpell (bool state);
+
+	void CancelSpell ();
+
 	void Die ();
 
 	UCameraComponent* _cameraComponent;
+
+	float _locationCheckMaxDistance;
+
+	UPROPERTY (Replicated)
+	bool _currentlyProjectingSpell;
 };

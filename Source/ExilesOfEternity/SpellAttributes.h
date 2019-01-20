@@ -38,6 +38,7 @@ struct Spell
 {
 	FString Name;
 	SpellTypes Type;
+	float Cooldown;
 	float Damage;
 	float Range;
 };
@@ -49,6 +50,7 @@ class EXILESOFETERNITY_API USpellAttributes : public UObject
 	
 public:
 	static SpellTypes GetType (Spells spell);
+	static float GetCooldown (Spells spell);
 	
 	UFUNCTION (BlueprintCallable)
 	static float GetDamage (Spells spell);

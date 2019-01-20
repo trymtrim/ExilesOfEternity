@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "ExilesOfEternityGameModeBase.generated.h"
 
+class ACharacterBase;
+
 UCLASS()
 class EXILESOFETERNITY_API AExilesOfEternityGameModeBase : public AGameModeBase
 {
@@ -13,4 +15,15 @@ class EXILESOFETERNITY_API AExilesOfEternityGameModeBase : public AGameModeBase
 
 public:
 	AExilesOfEternityGameModeBase ();
+
+	//Called from character controller when the character dies
+	void ReportDeath (ACharacterBase* characterController);
+
+protected:
+	virtual AActor* ChoosePlayerStart_Implementation (AController* Player) override;
+
+private:
+	void RespawnCharacter (ACharacterBase* characterController);
+
+	int _playerCount = 0;
 };

@@ -4,6 +4,8 @@
 #include "UnrealNetwork.h"
 #include "Engine/World.h"
 #include "UIHandler.h"
+#include "ExilesOfEternityGameModeBase.h"
+#include "PlayerControllerBase.h"
 
 //Sets default values
 ACharacterBase::ACharacterBase ()
@@ -19,18 +21,23 @@ void ACharacterBase::BeginPlay ()
 	{
 		//Initialize UI handler
 		_uiHandler = NewObject <UUIHandler> ();
-
+		
 		//Get camera component
 		TArray <UCameraComponent*> cameraComps;
 		GetComponents <UCameraComponent> (cameraComps);
 		_cameraComponent = cameraComps [0];
-
-		//Disable mouse cursor
-		ShowMouseCursor (false);
 	}
 
-	//Initialize base stats
-	_currentHealth = _maxHealth;
+	//Initialize server specific elements
+	if (GetWorld ()->IsServer ())
+	{
+		//Initialize base stats
+		_currentHealth = _maxHealth;
+
+		//Initialize character spell cooldowns
+		_characterSpellCooldowns.Add (BASIC, 0.0f);
+		_characterSpellCooldowns.Add (ULTIMATE, _ultimateSpellCooldown);
+	}
 
 	//GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "THIS IS A TEST YO!");
 
@@ -58,16 +65,51 @@ bool ACharacterBase::ServerInitializeCharacter_Validate ()
 void ACharacterBase::Tick (float DeltaTime)
 {
 	Super::Tick (DeltaTime);
+
+	if (IsLocallyControlled ())
+	{
+		//Update cooldown percentages
+		UpdateCooldownPercentages (DeltaTime);
+	}
+
+	//Update server specific elements
+	if (GetWorld ()->IsServer ())
+	{
+		//Update cooldowns
+		UpdateCooldowns (DeltaTime);
+	}
 }
 
-void ACharacterBase::AddSpell (Spells spell)
+bool ACharacterBase::AddSpell (Spells spell)
 {
 	//If owned spells is full, return
-	if (_ownedSpells.Num () == 6)
-		return;
+	if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell))
+		return false;
 
+	//Add spell
 	_ownedSpells.Add (spell);
 	AddSpellBP (spell);
+
+	//Add spell cooldown
+	_spellCooldowns.Add (spell, 0.0f);
+	_ownedSpellsCooldownPercentages.Add (0.0f);
+
+	//Add spell to owned spells client-side
+	ClientAddOwnedSpell (spell);
+
+	return true;
+}
+
+void ACharacterBase::ClientAddOwnedSpell_Implementation (Spells spell)
+{
+	//Add spell
+	_ownedSpells.Add (spell);
+}
+
+void ACharacterBase::UnlockUltimateSpell ()
+{
+	_ultimateSpellUnlocked = true;
+	_characterSpellCooldowns [ULTIMATE] = 0.0f;
 }
 
 void ACharacterBase::UseSpellInput (int hotkeyIndex)
@@ -96,6 +138,10 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 
 	if (hotkeyIndex == -1)
 	{
+		//If spell is on cooldown, return
+		if (GetSpellIsOnCooldown (ULTIMATE))
+			return;
+
 		//Use ultimate spell
 		UseCharacterSpell (ULTIMATE);
 	}
@@ -105,14 +151,22 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 		if (tempCurrentlyProjectingSpell)
 			UseProjectionSpell (_currentlyActivatedSpell, GetAimLocation (USpellAttributes::GetRange (_currentlyActivatedSpell), false));
 		else
+		{
+			//If spell is on cooldown, return
+			if (GetSpellIsOnCooldown (BASIC))
+				return;
+
 			UseCharacterSpell (BASIC);
+		}
 	}
 	else
 	{
-		//TODO: Check if spell is on cooldown before using it
-
 		//Use spell based on hotkey index
 		Spells spellToUse = _uiHandler->GetSpellPanelSpells () [hotkeyIndex - 1];
+
+		//If spell is on cooldown, return
+		if (GetSpellIsOnCooldown (spellToUse))
+			return;
 
 		//If not currently projecting spell and currently projected spell is not the spell to use, use spell
 		if (!(tempCurrentlyProjectingSpell && _currentlyActivatedSpell == spellToUse))
@@ -122,6 +176,10 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 
 void ACharacterBase::UseSpell_Implementation (Spells spell)
 {
+	//If the player is dead, doesn't have the spell or the spell is on cooldown, return
+	if (_dead || !_ownedSpells.Contains (spell) || GetSpellIsOnCooldown (spell))
+		return;
+
 	//If the spell is a projection type spell, set currently activated spell to that
 	if (USpellAttributes::GetType (spell) == PROJECTION_SPELL)
 	{
@@ -131,47 +189,48 @@ void ACharacterBase::UseSpell_Implementation (Spells spell)
 
 	//Use the spell, handle rest in blueprint
 	UseSpellBP (spell);
+
+	//If the spell is not a projection type spell, put it on cooldown
+	if (USpellAttributes::GetType (spell) != PROJECTION_SPELL)
+		PutSpellOnCooldown (spell);
 }
 
 bool ACharacterBase::UseSpell_Validate (Spells spell)
 {
-	//TODO: Check if spell is on cooldown before using it
-
-	//If the player is dead or doesn't have the spell, return false
-	if (_dead || !_ownedSpells.Contains (spell))
-		return false;
-
 	return true;
 }
 
 void ACharacterBase::UseCharacterSpell_Implementation (CharacterSpells spell)
 {
-	//TODO: Check if player has ultimate before using it
-	//TODO: Check if player has basic or ultimate on cooldown before using it
+	//If dead or the spell is on cooldown, return
+	if (_dead || GetSpellIsOnCooldown (spell))
+		return;
 
 	UseCharacterSpellBP (spell);
+
+	//Put the spell on cooldown
+	PutSpellOnCooldown (spell);
 }
 
 bool ACharacterBase::UseCharacterSpell_Validate (CharacterSpells spell)
 {
-	//If dead, return false
-	if (_dead)
-		return false;
-
 	return true;
 }
 
 void ACharacterBase::UseProjectionSpell_Implementation (Spells spell, FVector location)
 {
+	//If dead or the spell is on cooldown, return
+	if (_dead || GetSpellIsOnCooldown (spell))
+		return;
+
 	ActivateProjectionSpellBP (_currentlyActivatedSpell, location);
+
+	//Put the spell on cooldown
+	PutSpellOnCooldown (spell);
 }
 
 bool ACharacterBase::UseProjectionSpell_Validate (Spells spell, FVector location)
 {
-	//If dead, return false
-	if (_dead)
-		return false;
-
 	return true;
 }
 
@@ -195,11 +254,164 @@ void ACharacterBase::CancelSpell ()
 	}
 }
 
+void ACharacterBase::PutSpellOnCooldown (Spells spell)
+{
+	//Put spell on cooldown based on the respective spell's cooldown
+	_spellCooldowns [spell] = USpellAttributes::GetCooldown (spell);
+}
+
+void ACharacterBase::PutSpellOnCooldown (CharacterSpells spell)
+{
+	//If spell is ultimate, put ultimate on cooldown
+	if (spell == ULTIMATE)
+		_characterSpellCooldowns [spell] = _ultimateSpellCooldown;
+	else //If spell is basic, put basic on cooldown
+	{
+		//TODO: Handle basic spell cooldown system
+
+		_characterSpellCooldowns [spell] = _basicSpellCooldown; //Temp float
+	}
+}
+
+bool ACharacterBase::GetSpellIsOnCooldown (Spells spell)
+{
+	if (IsLocallyControlled ())
+	{
+		return false;
+	}
+	else if (GetWorld ()->IsServer ())
+	{
+		if (_spellCooldowns [spell] <= 0.0f)
+			return false;
+	}
+
+	return true;
+}
+
+bool ACharacterBase::GetSpellIsOnCooldown (CharacterSpells spell)
+{
+	if (IsLocallyControlled ())
+	{
+		return false;
+	}
+	else if (GetWorld ()->IsServer ())
+	{
+		if (_characterSpellCooldowns [spell] <= 0.0f)
+			return false;
+	}
+
+	return true;
+}
+
+void ACharacterBase::UpdateCooldowns (float deltaTime)
+{
+	//Update general spell cooldowns
+	for (int i = 0; i < _ownedSpells.Num (); i++)
+	{
+		Spells spellToUpdate = _ownedSpells [i];
+
+		if (_spellCooldowns [spellToUpdate] > 0.0f)
+		{
+			//Update cooldown
+			_spellCooldowns [spellToUpdate] -= deltaTime;
+
+			//Update cooldown percentage
+			_ownedSpellsCooldownPercentages [i] = _spellCooldowns [spellToUpdate] / USpellAttributes::GetCooldown (spellToUpdate);
+		}
+	}
+
+	//If ultimate spell is unlocked, update ultimate spell cooldown
+	if (_ultimateSpellUnlocked)
+	{
+		if (_characterSpellCooldowns [ULTIMATE] > 0.0f)
+		{
+			//Update cooldown
+			_characterSpellCooldowns [ULTIMATE] -= deltaTime;
+
+			//Update cooldown percentage
+			_ultimateSpellCooldownPercentage = _characterSpellCooldowns [ULTIMATE] / _ultimateSpellCooldown;
+		}
+	}
+
+	//TODO: Handle basic spell cooldown system
+
+	//Update basic spell cooldown
+	if (_characterSpellCooldowns [BASIC] > 0.0f)
+	{
+		_characterSpellCooldowns [BASIC] -= deltaTime;
+
+		//Update cooldown percentage
+		_basicSpellCooldownPercentage = _characterSpellCooldowns [BASIC] / _basicSpellCooldown;
+	}
+}
+
+void ACharacterBase::UpdateCooldownPercentages (float deltaTime)
+{
+	for (int i = 0; i < _spellCooldownPercentages.Num (); i++)
+	{
+		Spells spellToUpdate = _uiHandler->GetSpellPanelSpells () [i];
+
+		if (spellToUpdate == DEFAULT_SPELL)
+			_spellCooldownPercentages [i] = 0.0f;
+		else
+			_spellCooldownPercentages [i] = GetCooldownPercentage (spellToUpdate);
+	}
+}
+
+float ACharacterBase::GetCooldownPercentage (Spells spell)
+{
+	for (int i = 0; i < _ownedSpells.Num (); i++)
+	{
+		if (_ownedSpells [i] == spell && _ownedSpellsCooldownPercentages.Num () > i)
+			return _ownedSpellsCooldownPercentages [i];
+	}
+
+	return 0.0f;
+}
+
+void ACharacterBase::ResetCooldowns ()
+{
+	//Reset general spell cooldowns
+	for (int i = 0; i < _ownedSpells.Num (); i++)
+	{
+		Spells spellToReset = _ownedSpells [i];
+		_spellCooldowns [spellToReset] = 0.0f;
+
+		_ownedSpellsCooldownPercentages [i] = 0.0f;
+	}
+
+	//If ultimate spell is unlocked, reset ultimate spell cooldown
+	if (_ultimateSpellUnlocked)
+	{
+		_characterSpellCooldowns [ULTIMATE] = 0.0f;
+		_ultimateSpellCooldownPercentage = 0.0f;
+	}
+
+	//TODO: Handle basic spell cooldown system
+
+	//Reset basic spell cooldown
+	_characterSpellCooldowns [BASIC] = 0.0f;
+	_basicSpellCooldownPercentage = 0.0f;
+}
+
 float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	//If dead, return
 	if (_dead)
 		return 0.0f;
+
+	//If the damage causer is on the same team as this character, don't apply damage
+	if (DamageCauser != nullptr)
+	{
+		if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
+		{
+			int damageCauserTeamNumber = Cast <APlayerControllerBase> (Cast <ACharacter> (DamageCauser)->GetController ())->GetTeamNumber ();
+			int ourTeamNumber = Cast <APlayerControllerBase> (GetController ())->GetTeamNumber ();
+
+			if (damageCauserTeamNumber == ourTeamNumber)
+				return 0.0f;
+		}
+	}
 
 	//Reduce the damage taken from current health
 	_currentHealth -= Damage;
@@ -222,12 +434,26 @@ void ACharacterBase::Die ()
 	_dead = true;
 
 	DieBP ();
+
+	Cast <AExilesOfEternityGameModeBase> (GetWorld ()->GetAuthGameMode ())->ReportDeath (this);
 }
 
 void ACharacterBase::ClientDie_Implementation ()
 {
 	//Cancel current projection spell
 	CancelSpell ();
+}
+
+void ACharacterBase::ResetCharacter ()
+{
+	//Reset spell cooldowns
+	ResetCooldowns ();
+	//Reset death
+	_dead = false;
+	//Reset health
+	_currentHealth = _maxHealth;
+
+	ResetCharacterBP ();
 }
 
 bool ACharacterBase::GetCanMove ()
@@ -255,7 +481,7 @@ FRotator ACharacterBase::GetAimRotation (FVector startPosition)
 	FRotator aimRotation;
 
 	//If line trace hits anything, set aim rotation towards what it hits
-	if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Camera, traceParams))
+	if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Visibility, traceParams))
 		aimRotation = (hit.ImpactPoint - startPosition).Rotation ();
 	else //If line trace doesn't hit anything, set rotation towards the end of the line trace
 		aimRotation = (end - startPosition).Rotation ();
@@ -282,14 +508,14 @@ FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 	FVector aimLocation;
 
 	//If line trace hits anything, set aim location to what it hits
-	if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Visibility, traceParams))
+	if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Camera, traceParams))
 		aimLocation = hit.ImpactPoint;
 	else //If line trace doesn't hit anything, line trace downwards to get location
 	{
 		start = end;
 		end = end + -FVector::UpVector * maxDistance;
 
-		if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Visibility, traceParams))
+		if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Camera, traceParams))
 			aimLocation = hit.ImpactPoint;
 	}
 
@@ -305,27 +531,6 @@ FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 	return aimLocation;
 }
 
-void ACharacterBase::ShowMouseCursor (bool state)
-{
-	//Enable or disable mouse cursor
-	GetWorld ()->GetFirstPlayerController ()->bShowMouseCursor = state;
-	//GetWorld ()->GetFirstPlayerController ()->bEnableClickEvents = state;
-	//GetWorld ()->GetFirstPlayerController ()->bEnableMouseOverEvents = state;
-
-	if (state)
-	{
-		//Set input mode to UI
-		FInputModeGameAndUI uiInputMode;
-		GetWorld ()->GetFirstPlayerController ()->SetInputMode (uiInputMode);
-	}
-	else
-	{
-		//Set input mode to game
-		FInputModeGameOnly gameInputMode;
-		GetWorld ()->GetFirstPlayerController ()->SetInputMode (gameInputMode);
-	}
-}
-
 void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);
@@ -336,6 +541,11 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 
 	DOREPLIFETIME (ACharacterBase, _currentlyActivatedSpell);
 	DOREPLIFETIME (ACharacterBase, _currentlyProjectingSpell);
+
+	//DOREPLIFETIME (ACharacterBase, _ownedSpells);
+	DOREPLIFETIME (ACharacterBase, _ownedSpellsCooldownPercentages);
+	DOREPLIFETIME (ACharacterBase, _ultimateSpellCooldownPercentage);
+	DOREPLIFETIME (ACharacterBase, _basicSpellCooldownPercentage);
 }
 
 //Called to bind functionality to input
@@ -353,7 +563,4 @@ void ACharacterBase::SetupPlayerInputComponent (UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction ("UseSpell4", IE_Pressed, this, &ACharacterBase::UseSpellInput <4>);
 	PlayerInputComponent->BindAction ("UseSpell5", IE_Pressed, this, &ACharacterBase::UseSpellInput <5>);
 	PlayerInputComponent->BindAction ("UseSpell6", IE_Pressed, this, &ACharacterBase::UseSpellInput <6>);
-
-	PlayerInputComponent->BindAction ("ShowMouseCursor", IE_Pressed, this, &ACharacterBase::ShowMouseCursor <true>);
-	PlayerInputComponent->BindAction ("ShowMouseCursor", IE_Released, this, &ACharacterBase::ShowMouseCursor <false>);
 }

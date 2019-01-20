@@ -25,6 +25,8 @@ public:
 	//Called to bind functionality to input
 	virtual void SetupPlayerInputComponent (class UInputComponent* PlayerInputComponent) override;
 
+	void ResetCharacter ();
+
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;
@@ -45,9 +47,11 @@ protected:
 	void ActivateProjectionSpellBP (Spells spell, FVector location);
 	UFUNCTION (BlueprintImplementableEvent)
 	void DieBP ();
+	UFUNCTION (BlueprintImplementableEvent)
+	void ResetCharacterBP ();
 
 	UFUNCTION (BlueprintCallable)
-	void AddSpell (Spells spell);
+	bool AddSpell (Spells spell);
 
 	UFUNCTION (BlueprintCallable)
 	bool GetCanMove ();
@@ -57,7 +61,7 @@ protected:
 	UFUNCTION (BlueprintCallable)
 	FVector GetAimLocation (float maxDistance, bool initialCheck);
 
-	UPROPERTY (Replicated, BlueprintReadOnly)
+	UPROPERTY (Replicated)
 	TEnumAsByte <Spells> _currentlyActivatedSpell;
 
 	UPROPERTY (Replicated, BlueprintReadOnly)
@@ -68,9 +72,21 @@ protected:
 	UPROPERTY (BlueprintReadOnly)
 	UUIHandler* _uiHandler;
 
+	UPROPERTY (BlueprintReadOnly)
+	TArray <float> _spellCooldownPercentages = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	float _ultimateSpellCooldownPercentage;
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	float _basicSpellCooldownPercentage;
+
 private:
 	UFUNCTION (Server, Reliable, WithValidation)
 	void ServerInitializeCharacter ();
+
+	UFUNCTION (Client, Reliable)
+	void ClientAddOwnedSpell (Spells spell);
+
+	void UnlockUltimateSpell ();
 
 	void UseSpellInput (int hotkeyIndex);
 	template <int hotkeyIndex>
@@ -95,17 +111,25 @@ private:
 	void SetCurrentlyProjectingSpell (bool state);
 
 	void CancelSpell ();
+
+	void PutSpellOnCooldown (Spells spell);
+	void PutSpellOnCooldown (CharacterSpells spell);
+
+	bool GetSpellIsOnCooldown (Spells spell);
+	bool GetSpellIsOnCooldown (CharacterSpells spell);
+
+	void UpdateCooldowns (float deltaTime);
+
+	void UpdateCooldownPercentages (float deltaTime);
+	float GetCooldownPercentage (Spells spell);
+
+	UFUNCTION (BlueprintCallable)
+	void ResetCooldowns ();
+
 	void Die ();
 
 	UFUNCTION (Client, Reliable)
 	void ClientDie ();
-
-	void ShowMouseCursor (bool state);
-	template <bool state>
-	void ShowMouseCursor ()
-	{
-		ShowMouseCursor (state);
-	}
 
 	UPROPERTY (Replicated)
 	bool _dead;
@@ -115,7 +139,16 @@ private:
 	float _locationCheckMaxDistance;
 
 	UPROPERTY (Replicated)
-	bool _currentlyProjectingSpell;
+	bool _currentlyProjectingSpell = false;
+
+	bool _ultimateSpellUnlocked = false;
+	float _ultimateSpellCooldown = 60.0f;
+	float _basicSpellCooldown = 1.0f;
 
 	TArray <Spells> _ownedSpells;
+	TMap <Spells, float> _spellCooldowns;
+	TMap <CharacterSpells, float> _characterSpellCooldowns;
+
+	UPROPERTY (Replicated)
+	TArray <float> _ownedSpellsCooldownPercentages;
 };

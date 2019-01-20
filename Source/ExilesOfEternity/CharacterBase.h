@@ -5,30 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
+#include "SpellAttributes.h"
 #include "CharacterBase.generated.h"
 
-UENUM (BlueprintType)
-enum Spells
-{
-	EXAMPLE_PROJECTING_SPELL,
-	EXAMPLE_SPELL_2,
-	EXAMPLE_SPELL_3
-};
-
-UENUM (BlueprintType)
-enum CharacterSpells
-{
-	BASIC,
-	ULTIMATE
-};
-
-UENUM (BlueprintType)
-enum SpellAnimations
-{
-	PROJECTION_UPWARDS,
-	PROJECTION_DOWNWARDS,
-	PROJECTILE
-};
+class UUIHandler;
 
 UCLASS()
 class EXILESOFETERNITY_API ACharacterBase : public ACharacter
@@ -38,7 +18,7 @@ class EXILESOFETERNITY_API ACharacterBase : public ACharacter
 public:
 	//Sets default values for this character's properties
 	ACharacterBase ();
-
+	
 	//Called every frame
 	virtual void Tick (float DeltaTime) override;
 
@@ -52,19 +32,29 @@ protected:
 	virtual float TakeDamage (float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION (BlueprintImplementableEvent)
+	void ServerInitializeCharacterBP ();
+	UFUNCTION (BlueprintImplementableEvent)
+	void AddSpellBP (Spells spell);
+	UFUNCTION (BlueprintImplementableEvent)
 	void UseSpellBP (Spells spell);
 	UFUNCTION (BlueprintImplementableEvent)
 	void UseCharacterSpellBP (CharacterSpells spell);
 	UFUNCTION (BlueprintImplementableEvent)
 	void CancelProjectionSpellBP ();
 	UFUNCTION (BlueprintImplementableEvent)
-	void ActivateProjectionSpellBP (Spells spell);
+	void ActivateProjectionSpellBP (Spells spell, FVector location);
 	UFUNCTION (BlueprintImplementableEvent)
 	void DieBP ();
 
 	UFUNCTION (BlueprintCallable)
+	void AddSpell (Spells spell);
+
+	UFUNCTION (BlueprintCallable)
+	bool GetCanMove ();
+
+	UFUNCTION (BlueprintCallable)
 	FRotator GetAimRotation (FVector startPosition);
-	UFUNCTION (Blueprintcallable)
+	UFUNCTION (BlueprintCallable)
 	FVector GetAimLocation (float maxDistance, bool initialCheck);
 
 	UPROPERTY (Replicated, BlueprintReadOnly)
@@ -75,13 +65,18 @@ protected:
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _currentHealth;
 
-private:
-	void UseSpellInput (int spellIndex);
+	UPROPERTY (BlueprintReadOnly)
+	UUIHandler* _uiHandler;
 
-	template <int index>
+private:
+	UFUNCTION (Server, Reliable, WithValidation)
+	void ServerInitializeCharacter ();
+
+	void UseSpellInput (int hotkeyIndex);
+	template <int hotkeyIndex>
 	void UseSpellInput ()
 	{
-		UseSpellInput (index);
+		UseSpellInput (hotkeyIndex);
 	}
 
 	UFUNCTION (Server, Reliable, WithValidation)
@@ -93,15 +88,27 @@ private:
 
 	//Projection spells
 	UFUNCTION (Server, Reliable, WithValidation)
-	void UseProjectionSpell (Spells spell);
+	void UseProjectionSpell (Spells spell, FVector location);
 
 	//Projection spells
 	UFUNCTION (Server, Reliable, WithValidation)
 	void SetCurrentlyProjectingSpell (bool state);
 
 	void CancelSpell ();
-
 	void Die ();
+
+	UFUNCTION (Client, Reliable)
+	void ClientDie ();
+
+	void ShowMouseCursor (bool state);
+	template <bool state>
+	void ShowMouseCursor ()
+	{
+		ShowMouseCursor (state);
+	}
+
+	UPROPERTY (Replicated)
+	bool _dead;
 
 	UCameraComponent* _cameraComponent;
 
@@ -109,4 +116,6 @@ private:
 
 	UPROPERTY (Replicated)
 	bool _currentlyProjectingSpell;
+
+	TArray <Spells> _ownedSpells;
 };

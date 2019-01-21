@@ -44,6 +44,7 @@ struct Spell
 	float Cooldown;
 	float Damage;
 	float Range;
+	float Radius;
 	float Duration;
 };
 
@@ -60,6 +61,8 @@ public:
 	static float GetDamage (Spells spell);
 	UFUNCTION (BlueprintCallable)
 	static float GetRange (Spells spell);
+	UFUNCTION (BlueprintCallable)
+	static float GetRadius (Spells spell);
 	UFUNCTION (BlueprintCallable)
 	static float GetDuration (Spells spell);
 

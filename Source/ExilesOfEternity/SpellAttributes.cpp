@@ -24,6 +24,7 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 			spell.Cooldown = 0.0f;
 			spell.Damage = 0.0f;
 			spell.Range = 0.0f;
+			spell.Radius = 0.0f;
 			spell.Duration = 0.0f;
 			break;
 		case 1:
@@ -32,6 +33,7 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 			spell.Cooldown = 5.0f;
 			spell.Damage = 40.0f;
 			spell.Range = 2000.0f;
+			spell.Radius = 500.0f;
 			spell.Duration = 1.0f;
 			break;
 		case 2:
@@ -40,6 +42,7 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 			spell.Cooldown = 15.0f;
 			spell.Damage = 0.0f;
 			spell.Range = 0.0f;
+			spell.Radius = 500.0f;
 			spell.Duration = 5.0f;
 			break;
 		}
@@ -68,6 +71,11 @@ float USpellAttributes::GetDamage (Spells spell)
 float USpellAttributes::GetRange (Spells spell)
 {
 	return spellMap [spell].Range;
+}
+
+float USpellAttributes::GetRadius (Spells spell)
+{
+	return spellMap [spell].Radius;
 }
 
 float USpellAttributes::GetDuration (Spells spell)

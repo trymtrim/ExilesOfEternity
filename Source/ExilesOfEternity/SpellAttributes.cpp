@@ -10,7 +10,7 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 	
 	TMap <Spells, Spell> map;
 
-	int spellAmount = 2;
+	int spellAmount = 3;
 
 	for (int i = 0; i < spellAmount + 1; i++)
 	{
@@ -44,6 +44,15 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 			spell.Range = 0.0f;
 			spell.Radius = 500.0f;
 			spell.Duration = 5.0f;
+			break;
+		case 3:
+			spell.Name = "Blink";
+			spell.Type = SpellTypes (2); //SELF_USE_SPELL - Use int or string
+			spell.Cooldown = 20.0f;
+			spell.Damage = 0.0f;
+			spell.Range = 1500.0f;
+			spell.Radius = 0.0f;
+			spell.Duration = 0.6f;
 			break;
 		}
 

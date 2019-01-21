@@ -10,7 +10,8 @@ UENUM (BlueprintType)
 enum Spells
 {
 	DEFAULT_SPELL,
-	EXAMPLE_PROJECTING_SPELL
+	EXAMPLE_PROJECTING_SPELL,
+	SHIELD_SPELL
 };
 
 UENUM (BlueprintType)
@@ -25,13 +26,15 @@ enum SpellAnimations
 {
 	PROJECTION_UPWARDS,
 	PROJECTION_DOWNWARDS,
-	PROJECTILE
+	PROJECTILE,
+	SELF_USE
 };
 
 enum SpellTypes
 {
 	PROJECTILE_SPELL,
-	PROJECTION_SPELL
+	PROJECTION_SPELL,
+	SELF_USE_SPELL
 };
 
 struct Spell
@@ -41,6 +44,7 @@ struct Spell
 	float Cooldown;
 	float Damage;
 	float Range;
+	float Duration;
 };
 
 UCLASS()
@@ -56,6 +60,8 @@ public:
 	static float GetDamage (Spells spell);
 	UFUNCTION (BlueprintCallable)
 	static float GetRange (Spells spell);
+	UFUNCTION (BlueprintCallable)
+	static float GetDuration (Spells spell);
 
 private:
 	static TMap <Spells, Spell> InitializeSpellAttributes ();

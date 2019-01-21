@@ -27,6 +27,9 @@ public:
 
 	void ResetCharacter ();
 
+	UFUNCTION (BlueprintCallable)
+	void SetImmunity (bool state);
+
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;
@@ -132,7 +135,9 @@ private:
 	void ClientDie ();
 
 	UPROPERTY (Replicated)
-	bool _dead;
+	bool _dead = false;
+
+	bool _immune = false;
 
 	UCameraComponent* _cameraComponent;
 

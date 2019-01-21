@@ -10,7 +10,7 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 	
 	TMap <Spells, Spell> map;
 
-	int spellAmount = 1;
+	int spellAmount = 2;
 
 	for (int i = 0; i < spellAmount + 1; i++)
 	{
@@ -20,10 +20,11 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 		{
 		case 0:
 			spell.Name = "Default Spell";
-			spell.Type = SpellTypes (0); //PROJECTION_SPELL - Use int or string
+			spell.Type = SpellTypes (0); //PROJECTILE_SPELL - Use int or string
 			spell.Cooldown = 0.0f;
 			spell.Damage = 0.0f;
 			spell.Range = 0.0f;
+			spell.Duration = 0.0f;
 			break;
 		case 1:
 			spell.Name = "ExampleSpellName";
@@ -31,8 +32,15 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 			spell.Cooldown = 5.0f;
 			spell.Damage = 40.0f;
 			spell.Range = 2000.0f;
+			spell.Duration = 1.0f;
 			break;
 		case 2:
+			spell.Name = "ShieldSpell";
+			spell.Type = SpellTypes (2); //SELF_USE_SPELL - Use int or string
+			spell.Cooldown = 15.0f;
+			spell.Damage = 0.0f;
+			spell.Range = 0.0f;
+			spell.Duration = 5.0f;
 			break;
 		}
 
@@ -60,4 +68,9 @@ float USpellAttributes::GetDamage (Spells spell)
 float USpellAttributes::GetRange (Spells spell)
 {
 	return spellMap [spell].Range;
+}
+
+float USpellAttributes::GetDuration (Spells spell)
+{
+	return spellMap [spell].Duration;
 }

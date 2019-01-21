@@ -394,10 +394,15 @@ void ACharacterBase::ResetCooldowns ()
 	_basicSpellCooldownPercentage = 0.0f;
 }
 
+void ACharacterBase::SetImmunity (bool state)
+{
+	_immune = state;
+}
+
 float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	//If dead, return
-	if (_dead)
+	if (_dead || _immune)
 		return 0.0f;
 
 	//If the damage causer is on the same team as this character, don't apply damage

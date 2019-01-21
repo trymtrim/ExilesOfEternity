@@ -495,6 +495,8 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 		_currentHealth = 0.0f;
 		Die ();
 	}
+	else
+		OnDamageBP ();
 
 	return Super::TakeDamage (Damage, DamageEvent, EventInstigator, DamageCauser);
 }

@@ -93,6 +93,7 @@ bool ACharacterBase::AddSpell (Spells spell)
 	//Add spell cooldown
 	_spellCooldowns.Add (spell, 0.0f);
 	_ownedSpellsCooldownPercentages.Add (0.0f);
+	_globalCooldownsActivated.Add (spell, false);
 
 	//Add spell to owned spells client-side
 	ClientAddOwnedSpell (spell);
@@ -258,6 +259,8 @@ void ACharacterBase::PutSpellOnCooldown (Spells spell)
 {
 	//Put spell on cooldown based on the respective spell's cooldown
 	_spellCooldowns [spell] = USpellAttributes::GetCooldown (spell);
+
+	ActivateGlobalCooldown ();
 }
 
 void ACharacterBase::PutSpellOnCooldown (CharacterSpells spell)
@@ -270,6 +273,44 @@ void ACharacterBase::PutSpellOnCooldown (CharacterSpells spell)
 		//TODO: Handle basic spell cooldown system
 
 		_characterSpellCooldowns [spell] = _basicSpellCooldown; //Temp float
+	}
+
+	ActivateGlobalCooldown ();
+}
+
+void ACharacterBase::ActivateGlobalCooldown ()
+{
+	//Update general spell cooldowns
+	for (int i = 0; i < _ownedSpells.Num (); i++)
+	{
+		Spells spellToUpdate = _ownedSpells [i];
+
+		if (_spellCooldowns [spellToUpdate] < _globalCooldown)
+		{
+			//Update cooldown
+			_spellCooldowns [spellToUpdate] = _globalCooldown;
+			_globalCooldownsActivated [spellToUpdate] = true;
+		}
+	}
+
+	//If ultimate spell is unlocked, update ultimate spell cooldown
+	if (_ultimateSpellUnlocked)
+	{
+		if (_characterSpellCooldowns [ULTIMATE] < _globalCooldown)
+		{
+			//Update cooldown
+			_characterSpellCooldowns [ULTIMATE] = _globalCooldown;
+			_ultimateCooldownsActivated = false;
+		}
+	}
+
+	//TODO: Potentially handle basic spell cooldown system
+
+	//Update basic spell cooldown
+	if (_characterSpellCooldowns [BASIC] < _globalCooldown)
+	{
+		_characterSpellCooldowns [BASIC] = _globalCooldown;
+		_basicCooldownsActivated = true;
 	}
 }
 
@@ -316,7 +357,16 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 			_spellCooldowns [spellToUpdate] -= deltaTime;
 
 			//Update cooldown percentage
-			_ownedSpellsCooldownPercentages [i] = _spellCooldowns [spellToUpdate] / USpellAttributes::GetCooldown (spellToUpdate);
+			if (_globalCooldownsActivated [spellToUpdate])
+			{
+				_ownedSpellsCooldownPercentages [i] = _spellCooldowns [spellToUpdate] / _globalCooldown;
+
+				//If cooldown has reached zero, deactivate global cooldown
+				if (_spellCooldowns [spellToUpdate] <= 0.0f)
+					_globalCooldownsActivated [spellToUpdate] = false;
+			}
+			else
+				_ownedSpellsCooldownPercentages [i] = _spellCooldowns [spellToUpdate] / USpellAttributes::GetCooldown (spellToUpdate);
 		}
 	}
 
@@ -329,7 +379,16 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 			_characterSpellCooldowns [ULTIMATE] -= deltaTime;
 
 			//Update cooldown percentage
-			_ultimateSpellCooldownPercentage = _characterSpellCooldowns [ULTIMATE] / _ultimateSpellCooldown;
+			if (_ultimateCooldownsActivated)
+			{
+				_ultimateSpellCooldownPercentage = _characterSpellCooldowns [ULTIMATE] / _globalCooldown;
+
+				//If cooldown has reached zero, deactivate global cooldown
+				if (_characterSpellCooldowns [ULTIMATE] <= 0.0f)
+					_ultimateCooldownsActivated = false;
+			}
+			else
+				_ultimateSpellCooldownPercentage = _characterSpellCooldowns [ULTIMATE] / _ultimateSpellCooldown;
 		}
 	}
 
@@ -341,7 +400,16 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 		_characterSpellCooldowns [BASIC] -= deltaTime;
 
 		//Update cooldown percentage
-		_basicSpellCooldownPercentage = _characterSpellCooldowns [BASIC] / _basicSpellCooldown;
+		if (_basicCooldownsActivated)
+		{
+			_basicSpellCooldownPercentage = _characterSpellCooldowns [BASIC] / _globalCooldown;
+
+			//If cooldown has reached zero, deactivate global cooldown
+			if (_characterSpellCooldowns [BASIC] <= 0.0f)
+				_basicCooldownsActivated = false;
+		}
+		else
+			_basicSpellCooldownPercentage = _characterSpellCooldowns [BASIC] / _basicSpellCooldown;
 	}
 }
 
@@ -547,7 +615,6 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME (ACharacterBase, _currentlyActivatedSpell);
 	DOREPLIFETIME (ACharacterBase, _currentlyProjectingSpell);
 
-	//DOREPLIFETIME (ACharacterBase, _ownedSpells);
 	DOREPLIFETIME (ACharacterBase, _ownedSpellsCooldownPercentages);
 	DOREPLIFETIME (ACharacterBase, _ultimateSpellCooldownPercentage);
 	DOREPLIFETIME (ACharacterBase, _basicSpellCooldownPercentage);

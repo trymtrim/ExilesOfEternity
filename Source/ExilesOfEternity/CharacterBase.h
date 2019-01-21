@@ -118,6 +118,8 @@ private:
 	void PutSpellOnCooldown (Spells spell);
 	void PutSpellOnCooldown (CharacterSpells spell);
 
+	void ActivateGlobalCooldown ();
+
 	bool GetSpellIsOnCooldown (Spells spell);
 	bool GetSpellIsOnCooldown (CharacterSpells spell);
 
@@ -149,6 +151,12 @@ private:
 	bool _ultimateSpellUnlocked = false;
 	float _ultimateSpellCooldown = 60.0f;
 	float _basicSpellCooldown = 1.0f;
+
+	float _globalCooldown = 0.65f;
+
+	TMap <Spells, bool> _globalCooldownsActivated;
+	bool _ultimateCooldownsActivated = false;
+	bool _basicCooldownsActivated = false;
 
 	TArray <Spells> _ownedSpells;
 	TMap <Spells, float> _spellCooldowns;

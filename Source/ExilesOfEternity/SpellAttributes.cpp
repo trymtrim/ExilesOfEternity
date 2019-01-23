@@ -12,10 +12,10 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 	return map;
 }
 
-void USpellAttributes::LoadSpells ()
+void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 {
 	//Load spell data table
-	UDataTable* SpellStatsDataTable = FindObject <UDataTable> (ANY_PACKAGE, TEXT ("DataTable'/Game/Miscellaneous/DataTables/Spell_Table.Spell_Table'"));
+	UDataTable* SpellStatsDataTable = spellDataTable; //FindObject <UDataTable> (ANY_PACKAGE, TEXT ("DataTable'/Game/Miscellaneous/DataTables/Spell_Table.Spell_Table'"));
 
 	//Declare map
 	TMap <Spells, Spell> map;

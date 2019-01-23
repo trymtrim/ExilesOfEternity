@@ -26,9 +26,6 @@ void ACharacterBase::BeginPlay ()
 		TArray <UCameraComponent*> cameraComps;
 		GetComponents <UCameraComponent> (cameraComps);
 		_cameraComponent = cameraComps [0];
-
-		//Load the game's spells from data table
-		USpellAttributes::LoadSpells ();
 	}
 
 	//Initialize server specific elements

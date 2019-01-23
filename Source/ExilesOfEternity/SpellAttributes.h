@@ -90,7 +90,8 @@ class EXILESOFETERNITY_API USpellAttributes : public UObject
 	GENERATED_BODY ()
 	
 public:
-	static void LoadSpells ();
+	UFUNCTION (BlueprintCallable)
+	static void LoadSpells (UDataTable* spellDataTable);
 
 	UFUNCTION (BlueprintCallable)
 	static SpellTypes GetType (Spells spell);

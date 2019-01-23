@@ -1,93 +1,104 @@
 // Copyright Sharp Raccoon 2019.
 
 #include "SpellAttributes.h"
+#include "ConstructorHelpers.h"
+#include "Runtime/CoreUObject/Public/UObject/UObjectGlobals.h"
 
-TMap <Spells, Spell> USpellAttributes::spellMap = USpellAttributes::InitializeSpellAttributes ();
+TMap <Spells, Spell> USpellAttributes::_spellMap = USpellAttributes::InitializeSpellAttributes ();
 
 TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 {
-	//TODO: Load from file or database
-	
 	TMap <Spells, Spell> map;
+	return map;
+}
 
-	int spellAmount = 3;
+void USpellAttributes::LoadSpells ()
+{
+	//Load spell data table
+	UDataTable* SpellStatsDataTable = FindObject <UDataTable> (ANY_PACKAGE, TEXT ("DataTable'/Game/Miscellaneous/DataTables/Spell_Table.Spell_Table'"));
 
-	for (int i = 0; i < spellAmount + 1; i++)
+	//Declare map
+	TMap <Spells, Spell> map;
+	
+	//Add emtpy spell to the map
+	Spell emptySpell;
+
+	emptySpell.Name = "Empty";
+	emptySpell.Type = SpellTypes (0);
+	emptySpell.Cooldown = 0.0f;
+	emptySpell.Damage = 0.0f;
+	emptySpell.Range = 0.0f;
+	emptySpell.Radius = 0.0f;
+	emptySpell.Duration = 0.0f;
+
+	//Iterate through all rows in the data table and add the spell attributes to the map
+	int currentRow = 1;
+
+	for (auto it : SpellStatsDataTable->GetRowMap ())
 	{
+		FSpellStats* stats = (FSpellStats*) (it.Value);
+
 		Spell spell;
 
-		switch (i)
-		{
-		case 0:
-			spell.Name = "Default Spell";
-			spell.Type = SpellTypes (0); //PROJECTILE_SPELL - Use int or string
-			spell.Cooldown = 0.0f;
-			spell.Damage = 0.0f;
-			spell.Range = 0.0f;
-			spell.Radius = 0.0f;
-			spell.Duration = 0.0f;
-			break;
-		case 1:
-			spell.Name = "ExampleSpellName";
-			spell.Type = SpellTypes (1); //PROJECTION_SPELL - Use int or string
-			spell.Cooldown = 5.0f;
-			spell.Damage = 40.0f;
-			spell.Range = 2000.0f;
-			spell.Radius = 500.0f;
-			spell.Duration = 1.0f;
-			break;
-		case 2:
-			spell.Name = "ShieldSpell";
-			spell.Type = SpellTypes (2); //SELF_USE_SPELL - Use int or string
-			spell.Cooldown = 15.0f;
-			spell.Damage = 0.0f;
-			spell.Range = 0.0f;
-			spell.Radius = 500.0f;
-			spell.Duration = 5.0f;
-			break;
-		case 3:
-			spell.Name = "Blink";
-			spell.Type = SpellTypes (2); //SELF_USE_SPELL - Use int or string
-			spell.Cooldown = 20.0f;
-			spell.Damage = 0.0f;
-			spell.Range = 1500.0f;
-			spell.Radius = 0.0f;
-			spell.Duration = 0.6f;
-			break;
-		}
+		spell.Type = stats->Type;
+		spell.Cooldown = stats->Cooldown;
+		spell.Damage = stats->Damage;
+		spell.Range = stats->Range;
+		spell.Radius = stats->Radius;
+		spell.Duration = stats->Duration;
+		spell.GlobalCooldown = stats->GlobalCooldown;
+		spell.Animation = stats->Animation;
+		spell.Icon = stats->Icon;
 
-		map.Add (Spells (i), spell);
+		map.Add (Spells (currentRow), spell);
+
+		currentRow++;
 	}
 
-	return map;
+	_spellMap = map;
 }
 
 SpellTypes USpellAttributes::GetType (Spells spell)
 {
-	return spellMap [spell].Type;
+	return _spellMap [spell].Type;
 }
 
 float USpellAttributes::GetCooldown (Spells spell)
 {
-	return spellMap [spell].Cooldown;
+	return _spellMap [spell].Cooldown;
 }
 
 float USpellAttributes::GetDamage (Spells spell)
 {
-	return spellMap [spell].Damage;
+	return _spellMap [spell].Damage;
 }
 
 float USpellAttributes::GetRange (Spells spell)
 {
-	return spellMap [spell].Range;
+	return _spellMap [spell].Range;
 }
 
 float USpellAttributes::GetRadius (Spells spell)
 {
-	return spellMap [spell].Radius;
+	return _spellMap [spell].Radius;
 }
 
 float USpellAttributes::GetDuration (Spells spell)
 {
-	return spellMap [spell].Duration;
+	return _spellMap [spell].Duration;
+}
+
+bool USpellAttributes::GetGlobalCooldown (Spells spell)
+{
+	return _spellMap [spell].GlobalCooldown;
+}
+
+SpellAnimations USpellAttributes::GetAnimation (Spells spell)
+{
+	return _spellMap [spell].Animation;
+}
+
+TSubclassOf <UUserWidget> USpellAttributes::GetIcon (Spells spell)
+{
+	return _spellMap [spell].Icon;
 }

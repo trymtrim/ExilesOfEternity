@@ -35,6 +35,6 @@ private:
 	UUserWidget* _baseUI;
 
 	bool _spellPositionChanged = false;
-
-	TArray <Spells> _spellPanelSpells = {DEFAULT_SPELL, DEFAULT_SPELL, DEFAULT_SPELL, DEFAULT_SPELL, DEFAULT_SPELL, DEFAULT_SPELL};
+	
+	TArray <Spells> _spellPanelSpells = {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY};
 };

@@ -21,6 +21,12 @@ AExilesOfEternityGameModeBase::AExilesOfEternityGameModeBase ()
 		DefaultPawnClass = PlayerPawnClass.Class;
 }
 
+void AExilesOfEternityGameModeBase::BeginPlay ()
+{
+	//Load the game's spells from data table server-side
+	USpellAttributes::LoadSpells ();
+}
+
 AActor* AExilesOfEternityGameModeBase::ChoosePlayerStart_Implementation (AController* Player)
 {
 	//Increase player count by one

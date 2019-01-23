@@ -49,7 +49,7 @@ void UUIHandler::AddSpellToPanel (Spells spell, UWidget* widget)
 {
 	for (int i = 0; i < _spellPanelSpells.Num (); i++)
 	{
-		if (_spellPanelSpells [i] == DEFAULT_SPELL)
+		if (_spellPanelSpells [i] == EMPTY)
 		{
 			ReplacePanelChild (widget, i);
 

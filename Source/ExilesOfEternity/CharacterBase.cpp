@@ -26,6 +26,9 @@ void ACharacterBase::BeginPlay ()
 		TArray <UCameraComponent*> cameraComps;
 		GetComponents <UCameraComponent> (cameraComps);
 		_cameraComponent = cameraComps [0];
+
+		//Load the game's spells from data table
+		USpellAttributes::LoadSpells ();
 	}
 
 	//Initialize server specific elements
@@ -122,7 +125,7 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 	//If the spell is not basic or ultimate and the spell slot with the given hotkey index doesn't have a spell, return
 	if (hotkeyIndex > 0)
 	{
-		if (_uiHandler->GetSpellPanelSpells () [hotkeyIndex - 1] == DEFAULT_SPELL)
+		if (_uiHandler->GetSpellPanelSpells () [hotkeyIndex - 1] == EMPTY)
 			return;
 	}
 
@@ -182,7 +185,7 @@ void ACharacterBase::UseSpell_Implementation (Spells spell)
 		return;
 
 	//If the spell is a projection type spell, set currently activated spell to that
-	if (USpellAttributes::GetType (spell) == PROJECTION_SPELL)
+	if (USpellAttributes::GetType (spell) == PROJECTION)
 	{
 		_currentlyActivatedSpell = spell;
 		_currentlyProjectingSpell = true;
@@ -192,7 +195,7 @@ void ACharacterBase::UseSpell_Implementation (Spells spell)
 	UseSpellBP (spell);
 
 	//If the spell is not a projection type spell, put it on cooldown
-	if (USpellAttributes::GetType (spell) != PROJECTION_SPELL)
+	if (USpellAttributes::GetType (spell) != PROJECTION)
 		PutSpellOnCooldown (spell);
 }
 
@@ -260,7 +263,8 @@ void ACharacterBase::PutSpellOnCooldown (Spells spell)
 	//Put spell on cooldown based on the respective spell's cooldown
 	_spellCooldowns [spell] = USpellAttributes::GetCooldown (spell);
 
-	ActivateGlobalCooldown ();
+	if (USpellAttributes::GetGlobalCooldown (spell))
+		ActivateGlobalCooldown ();
 }
 
 void ACharacterBase::PutSpellOnCooldown (CharacterSpells spell)
@@ -285,7 +289,7 @@ void ACharacterBase::ActivateGlobalCooldown ()
 	{
 		Spells spellToUpdate = _ownedSpells [i];
 
-		if (_spellCooldowns [spellToUpdate] < _globalCooldown)
+		if (USpellAttributes::GetGlobalCooldown (spellToUpdate) && _spellCooldowns [spellToUpdate] < _globalCooldown)
 		{
 			//Update cooldown
 			_spellCooldowns [spellToUpdate] = _globalCooldown;
@@ -419,7 +423,7 @@ void ACharacterBase::UpdateCooldownPercentages (float deltaTime)
 	{
 		Spells spellToUpdate = _uiHandler->GetSpellPanelSpells () [i];
 
-		if (spellToUpdate == DEFAULT_SPELL)
+		if (spellToUpdate == EMPTY)
 			_spellCooldownPercentages [i] = 0.0f;
 		else
 			_spellCooldownPercentages [i] = GetCooldownPercentage (spellToUpdate);
@@ -583,14 +587,14 @@ FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 	FVector aimLocation;
 
 	//If line trace hits anything, set aim location to what it hits
-	if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Camera, traceParams))
+	if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_GameTraceChannel1, traceParams))
 		aimLocation = hit.ImpactPoint;
 	else //If line trace doesn't hit anything, line trace downwards to get location
 	{
 		start = end;
 		end = end + -FVector::UpVector * maxDistance;
 
-		if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Camera, traceParams))
+		if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_GameTraceChannel1, traceParams))
 			aimLocation = hit.ImpactPoint;
 	}
 

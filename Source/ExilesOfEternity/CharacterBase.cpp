@@ -181,6 +181,10 @@ void ACharacterBase::UseSpell_Implementation (Spells spell)
 	if (_dead || !_ownedSpells.Contains (spell) || GetSpellIsOnCooldown (spell))
 		return;
 
+	//If the spell is not a projection type spell, cancel current spell
+	if (USpellAttributes::GetType (spell) != PROJECTION)
+		CancelCurrentSpellBP ();
+
 	//If the spell is a projection type spell, set currently activated spell to that
 	if (USpellAttributes::GetType (spell) == PROJECTION)
 	{
@@ -207,6 +211,9 @@ void ACharacterBase::UseCharacterSpell_Implementation (CharacterSpells spell)
 	if (_dead || GetSpellIsOnCooldown (spell))
 		return;
 
+	//Cancel current spell
+	CancelCurrentSpellBP ();
+
 	UseCharacterSpellBP (spell);
 
 	//Put the spell on cooldown
@@ -223,6 +230,9 @@ void ACharacterBase::UseProjectionSpell_Implementation (Spells spell, FVector lo
 	//If dead or the spell is on cooldown, return
 	if (_dead || GetSpellIsOnCooldown (spell))
 		return;
+
+	//Cancel current spell
+	CancelCurrentSpellBP ();
 
 	ActivateProjectionSpellBP (_currentlyActivatedSpell, location);
 
@@ -482,7 +492,7 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 			int damageCauserTeamNumber = Cast <APlayerControllerBase> (Cast <ACharacter> (DamageCauser)->GetController ())->GetTeamNumber ();
 			int ourTeamNumber = Cast <APlayerControllerBase> (GetController ())->GetTeamNumber ();
 
-			if (damageCauserTeamNumber == ourTeamNumber)
+			if (damageCauserTeamNumber == ourTeamNumber && Damage > 0.0f)
 				return 0.0f;
 		}
 	}
@@ -496,7 +506,7 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 		_currentHealth = 0.0f;
 		Die ();
 	}
-	else
+	else if (Damage > 0.0f)
 		OnDamageBP ();
 
 	return Super::TakeDamage (Damage, DamageEvent, EventInstigator, DamageCauser);

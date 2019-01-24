@@ -45,6 +45,8 @@ protected:
 	UFUNCTION (BlueprintImplementableEvent)
 	void UseCharacterSpellBP (CharacterSpells spell);
 	UFUNCTION (BlueprintImplementableEvent)
+	void CancelCurrentSpellBP ();
+	UFUNCTION (BlueprintImplementableEvent)
 	void CancelProjectionSpellBP ();
 	UFUNCTION (BlueprintImplementableEvent)
 	void ActivateProjectionSpellBP (Spells spell, FVector location);

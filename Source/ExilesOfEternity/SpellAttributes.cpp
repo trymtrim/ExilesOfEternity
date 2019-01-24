@@ -49,6 +49,8 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 		spell.GlobalCooldown = stats->GlobalCooldown;
 		spell.Animation = stats->Animation;
 		spell.Icon = stats->Icon;
+		spell.IconColor = stats->IconColor;
+		spell.Tooltip = stats->Tooltip;
 
 		map.Add (Spells (currentRow), spell);
 
@@ -98,7 +100,17 @@ SpellAnimations USpellAttributes::GetAnimation (Spells spell)
 	return _spellMap [spell].Animation;
 }
 
-TSubclassOf <UUserWidget> USpellAttributes::GetIcon (Spells spell)
+UTexture2D* USpellAttributes::GetIcon (Spells spell)
 {
 	return _spellMap [spell].Icon;
+}
+
+FString USpellAttributes::GetTooltip (Spells spell)
+{
+	return _spellMap [spell].Tooltip;
+}
+
+FColor USpellAttributes::GetIconColor (Spells spell)
+{
+	return _spellMap [spell].IconColor;
 }

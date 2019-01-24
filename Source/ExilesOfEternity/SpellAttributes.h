@@ -14,7 +14,9 @@ enum Spells
 	EMPTY,
 	FLAMESTRIKE,
 	SHIELD,
-	BLINK
+	BLINK,
+	CONTAINMENT_FENCE,
+	CYCLONE
 };
 
 UENUM (BlueprintType)
@@ -52,7 +54,9 @@ struct Spell
 	float Duration;
 	bool GlobalCooldown;
 	SpellAnimations Animation;
-	TSubclassOf <UUserWidget> Icon;
+	UTexture2D* Icon;
+	FColor IconColor;
+	FString Tooltip;
 };
 
 USTRUCT (BlueprintType)
@@ -81,7 +85,11 @@ struct FSpellStats : public FTableRowBase
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
 	TEnumAsByte <SpellAnimations> Animation;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
-	TSubclassOf <UUserWidget> Icon;
+	UTexture2D* Icon;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	FColor IconColor;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	FString Tooltip;
 };
 
 UCLASS()
@@ -108,7 +116,11 @@ public:
 	UFUNCTION (BlueprintCallable)
 	static SpellAnimations GetAnimation (Spells spell);
 	UFUNCTION (BlueprintCallable)
-	static TSubclassOf <UUserWidget> GetIcon (Spells spell);
+	static UTexture2D* GetIcon (Spells spell);
+	UFUNCTION (BlueprintCallable)
+	static FString GetTooltip (Spells spell);
+	UFUNCTION (BlueprintCallable)
+	static FColor GetIconColor (Spells spell);
 
 private:
 	static TMap <Spells, Spell> InitializeSpellAttributes ();

@@ -29,15 +29,11 @@ void UUIHandler::ReplacePanelChild (UWidget* newWidget, int index)
 
 void UUIHandler::SwitchPanelPosition (UWidget* widgetOne, UWidget* widgetTwo)
 {
-	//Update UI
-	UUserWidget* newWidgetOne = CreateWidget (_spellPanel, widgetOne->GetClass ());
-	UUserWidget* newWidgetTwo = CreateWidget (_spellPanel, widgetTwo->GetClass ());
-
 	int childOneIndex = _spellPanel->GetChildIndex (widgetOne);
 	int childTwoIndex = _spellPanel->GetChildIndex (widgetTwo);
 
-	_spellPanel->ReplaceChildAt (childOneIndex, newWidgetTwo);
-	_spellPanel->ReplaceChildAt (childTwoIndex, newWidgetOne);
+	_spellPanel->ReplaceChildAt (childOneIndex, widgetTwo);
+	_spellPanel->ReplaceChildAt (childTwoIndex, widgetOne);
 
 	_spellPositionChanged = true;
 

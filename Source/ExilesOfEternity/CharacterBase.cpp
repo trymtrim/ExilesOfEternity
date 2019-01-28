@@ -488,7 +488,7 @@ void ACharacterBase::SetImmunity (bool state)
 float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	//If dead or immune, return, and don't heal above max health
-	if (_dead || _immune || Damage < 0.0f && _currentHealth >= _maxHealth)
+	if (_dead || Damage > 0.0f &&_immune || Damage < 0.0f && _currentHealth >= _maxHealth)
 		return 0.0f;
 
 	//If the damage causer is on the same team as this character, don't apply damage
@@ -558,6 +558,11 @@ bool ACharacterBase::GetCanMove ()
 		return false;
 
 	return true;
+}
+
+bool ACharacterBase::GetImmunity ()
+{
+	return _immune;
 }
 
 FRotator ACharacterBase::GetAimRotation (FVector startPosition)

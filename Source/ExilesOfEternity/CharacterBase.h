@@ -62,6 +62,8 @@ protected:
 
 	UFUNCTION (BlueprintCallable)
 	bool GetCanMove ();
+	UFUNCTION (BlueprintCallable)
+	bool GetImmunity ();
 
 	UFUNCTION (BlueprintCallable)
 	FRotator GetAimRotation (FVector startPosition);

@@ -55,6 +55,7 @@ struct Spell
 	float Radius;
 	float Duration;
 	bool GlobalCooldown;
+	bool UsableWhileMoving;
 	SpellAnimations Animation;
 	UTexture2D* Icon;
 	FColor IconColor;
@@ -84,6 +85,8 @@ struct FSpellStats : public FTableRowBase
 	float Duration;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
 	bool GlobalCooldown;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	bool UsableWhileMoving;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
 	TEnumAsByte <SpellAnimations> Animation;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
@@ -115,6 +118,8 @@ public:
 	UFUNCTION (BlueprintCallable)
 	static float GetDuration (Spells spell);
 	static bool GetGlobalCooldown (Spells spell);
+	UFUNCTION (BlueprintCallable)
+	static bool GetUsableWhileMoving (Spells spell);
 	UFUNCTION (BlueprintCallable)
 	static SpellAnimations GetAnimation (Spells spell);
 	UFUNCTION (BlueprintCallable)

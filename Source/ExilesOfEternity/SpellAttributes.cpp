@@ -47,6 +47,7 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 		spell.Radius = stats->Radius;
 		spell.Duration = stats->Duration;
 		spell.GlobalCooldown = stats->GlobalCooldown;
+		spell.UsableWhileMoving = stats->UsableWhileMoving;
 		spell.Animation = stats->Animation;
 		spell.Icon = stats->Icon;
 		spell.IconColor = stats->IconColor;
@@ -93,6 +94,11 @@ float USpellAttributes::GetDuration (Spells spell)
 bool USpellAttributes::GetGlobalCooldown (Spells spell)
 {
 	return _spellMap [spell].GlobalCooldown;
+}
+
+bool USpellAttributes::GetUsableWhileMoving (Spells spell)
+{
+	return _spellMap [spell].UsableWhileMoving;
 }
 
 SpellAnimations USpellAttributes::GetAnimation (Spells spell)

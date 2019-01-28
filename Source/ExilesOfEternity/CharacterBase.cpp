@@ -181,6 +181,13 @@ void ACharacterBase::UseSpell_Implementation (Spells spell)
 	if (_dead || !_ownedSpells.Contains (spell) || GetSpellIsOnCooldown (spell))
 		return;
 
+	//If spell is not usable while moving, check if character is moving before using spell
+	if (!USpellAttributes::GetUsableWhileMoving (spell))
+	{
+		if (GetVelocity ().Size () > 0.1f)
+			return;
+	}
+
 	//If the spell is not a projection type spell, cancel current spell
 	if (USpellAttributes::GetType (spell) != PROJECTION)
 		CancelCurrentSpellBP ();
@@ -480,8 +487,8 @@ void ACharacterBase::SetImmunity (bool state)
 
 float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	//If dead, return
-	if (_dead || _immune)
+	//If dead or immune, return, and don't heal above max health
+	if (_dead || _immune || Damage < 0.0f && _currentHealth >= _maxHealth)
 		return 0.0f;
 
 	//If the damage causer is on the same team as this character, don't apply damage
@@ -508,6 +515,8 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	}
 	else if (Damage > 0.0f)
 		OnDamageBP ();
+	else if (Damage < 0.0f && _currentHealth > _maxHealth)
+		_currentHealth = _maxHealth;
 
 	return Super::TakeDamage (Damage, DamageEvent, EventInstigator, DamageCauser);
 }

@@ -4,10 +4,13 @@
 #include "Engine/World.h"
 #include "UnrealNetwork.h"
 #include "CharacterBase.h"
+#include "ExilesOfEternityCheatManager.h"
+#include "ConstructorHelpers.h"
 
 APlayerControllerBase::APlayerControllerBase ()
 {
-
+	//Set cheat manager class
+	CheatClass = UExilesOfEternityCheatManager::StaticClass ();
 }
 
 void APlayerControllerBase::BeginPlay ()

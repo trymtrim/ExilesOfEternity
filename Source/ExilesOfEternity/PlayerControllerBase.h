@@ -19,6 +19,7 @@ public:
 	virtual void SetupInputComponent () override;
 
 	void SetTeamNumber (int number);
+	void SetPlayerName (FString playerName);
 
 	UFUNCTION (BlueprintCallable)
 	int GetTeamNumber ();
@@ -26,6 +27,8 @@ public:
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;
+
+	virtual void Possess (APawn* InPawn) override;
 
 private:
 	void ShowMouseCursor (bool state);
@@ -36,4 +39,5 @@ private:
 	}
 
 	int _teamNumber;
+	FString _playerName;
 };

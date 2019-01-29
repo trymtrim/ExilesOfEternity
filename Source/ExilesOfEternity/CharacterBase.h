@@ -30,6 +30,8 @@ public:
 	UFUNCTION (BlueprintCallable)
 	void SetImmunity (bool state);
 
+	void InitializeCharacter (FString playerName);
+
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;
@@ -87,6 +89,9 @@ protected:
 	float _ultimateSpellCooldownPercentage;
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _basicSpellCooldownPercentage;
+
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	FString _playerName;
 
 private:
 	UFUNCTION (Server, Reliable, WithValidation)

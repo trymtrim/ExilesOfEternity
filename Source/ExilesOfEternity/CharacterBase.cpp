@@ -631,6 +631,11 @@ FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 	return aimLocation;
 }
 
+void ACharacterBase::InitializeCharacter (FString playerName)
+{
+	_playerName = playerName;
+}
+
 void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);
@@ -645,6 +650,8 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME (ACharacterBase, _ownedSpellsCooldownPercentages);
 	DOREPLIFETIME (ACharacterBase, _ultimateSpellCooldownPercentage);
 	DOREPLIFETIME (ACharacterBase, _basicSpellCooldownPercentage);
+
+	DOREPLIFETIME (ACharacterBase, _playerName);
 }
 
 //Called to bind functionality to input

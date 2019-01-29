@@ -3,6 +3,11 @@
 #include "ArenaGameMode.h"
 #include "CharacterBase.h"
 
+/*void AArenaGameMode::BeginPlay ()
+{
+
+}*/
+
 /*void AArenaGameMode::ReportDeath (ACharacterBase* characterController)
 {
 

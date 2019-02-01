@@ -28,6 +28,7 @@ protected:
 
 private:
 	void RespawnCharacter (ACharacterBase* characterController);
+	void CheckPlayerConnection ();
 
 	int _playerCount = 0;
 };

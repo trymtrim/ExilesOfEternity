@@ -23,7 +23,8 @@ AExilesOfEternityGameModeBase::AExilesOfEternityGameModeBase ()
 
 void AExilesOfEternityGameModeBase::BeginPlay ()
 {
-
+	FTimerHandle checkPlayerConnectionTimerHandle;
+	GetWorld ()->GetTimerManager ().SetTimer (checkPlayerConnectionTimerHandle, this, &AExilesOfEternityGameModeBase::CheckPlayerConnection, 5.0f, true);
 }
 
 FString AExilesOfEternityGameModeBase::InitNewPlayer (APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal)
@@ -78,4 +79,13 @@ void AExilesOfEternityGameModeBase::RespawnCharacter (ACharacterBase* characterC
 	//Respawn character at new location
 	int spawnIndex = FMath::RandRange (0, playerStarts.Num () - 1);
 	characterController->SetActorLocation (playerStarts [spawnIndex]->GetActorLocation ());
+}
+
+void AExilesOfEternityGameModeBase::CheckPlayerConnection ()
+{
+	if (_playerCount > 0)
+	{
+		if (GetNumPlayers () == 0)
+			GIsRequestingExit = true;
+	}
 }

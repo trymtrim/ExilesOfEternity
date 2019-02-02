@@ -2,7 +2,6 @@
 
 #include "PlayerControllerBase.h"
 #include "Engine/World.h"
-#include "UnrealNetwork.h"
 #include "CharacterBase.h"
 #include "ExilesOfEternityCheatManager.h"
 #include "ConstructorHelpers.h"
@@ -27,22 +26,7 @@ void APlayerControllerBase::Possess (APawn* InPawn)
 	ACharacterBase* character = Cast <ACharacterBase> (InPawn);
 
 	//Initialize character
-	character->InitializeCharacter (_playerName);
-}
-
-void APlayerControllerBase::SetTeamNumber (int number)
-{
-	_teamNumber = number;
-}
-
-void APlayerControllerBase::SetPlayerName (FString playerName)
-{
-	_playerName = playerName;
-}
-
-int APlayerControllerBase::GetTeamNumber ()
-{
-	return _teamNumber;
+	character->InitializeCharacter ();
 }
 
 void APlayerControllerBase::ShowMouseCursor (bool state)

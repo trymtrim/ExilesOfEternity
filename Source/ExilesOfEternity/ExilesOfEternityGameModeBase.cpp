@@ -8,11 +8,15 @@
 #include "GameFramework/PlayerStart.h"
 #include "CharacterBase.h"
 #include "Runtime/Engine/Public/TimerManager.h"
+#include "PlayerStateBase.h"
 
 AExilesOfEternityGameModeBase::AExilesOfEternityGameModeBase ()
 {
 	//Set default player controller class
 	PlayerControllerClass = APlayerControllerBase::StaticClass ();
+
+	//Set default player state class
+	PlayerStateClass = APlayerStateBase::StaticClass ();
 
 	//Set default pawn class
 	static ConstructorHelpers::FClassFinder <APawn> PlayerPawnClass (TEXT ("/Game/Blueprints/Characters/Serath_BP"));
@@ -23,6 +27,7 @@ AExilesOfEternityGameModeBase::AExilesOfEternityGameModeBase ()
 
 void AExilesOfEternityGameModeBase::BeginPlay ()
 {
+	//Check if there still are any players connected every few seconds
 	FTimerHandle checkPlayerConnectionTimerHandle;
 	GetWorld ()->GetTimerManager ().SetTimer (checkPlayerConnectionTimerHandle, this, &AExilesOfEternityGameModeBase::CheckPlayerConnection, 5.0f, true);
 }
@@ -35,7 +40,9 @@ FString AExilesOfEternityGameModeBase::InitNewPlayer (APlayerController* NewPlay
 	if (playerName == "")
 		playerName = "Player";
 
-	Cast <APlayerControllerBase> (NewPlayerController)->SetPlayerName (playerName);
+	Cast <APlayerStateBase> (NewPlayerController->PlayerState)->SetNickname (playerName);
+
+	//Cast <APlayerControllerBase> (NewPlayerController)->SetPlayerName (playerName);
 
 	return Super::InitNewPlayer (NewPlayerController, UniqueId, Options, Portal);
 }
@@ -46,7 +53,7 @@ AActor* AExilesOfEternityGameModeBase::ChoosePlayerStart_Implementation (AContro
 	_playerCount++;
 
 	//Set player team number
-	Cast <APlayerControllerBase> (Player)->SetTeamNumber (_playerCount);
+	Cast <APlayerStateBase> (Player->PlayerState)->SetTeamNumber (_playerCount);
 
 	//Get all start locations
 	TArray <AActor*> playerStarts;
@@ -83,6 +90,7 @@ void AExilesOfEternityGameModeBase::RespawnCharacter (ACharacterBase* characterC
 
 void AExilesOfEternityGameModeBase::CheckPlayerConnection ()
 {
+	//If there are no longer any players connected, exit game instance
 	if (_playerCount > 0)
 	{
 		if (GetNumPlayers () == 0)

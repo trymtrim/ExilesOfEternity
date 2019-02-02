@@ -63,6 +63,7 @@ public class WebSocket : ModuleRules
             PrivateDependencyModuleNames.Add("zlib");
             PrivateDependencyModuleNames.Add("OpenSSL");
             PrivateIncludePaths.Add("WebSocket/ThirdParty/include/Win64");
+			PrivatePCHHeaderFile = "Public/WebSocket.h";
 
             string strStaticPath = Path.GetFullPath(Path.Combine(ModulePath, "ThirdParty/lib/Win64/"));
             PublicLibraryPaths.Add(strStaticPath);

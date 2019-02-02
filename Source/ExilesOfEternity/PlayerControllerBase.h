@@ -18,12 +18,6 @@ public:
 	//Called to bind functionality to input
 	virtual void SetupInputComponent () override;
 
-	void SetTeamNumber (int number);
-	void SetPlayerName (FString playerName);
-
-	UFUNCTION (BlueprintCallable)
-	int GetTeamNumber ();
-
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;
@@ -37,7 +31,4 @@ private:
 	{
 		ShowMouseCursor (state);
 	}
-
-	int _teamNumber;
-	FString _playerName;
 };

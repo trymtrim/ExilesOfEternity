@@ -6,6 +6,7 @@
 #include "UIHandler.h"
 #include "ExilesOfEternityGameModeBase.h"
 #include "PlayerControllerBase.h"
+#include "PlayerStateBase.h"
 
 //Sets default values
 ACharacterBase::ACharacterBase ()
@@ -500,8 +501,8 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	{
 		if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
 		{
-			int damageCauserTeamNumber = Cast <APlayerControllerBase> (Cast <ACharacter> (DamageCauser)->GetController ())->GetTeamNumber ();
-			int ourTeamNumber = Cast <APlayerControllerBase> (GetController ())->GetTeamNumber ();
+			int damageCauserTeamNumber = Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->GetTeamNumber ();
+			int ourTeamNumber = Cast <APlayerStateBase> (GetPlayerState ())->GetTeamNumber ();
 
 			if (damageCauserTeamNumber == ourTeamNumber && Damage > 0.0f)
 				return 0.0f;
@@ -516,6 +517,12 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	{
 		_currentHealth = 0.0f;
 		Die ();
+
+		//Update death count
+		Cast <APlayerStateBase> (GetPlayerState ())->AddDeath ();
+
+		//Update kill count for player who caused the killing blow
+		Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->AddKill ();
 	}
 	else if (Damage > 0.0f)
 		OnDamageBP ();
@@ -635,9 +642,9 @@ FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 	return aimLocation;
 }
 
-void ACharacterBase::InitializeCharacter (FString playerName)
+void ACharacterBase::InitializeCharacter ()
 {
-	_playerName = playerName;
+
 }
 
 void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
@@ -648,14 +655,12 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME (ACharacterBase, _maxHealth);
 	DOREPLIFETIME (ACharacterBase, _dead);
 
-	DOREPLIFETIME (ACharacterBase, _currentlyActivatedSpell);
-	DOREPLIFETIME (ACharacterBase, _currentlyProjectingSpell);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _currentlyActivatedSpell, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _currentlyProjectingSpell, COND_OwnerOnly);
 
-	DOREPLIFETIME (ACharacterBase, _ownedSpellsCooldownPercentages);
-	DOREPLIFETIME (ACharacterBase, _ultimateSpellCooldownPercentage);
-	DOREPLIFETIME (ACharacterBase, _basicSpellCooldownPercentage);
-
-	DOREPLIFETIME (ACharacterBase, _playerName);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _ownedSpellsCooldownPercentages, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _ultimateSpellCooldownPercentage, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellCooldownPercentage, COND_OwnerOnly);
 }
 
 //Called to bind functionality to input

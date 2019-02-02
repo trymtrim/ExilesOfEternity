@@ -267,7 +267,7 @@ bool ACharacterBase::SetCurrentlyProjectingSpell_Validate (bool state)
 	return true;
 }
 
-void ACharacterBase::CancelSpell ()
+void ACharacterBase::CancelSpell_Implementation ()
 {
 	//If currently projecting spell, cancel it
 	if (_currentlyProjectingSpell)
@@ -387,6 +387,11 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 				//If cooldown has reached zero, deactivate global cooldown
 				if (_spellCooldowns [spellToUpdate] <= 0.0f)
 					_globalCooldownsActivated [spellToUpdate] = false;
+				else if (_currentlyProjectingSpell && _currentlyActivatedSpell == spellToUpdate)
+				{
+					//Prevent projection of spell when it is on cooldown, in case lag causes that to happen
+					CancelSpell ();
+				}
 			}
 			else
 				_ownedSpellsCooldownPercentages [i] = _spellCooldowns [spellToUpdate] / USpellAttributes::GetCooldown (spellToUpdate);

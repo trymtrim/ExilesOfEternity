@@ -121,6 +121,7 @@ private:
 	UFUNCTION (Server, Reliable, WithValidation)
 	void SetCurrentlyProjectingSpell (bool state);
 
+	UFUNCTION (Client, Reliable)
 	void CancelSpell ();
 
 	void PutSpellOnCooldown (Spells spell);

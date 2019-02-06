@@ -13,6 +13,7 @@ class EXILESOFETERNITY_API ABattleRoyaleGameState : public AGameStateBase
 
 public:
 	void SetStartingZoneTaken (int zoneIndex);
+	void StartGame ();
 
 	UFUNCTION (BlueprintCallable)
 	int GetGameStartTime ();
@@ -24,12 +25,7 @@ public:
 	UFUNCTION (BlueprintCallable)
 	int GetStage ();
 
-protected:
-	virtual void BeginPlay () override;
-
 private:
-	void StartGame ();
-
 	int _gameStartTime = 5.0f;
 
 	UPROPERTY (Replicated)

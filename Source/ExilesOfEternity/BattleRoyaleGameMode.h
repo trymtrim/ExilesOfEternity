@@ -13,4 +13,12 @@ class EXILESOFETERNITY_API ABattleRoyaleGameMode : public AExilesOfEternityGameM
 	
 public:
 	ABattleRoyaleGameMode ();
+
+	virtual void Tick (float DeltaTime) override;
+
+private:
+	void CheckForGameStart ();
+	void StartGame ();
+
+	bool _gameStarted = false;
 };

@@ -15,6 +15,8 @@ public:
 	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
 	void SelectStartingZone (int zoneIndex);
 
+	void AutoSelectStartingZone ();
+
 	UFUNCTION (BlueprintCallable)
 	bool GetStartingZoneChosen ();
 	UFUNCTION (BlueprintCallable)
@@ -26,7 +28,6 @@ public:
 
 protected:
 	virtual void BeginPlay () override;
-	virtual void Tick (float DeltaTime) override;
 
 private:
 	UPROPERTY (Replicated)

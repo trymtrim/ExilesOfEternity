@@ -18,34 +18,6 @@ void ABattleRoyalePlayerController::BeginPlay ()
 	SetInputMode (uiInputMode);
 }
 
-void ABattleRoyalePlayerController::Tick (float DeltaTime)
-{
-	if (GetWorld ()->IsServer ())
-	{
-		//Get game state
-		ABattleRoyaleGameState* gameState = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ());
-
-		//If game has not started
-		if (!gameState->GetGameStarted ())
-		{
-			float worldTimeSeconds = GetWorld ()->GetGameState ()->GetServerWorldTimeSeconds ();
-
-			//If starting zone is not chosen before time runs out, automatically choose starting zone
-			if (!GetStartingZoneChosen () && gameState->GetGameStartTime () - worldTimeSeconds < 1.0f)
-			{
-				//Select first available starting zone
-				for (int i = 1; i < 21; i++)
-				{
-					if (gameState->GetStartingZoneAvailable (i))
-						SelectStartingZone (i);
-				}
-			}
-		}
-		else if (!_gameStarted && gameState->GetGameStarted ())
-			RegisterGameStart ();
-	}
-}
-
 void ABattleRoyalePlayerController::SelectStartingZone_Implementation (int zoneIndex)
 {
 	//If starting zone already is set, return
@@ -74,6 +46,19 @@ void ABattleRoyalePlayerController::SelectStartingZone_Implementation (int zoneI
 	gameState->SetStartingZoneTaken (zoneIndex);
 	//Set chosen starting zone
 	_chosenStartingZone = zoneIndex;
+}
+
+void ABattleRoyalePlayerController::AutoSelectStartingZone ()
+{
+	//Get game state
+	ABattleRoyaleGameState* gameState = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ());
+
+	//Select first available starting zone
+	for (int i = 1; i < 21; i++)
+	{
+		if (gameState->GetStartingZoneAvailable (i))
+			SelectStartingZone (i);
+	}
 }
 
 bool ABattleRoyalePlayerController::SelectStartingZone_Validate (int zoneIndex)

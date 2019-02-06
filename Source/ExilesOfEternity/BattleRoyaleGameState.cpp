@@ -9,24 +9,15 @@
 #include "BattleRoyalePlayerState.h"
 #include "BattleRoyalePlayerController.h"
 
-void ABattleRoyaleGameState::BeginPlay ()
+void ABattleRoyaleGameState::SetStartingZoneTaken (int zoneIndex)
 {
-	if (GetWorld ()->IsServer ())
-	{
-		FTimerHandle startGameTimerHandle;
-		GetWorld ()->GetTimerManager ().SetTimer (startGameTimerHandle, this, &ABattleRoyaleGameState::StartGame, _gameStartTime, false);
-	}
+	_takenStartingZones.Add (zoneIndex);
 }
 
 void ABattleRoyaleGameState::StartGame ()
 {
 	_gameStarted = true;
 	_stage = 1;
-}
-
-void ABattleRoyaleGameState::SetStartingZoneTaken (int zoneIndex)
-{
-	_takenStartingZones.Add (zoneIndex);
 }
 
 int ABattleRoyaleGameState::GetGameStartTime ()

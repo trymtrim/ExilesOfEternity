@@ -11,7 +11,7 @@ void UExilesOfEternityGameInstance::ConnectToMasterServer ()
 	UE_LOG (LogTemp, Warning, TEXT ("Connect to master server"));
 
 	//Connect to websocket
-	_webSocket = UWebSocketBlueprintLibrary::Connect ("ws://127.0.0.1:1337");
+	_webSocket = UWebSocketBlueprintLibrary::Connect ("ws://35.228.159.15:1337");
 
 	//Bind on connection complete
 	FScriptDelegate onConnectionCompleteDelegate;

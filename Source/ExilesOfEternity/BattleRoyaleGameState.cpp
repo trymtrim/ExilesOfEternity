@@ -8,16 +8,51 @@
 #include "UnrealNetwork.h"
 #include "BattleRoyalePlayerState.h"
 #include "BattleRoyalePlayerController.h"
+#include "ConstructorHelpers.h"
+#include "PlayAreaCircle.h"
 
 void ABattleRoyaleGameState::SetStartingZoneTaken (int zoneIndex)
 {
 	_takenStartingZones.Add (zoneIndex);
 }
 
+void ABattleRoyaleGameState::BeginPlay ()
+{
+	//Load game stage info from data asset
+	UDataAsset* gameStageInfo = FindObject <UDataAsset> (ANY_PACKAGE, TEXT ("GameStageInfo'/Game/Miscellaneous/DataAssets/GameStageInfo_Data.GameStageInfo_Data'"));
+	_gameStageInfo = Cast <UGameStageInfo> (gameStageInfo);
+
+	//Get play area circle from level
+	TArray <AActor*> playAreaCircles;
+	UGameplayStatics::GetAllActorsOfClass (GetWorld (), APlayAreaCircle::StaticClass (), playAreaCircles);
+	_playAreaCircle = Cast <APlayAreaCircle> (playAreaCircles [0]);
+}
+
 void ABattleRoyaleGameState::StartGame ()
 {
+	//Initialize game start
 	_gameStarted = true;
 	_stage = 1;
+
+	//Start timer for current stage and start next stage when timer is finished
+	FTimerHandle startNextStageTimerHandle;
+	GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
+}
+
+void ABattleRoyaleGameState::StartNextStage ()
+{
+	//Change to next stage
+	_stage++;
+
+	//Tell play area circle to start shrinking
+	_playAreaCircle->StartShrinking (_stage);
+
+	//If current stage is not the last stage, start timer for current stage and start next stage when timer is finished
+	if (_stage != 4)
+	{
+		FTimerHandle startNextStageTimerHandle;
+		GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
+	}
 }
 
 int ABattleRoyaleGameState::GetGameStartTime ()

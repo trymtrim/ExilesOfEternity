@@ -502,16 +502,13 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 		return 0.0f;
 
 	//If the damage causer is on the same team as this character, don't apply damage
-	if (DamageCauser != nullptr)
+	if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
 	{
-		if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
-		{
-			int damageCauserTeamNumber = Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->GetTeamNumber ();
-			int ourTeamNumber = Cast <APlayerStateBase> (GetPlayerState ())->GetTeamNumber ();
+		int damageCauserTeamNumber = Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->GetTeamNumber ();
+		int ourTeamNumber = Cast <APlayerStateBase> (GetPlayerState ())->GetTeamNumber ();
 
-			if (damageCauserTeamNumber == ourTeamNumber && Damage > 0.0f)
-				return 0.0f;
-		}
+		if (damageCauserTeamNumber == ourTeamNumber && Damage > 0.0f)
+			return 0.0f;
 	}
 
 	//Reduce the damage taken from current health
@@ -527,7 +524,8 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 		Cast <APlayerStateBase> (GetPlayerState ())->AddDeath ();
 
 		//Update kill count for player who caused the killing blow
-		Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->AddKill ();
+		if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
+			Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->AddKill ();
 	}
 	else if (Damage > 0.0f)
 		OnDamageBP ();

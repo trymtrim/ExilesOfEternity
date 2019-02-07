@@ -35,6 +35,9 @@ class EXILESOFETERNITY_API ABattleRoyaleGameState : public AGameStateBase
 	GENERATED_BODY ()
 
 public:
+	UFUNCTION (BlueprintCallable)
+	void LoadGameStageInfo (UGameStageInfo* gameStageInfo);
+
 	void SetStartingZoneTaken (int zoneIndex);
 	void StartGame ();
 	void StartNextStage ();

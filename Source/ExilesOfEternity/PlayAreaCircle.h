@@ -16,12 +16,12 @@ class EXILESOFETERNITY_API APlayAreaCircle : public AActor
 public:	
 	APlayAreaCircle ();
 
+	UFUNCTION (BlueprintCallable)
+	void LoadGameStageInfo (UGameStageInfo* gameStageInfo);
+
 	virtual void Tick (float DeltaTime) override;
 
 	void StartShrinking (int stage);
-
-protected:
-	virtual void BeginPlay () override;
 
 private:
 	void UpdateShrinking (float deltaTime);

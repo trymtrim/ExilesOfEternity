@@ -11,14 +11,13 @@
 #include "ConstructorHelpers.h"
 #include "PlayAreaCircle.h"
 
+void ABattleRoyaleGameState::LoadGameStageInfo (UGameStageInfo* gameStageInfo)
+{
+	_gameStageInfo = gameStageInfo;
+}
+
 void ABattleRoyaleGameState::BeginPlay ()
 {
-	//Load game stage info from data asset
-	FStringAssetReference GameStageAssetPath ("GameStageInfo'/Game/Miscellaneous/DataAssets/GameStageInfo_Data.GameStageInfo_Data'");
-	UObject* gameStageInfo = GameStageAssetPath.TryLoad ();
-
-	_gameStageInfo = Cast <UGameStageInfo> (gameStageInfo);
-
 	//Get play area circle from level
 	TArray <AActor*> playAreaCircles;
 	UGameplayStatics::GetAllActorsOfClass (GetWorld (), APlayAreaCircle::StaticClass (), playAreaCircles);

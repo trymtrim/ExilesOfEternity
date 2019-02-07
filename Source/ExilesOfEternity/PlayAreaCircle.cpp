@@ -14,18 +14,12 @@ APlayAreaCircle::APlayAreaCircle ()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void APlayAreaCircle::BeginPlay ()
+void APlayAreaCircle::LoadGameStageInfo (UGameStageInfo* gameStageInfo)
 {
-	Super::BeginPlay ();
+	_gameStageInfo = gameStageInfo;
 
 	if (GetWorld ()->IsServer ())
 	{
-		//Load game stage info from data asset
-		FStringAssetReference GameStageAssetPath ("GameStageInfo'/Game/Miscellaneous/DataAssets/GameStageInfo_Data.GameStageInfo_Data'");
-		UObject* gameStageInfo = GameStageAssetPath.TryLoad ();
-
-		_gameStageInfo = Cast <UGameStageInfo> (gameStageInfo);
-
 		//Set start location
 		_startLocation = GetActorLocation ();
 

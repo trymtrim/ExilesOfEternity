@@ -21,11 +21,20 @@ void APlayAreaCircle::BeginPlay ()
 	if (GetWorld ()->IsServer ())
 	{
 		//Load game stage info from data asset
-		UDataAsset* gameStageInfo = FindObject <UDataAsset> (ANY_PACKAGE, TEXT ("GameStageInfo'/Game/Miscellaneous/DataAssets/GameStageInfo_Data.GameStageInfo_Data'"));
+		FStringAssetReference GameStageAssetPath ("GameStageInfo'/Game/Miscellaneous/DataAssets/GameStageInfo_Data.GameStageInfo_Data'");
+		UObject* gameStageInfo = GameStageAssetPath.TryLoad ();
+
 		_gameStageInfo = Cast <UGameStageInfo> (gameStageInfo);
 
+		//Set start location
+		_startLocation = GetActorLocation ();
+
 		//Set a random end position from list of end positions
-		_endPosition = _gameStageInfo->StageEndPositions [FMath::RandRange (0, _gameStageInfo->StageEndPositions.Num () - 1)];
+		_endLocation = _gameStageInfo->StageEndPositions [FMath::RandRange (0, _gameStageInfo->StageEndPositions.Num () - 1)];
+
+		//Set scale
+		int startDiameter = _gameStageInfo->StageDiameters [0];
+		SetActorScale3D (FVector (startDiameter, startDiameter, startDiameter));
 
 		//Check for players outside of play area once every second
 		FTimerHandle checkPlayersOutsidePlayAreaTimerHandle;
@@ -53,10 +62,32 @@ void APlayAreaCircle::StartShrinking (int stage)
 
 void APlayAreaCircle::UpdateShrinking (float deltaTime)
 {
-	//Scale/move the circle until it has reached its end diameter/position based on current stage
+	//Update total move time
+	_totalMoveTime += deltaTime;
 
 	//Get current end diameter
 	int currentEndDiameter = _gameStageInfo->StageDiameters [_stage - 1];
+
+	//Set shrink speed
+	float shrinkSpeed = _gameStageInfo->ShrinkSpeed;
+
+	//Scale circle
+	FVector deltaScale = FVector (shrinkSpeed * deltaTime);
+	deltaScale.Z = 0.0f;
+
+	SetActorScale3D (GetActorScale3D () - deltaScale);
+
+	//Move circle
+	int startDiameter = _gameStageInfo->StageDiameters [0];
+	int endDiameter = _gameStageInfo->StageDiameters [_gameStageInfo->StageDiameters.Num () - 1];
+	int difference = startDiameter - endDiameter;
+
+	float moveTime = (float) difference / shrinkSpeed;
+	float moveAlpha = _totalMoveTime / moveTime;
+
+	SetActorLocation (FMath::Lerp (_startLocation, FVector (_endLocation.X, _endLocation.Y, _startLocation.Z), moveAlpha));
+
+	//Get current diameter
 	int currentDiameter = GetActorScale ().X;
 
 	//When the circle has reached the current end position, stop shrinking
@@ -77,6 +108,7 @@ void APlayAreaCircle::CheckPlayersOutsidePlayArea ()
 
 		if (playerController)
 		{
+			//Get current player location
 			FVector playerLocation = playerController->GetCharacter ()->GetActorLocation ();
 
 			//If the player is outside of the play area, deal damage

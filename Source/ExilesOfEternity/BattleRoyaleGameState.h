@@ -21,6 +21,8 @@ public:
 	TArray <int> StageDurations;
 	UPROPERTY (EditAnywhere)
 	TArray <int> StageDiameters;
+	UPROPERTY (EditAnywhere)
+	float ShrinkSpeed;
 };
 
 UCLASS()

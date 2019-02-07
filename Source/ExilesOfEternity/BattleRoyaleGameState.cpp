@@ -11,21 +11,23 @@
 #include "ConstructorHelpers.h"
 #include "PlayAreaCircle.h"
 
-void ABattleRoyaleGameState::SetStartingZoneTaken (int zoneIndex)
-{
-	_takenStartingZones.Add (zoneIndex);
-}
-
 void ABattleRoyaleGameState::BeginPlay ()
 {
 	//Load game stage info from data asset
-	UDataAsset* gameStageInfo = FindObject <UDataAsset> (ANY_PACKAGE, TEXT ("GameStageInfo'/Game/Miscellaneous/DataAssets/GameStageInfo_Data.GameStageInfo_Data'"));
+	FStringAssetReference GameStageAssetPath ("GameStageInfo'/Game/Miscellaneous/DataAssets/GameStageInfo_Data.GameStageInfo_Data'");
+	UObject* gameStageInfo = GameStageAssetPath.TryLoad ();
+
 	_gameStageInfo = Cast <UGameStageInfo> (gameStageInfo);
 
 	//Get play area circle from level
 	TArray <AActor*> playAreaCircles;
 	UGameplayStatics::GetAllActorsOfClass (GetWorld (), APlayAreaCircle::StaticClass (), playAreaCircles);
 	_playAreaCircle = Cast <APlayAreaCircle> (playAreaCircles [0]);
+}
+
+void ABattleRoyaleGameState::SetStartingZoneTaken (int zoneIndex)
+{
+	_takenStartingZones.Add (zoneIndex);
 }
 
 void ABattleRoyaleGameState::StartGame ()

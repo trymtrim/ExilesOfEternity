@@ -28,8 +28,10 @@ private:
 	void CheckPlayersOutsidePlayArea ();
 
 	int _stage = 1;
-	FVector _endPosition;
 	bool _currentlyShrinking = false;
+	FVector _startLocation;
+	FVector _endLocation;
+	float _totalMoveTime = 0.0f;
 
 	UGameStageInfo* _gameStageInfo;
 };

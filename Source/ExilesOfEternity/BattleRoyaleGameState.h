@@ -23,6 +23,10 @@ public:
 	TArray <int> StageDiameters;
 	UPROPERTY (EditAnywhere)
 	float ShrinkSpeed;
+	UPROPERTY (EditAnywhere)
+	int GameStartTime;
+	UPROPERTY (EditAnywhere)
+	int AmountOfSpellCapsulesForEachSpell;
 };
 
 UCLASS()
@@ -49,8 +53,6 @@ protected:
 	virtual void BeginPlay () override;
 
 private:
-	int _gameStartTime = 5.0f;
-
 	UPROPERTY (Replicated)
 	TArray <int> _takenStartingZones;
 

@@ -68,13 +68,14 @@ void UExilesOfEternityGameInstance::OnMessage (FString message)
 	}
 }
 
-void UExilesOfEternityGameInstance::CreateGame (FString gameName)
+void UExilesOfEternityGameInstance::CreateGame (FString gameName, FString gameMode)
 {
 	FString message;
 	UCreateGameRequest* request = NewObject <UCreateGameRequest> ();
 
 	request->type = "CreateGame";
 	request->gameName = gameName;
+	request->gameMode = gameMode;
 
 	UWebSocketBlueprintLibrary::ObjectToJson (request, message);
 	_webSocket->SendText (message);

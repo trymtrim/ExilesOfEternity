@@ -59,7 +59,7 @@ void ABattleRoyaleGameState::StartNextStage ()
 
 int ABattleRoyaleGameState::GetGameStartTime ()
 {
-	return _gameStartTime;
+	return _gameStageInfo->GameStartTime;
 }
 
 bool ABattleRoyaleGameState::GetStartingZoneAvailable (int zoneIndex)

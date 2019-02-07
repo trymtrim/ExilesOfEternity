@@ -16,9 +16,13 @@ public:
 
 	virtual void Tick (float DeltaTime) override;
 
+	UFUNCTION (BlueprintCallable)
+	void ProcedurallySpawnSpellCapsules ();
+
 private:
 	void CheckForGameStart ();
 	void StartGame ();
+	void SetSpellCapsuleLocation (AActor* spellCapsule);
 
 	bool _gameStarted = false;
 };

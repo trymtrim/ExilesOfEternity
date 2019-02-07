@@ -23,7 +23,7 @@ public:
 	//void ConnectToLocalServer ();
 
 	UFUNCTION (BlueprintCallable)
-	void CreateGame (FString gameName);
+	void CreateGame (FString gameName, FString gameMode);
 	UFUNCTION (BlueprintCallable)
 	void Refresh ();
 	UFUNCTION (BlueprintCallable)

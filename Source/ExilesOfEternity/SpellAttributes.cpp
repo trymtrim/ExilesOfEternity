@@ -5,6 +5,7 @@
 #include "Runtime/CoreUObject/Public/UObject/UObjectGlobals.h"
 
 TMap <Spells, Spell> USpellAttributes::_spellMap = USpellAttributes::InitializeSpellAttributes ();
+int USpellAttributes::_spellCount = 0;
 
 TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 {
@@ -14,6 +15,9 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 
 void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 {
+	//Reset spell count
+	_spellCount = 0;
+
 	//Load spell data table
 	UDataTable* SpellStatsDataTable = spellDataTable; //FindObject <UDataTable> (ANY_PACKAGE, TEXT ("DataTable'/Game/Miscellaneous/DataTables/Spell_Table.Spell_Table'"));
 
@@ -52,10 +56,14 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 		spell.Icon = stats->Icon;
 		spell.IconColor = stats->IconColor;
 		spell.Tooltip = stats->Tooltip;
+		spell.SpellCapsule = stats->SpellCapsule;
 
 		map.Add (Spells (currentRow), spell);
 
 		currentRow++;
+
+		//Update spell count
+		_spellCount++;
 	}
 
 	_spellMap = map;
@@ -119,4 +127,14 @@ FString USpellAttributes::GetTooltip (Spells spell)
 FColor USpellAttributes::GetIconColor (Spells spell)
 {
 	return _spellMap [spell].IconColor;
+}
+
+TSubclassOf <AActor> USpellAttributes::GetSpellCapsule (Spells spell)
+{
+	return _spellMap [spell].SpellCapsule;
+}
+
+int USpellAttributes::GetSpellCount ()
+{
+	return _spellCount;
 }

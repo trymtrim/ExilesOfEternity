@@ -79,8 +79,8 @@ void ACharacterBase::Tick (float DeltaTime)
 		//Update cooldowns
 		UpdateCooldowns (DeltaTime);
 
-		//If character is under world bounds, teleport to center for map
-		if (GetActorLocation ().Z < -1000.0f)
+		//If character is under world bounds, teleport to center of map
+		if (GetActorLocation ().Z < -20000.0f)
 			SetActorLocation (FVector (0.0f, 0.0f, 0.0f));
 	}
 }

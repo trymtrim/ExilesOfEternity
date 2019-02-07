@@ -60,6 +60,7 @@ struct Spell
 	UTexture2D* Icon;
 	FColor IconColor;
 	FString Tooltip;
+	TSubclassOf <AActor> SpellCapsule;
 };
 
 USTRUCT (BlueprintType)
@@ -95,6 +96,8 @@ struct FSpellStats : public FTableRowBase
 	FColor IconColor;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
 	FString Tooltip;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf <AActor> SpellCapsule;
 };
 
 UCLASS()
@@ -128,8 +131,13 @@ public:
 	static FString GetTooltip (Spells spell);
 	UFUNCTION (BlueprintCallable)
 	static FColor GetIconColor (Spells spell);
+	static TSubclassOf <AActor> GetSpellCapsule (Spells spell);
+
+	static int GetSpellCount ();
 
 private:
 	static TMap <Spells, Spell> InitializeSpellAttributes ();
 	static TMap <Spells, Spell> _spellMap;
+
+	static int _spellCount;
 };

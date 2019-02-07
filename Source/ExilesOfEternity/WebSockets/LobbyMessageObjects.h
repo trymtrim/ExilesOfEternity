@@ -36,6 +36,8 @@ public:
 	FString type;
 	UPROPERTY (EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = true), Category = MessageObjects)
 	FString gameName;
+	UPROPERTY (EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = true), Category = MessageObjects)
+	FString gameMode;
 };
 
 UCLASS(BlueprintType, Blueprintable)

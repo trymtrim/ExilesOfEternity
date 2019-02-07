@@ -5,6 +5,7 @@
 #include "BattleRoyalePlayerController.h"
 #include "BattleRoyalePlayerState.h"
 #include "Engine/World.h"
+#include "SpellAttributes.h"
 
 ABattleRoyaleGameMode::ABattleRoyaleGameMode ()
 {
@@ -64,5 +65,66 @@ void ABattleRoyaleGameMode::StartGame ()
 		ABattleRoyalePlayerController* playerController = Cast <ABattleRoyalePlayerController> (Cast <APlayerController> (*Iterator));
 
 		playerController->RegisterGameStart ();
+	}
+}
+
+void ABattleRoyaleGameMode::ProcedurallySpawnSpellCapsules ()
+{
+	//Load game stage info from data asset
+	FStringAssetReference GameStageAssetPath ("GameStageInfo'/Game/Miscellaneous/DataAssets/GameStageInfo_Data.GameStageInfo_Data'");
+	UObject* gameStageInfo = GameStageAssetPath.TryLoad ();
+
+	int spellCapsuleAmountForEachSpell = Cast <UGameStageInfo> (gameStageInfo)->AmountOfSpellCapsulesForEachSpell;
+
+	for (int i = 1; i < USpellAttributes::GetSpellCount () + 1; i++)
+	{
+		for (int j = 0; j < spellCapsuleAmountForEachSpell; j++)
+		{
+			TSubclassOf <AActor> spawnableSpellCapsule = USpellAttributes::GetSpellCapsule (Spells (i));
+
+			//Declare spawn parameters
+			FActorSpawnParameters spawnParams;
+			spawnParams.Owner = this;
+			FVector spawnPosition;
+			FRotator spawnRotation = FRotator (0.0f, 0.0f, 0.0f);
+
+			//Spawn spell capsule
+			AActor* spellCapsule = GetWorld ()->SpawnActor <AActor> (spawnableSpellCapsule, spawnPosition, spawnRotation, spawnParams);
+
+			//Set the spell capsule's location
+			SetSpellCapsuleLocation (spellCapsule);
+		}
+	}
+}
+
+void ABattleRoyaleGameMode::SetSpellCapsuleLocation (AActor* spellCapsule)
+{
+	//Set random location
+	FVector location = FVector (FMath::RandRange (0.0f, 100000.0f), FMath::RandRange (0.0f, 100000.0f), 50000.0f);
+	spellCapsule->SetActorLocation (location);
+
+	//Line trace down from capsules position
+	FCollisionQueryParams traceParams = FCollisionQueryParams (FName (TEXT ("RV_Trace")), true, this);
+	traceParams.bTraceComplex = true;
+	traceParams.bReturnPhysicalMaterial = false;
+
+	FHitResult hit (ForceInit);
+
+	//Declare start and end position
+	FVector start = spellCapsule->GetActorLocation ();
+	FVector end = start - FVector (0.0f, 0.0f, 100000.0f);
+
+	//If line trace hits anything, set location to what it hits
+	if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_GameTraceChannel3, traceParams))
+	{
+		//If line trace hits a blocking volume, change to a new location
+		if (hit.GetActor ()->ActorHasTag ("Block"))
+			SetSpellCapsuleLocation (spellCapsule);
+		else
+			spellCapsule->SetActorLocation (hit.ImpactPoint);
+	}
+	else //If line trace doesn't hit anything, change to a new location
+	{
+		SetSpellCapsuleLocation (spellCapsule);
 	}
 }

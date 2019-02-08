@@ -76,6 +76,16 @@ int ABattleRoyaleGameState::GetStage ()
 	return _stage;
 }
 
+FVector ABattleRoyaleGameState::GetCircleLocation ()
+{
+	return _playAreaCircle->GetActorLocation ();
+}
+
+FVector ABattleRoyaleGameState::GetCircleScale ()
+{
+	return _playAreaCircle->GetActorScale3D ();
+}
+
 void ABattleRoyaleGameState::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);

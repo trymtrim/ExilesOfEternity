@@ -51,6 +51,10 @@ public:
 
 	UFUNCTION (BlueprintCallable)
 	int GetStage ();
+	UFUNCTION (BlueprintCallable)
+	FVector GetCircleLocation ();
+	UFUNCTION (BlueprintCallable)
+	FVector GetCircleScale ();
 
 protected:
 	virtual void BeginPlay () override;

@@ -52,9 +52,6 @@ void ACharacterBase::BeginPlay ()
 void ACharacterBase::ServerInitializeCharacter_Implementation ()
 {
 	ServerInitializeCharacterBP ();
-
-	//Temp
-	//AddSpell (EXAMPLE_PROJECTING_SPELL);
 }
 
 bool ACharacterBase::ServerInitializeCharacter_Validate ()
@@ -517,11 +514,7 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	//If current health is zero or less, die
 	if (_currentHealth <= 0.0f)
 	{
-		_currentHealth = 0.0f;
 		Die ();
-
-		//Update death count
-		Cast <APlayerStateBase> (GetPlayerState ())->AddDeath ();
 
 		//Update kill count for player who caused the killing blow
 		if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
@@ -537,6 +530,16 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 
 void ACharacterBase::Die ()
 {
+	//If already dead, return;
+	if (_dead)
+		return;
+
+	//Set health to zero
+	_currentHealth = 0.0f;
+	
+	//Update death count
+	Cast <APlayerStateBase> (GetPlayerState ())->AddDeath ();
+
 	//Update death condition client-side
 	ClientDie ();
 
@@ -643,11 +646,6 @@ FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 	}
 
 	return aimLocation;
-}
-
-void ACharacterBase::InitializeCharacter ()
-{
-
 }
 
 void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const

@@ -86,6 +86,11 @@ FVector ABattleRoyaleGameState::GetCircleScale ()
 	return _playAreaCircle->GetActorScale3D ();
 }
 
+float ABattleRoyaleGameState::GetRedeemKillTime ()
+{
+	return _gameStageInfo->RedeemKillTime;
+}
+
 void ABattleRoyaleGameState::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);

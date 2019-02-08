@@ -12,12 +12,30 @@ class EXILESOFETERNITY_API ABattleRoyalePlayerState : public APlayerStateBase
 	GENERATED_BODY ()
 
 public:
+	ABattleRoyalePlayerState ();
+
+	void Tick (float DeltaTime);
+
 	UFUNCTION (BlueprintCallable)
-	float GetMaxRedeemTime ();
+	float GetCurrentRedeemKillTime ();
 	UFUNCTION (BlueprintCallable)
-	float GetCurrentRedeemTime ();
+	int GetRequiredRedeemKills ();
+	
+	UFUNCTION (BlueprintCallable)
+	bool GetPermanentDead ();
+
+protected:
+	virtual void OnKill () override;
+	virtual void OnDeath () override;
 
 private:
-	float _maxRedeemTime = 300.0f;
-	float _currentRedeemTime = 0.0f;
+	void ActivateRedeemKillTimer (bool state);
+	void UpdateRedeemKillTimer (float deltaTime);
+
+	UPROPERTY (Replicated)
+	float _currentRedeemKillTime = 0.0f;
+	UPROPERTY (Replicated)
+	int _requiredRedeemKills = 0;
+	UPROPERTY (Replicated)
+	bool _permanentDead = false;
 };

@@ -68,7 +68,7 @@ AActor* AExilesOfEternityGameModeBase::ChoosePlayerStart_Implementation (AContro
 
 void AExilesOfEternityGameModeBase::ReportDeath (ACharacterBase* characterController)
 {
-	//Reset character
+	//Respawn character
 	FTimerDelegate respawnDelegate = FTimerDelegate::CreateUObject (this, &AExilesOfEternityGameModeBase::RespawnCharacter, characterController);
 	FTimerHandle respawnTimerHandle;
 	GetWorld ()->GetTimerManager ().SetTimer (respawnTimerHandle, respawnDelegate, 2.0f, false);

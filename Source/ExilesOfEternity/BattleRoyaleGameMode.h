@@ -19,6 +19,8 @@ public:
 	UFUNCTION (BlueprintCallable)
 	void ProcedurallySpawnSpellCapsules ();
 
+	virtual void ReportDeath (ACharacterBase* characterController) override;
+
 private:
 	void CheckForGameStart ();
 	void StartGame ();

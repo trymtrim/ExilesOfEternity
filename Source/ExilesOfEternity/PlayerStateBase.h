@@ -23,8 +23,13 @@ public:
 	FString GetNickname ();
 	UFUNCTION (BlueprintCallable)
 	int GetTeamNumber ();
+
 	int GetKills ();
 	int GetDeaths ();
+
+protected:
+	virtual void OnKill ();
+	virtual void OnDeath ();
 
 private:
 	UPROPERTY (Replicated)

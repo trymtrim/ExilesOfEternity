@@ -27,6 +27,8 @@ public:
 	int GameStartTime;
 	UPROPERTY (EditAnywhere)
 	int AmountOfSpellCapsulesForEachSpell;
+	UPROPERTY (EditAnywhere)
+	float RedeemKillTime;
 };
 
 UCLASS()
@@ -55,6 +57,9 @@ public:
 	FVector GetCircleLocation ();
 	UFUNCTION (BlueprintCallable)
 	FVector GetCircleScale ();
+
+	UFUNCTION (BlueprintCallable)
+	float GetRedeemKillTime ();
 
 protected:
 	virtual void BeginPlay () override;

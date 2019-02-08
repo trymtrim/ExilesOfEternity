@@ -6,6 +6,8 @@
 #include "BattleRoyalePlayerState.h"
 #include "Engine/World.h"
 #include "SpellAttributes.h"
+#include "Runtime/Engine/Public/TimerManager.h"
+#include "CharacterBase.h"
 
 ABattleRoyaleGameMode::ABattleRoyaleGameMode ()
 {
@@ -124,7 +126,23 @@ void ABattleRoyaleGameMode::SetSpellCapsuleLocation (AActor* spellCapsule)
 			spellCapsule->SetActorLocation (hit.ImpactPoint);
 	}
 	else //If line trace doesn't hit anything, change to a new location
-	{
 		SetSpellCapsuleLocation (spellCapsule);
-	}
+}
+
+void ABattleRoyaleGameMode::ReportDeath (ACharacterBase* characterController)
+{
+	//Declare respawn time
+	float respawnTime = 2.0f;
+
+	//Get player state
+	ABattleRoyalePlayerState* playerState = Cast <ABattleRoyalePlayerState> (characterController->GetPlayerState ());
+
+	//If player is permanent dead or current redeem kill timer is less than respawn timer, return
+	if (playerState->GetPermanentDead () || playerState->GetCurrentRedeemKillTime () <= respawnTime)
+		return;
+
+	//Respawn character
+	FTimerDelegate respawnDelegate = FTimerDelegate::CreateUObject (this, &ABattleRoyaleGameMode::RespawnCharacter, characterController);
+	FTimerHandle respawnTimerHandle;
+	GetWorld ()->GetTimerManager ().SetTimer (respawnTimerHandle, respawnDelegate, respawnTime, false);
 }

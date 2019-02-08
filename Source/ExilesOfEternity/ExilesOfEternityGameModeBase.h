@@ -17,7 +17,7 @@ public:
 	AExilesOfEternityGameModeBase ();
 
 	//Called from character controller when the character dies
-	void ReportDeath (ACharacterBase* characterController);
+	virtual void ReportDeath (ACharacterBase* characterController);
 
 protected:
 	//Called when the game starts or when spawned
@@ -26,8 +26,9 @@ protected:
 	virtual FString InitNewPlayer (APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal) override;
 	virtual AActor* ChoosePlayerStart_Implementation (AController* Player) override;
 
-private:
 	void RespawnCharacter (ACharacterBase* characterController);
+
+private:
 	void CheckPlayerConnection ();
 
 	int _playerCount = 0;

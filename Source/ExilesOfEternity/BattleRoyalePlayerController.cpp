@@ -7,6 +7,7 @@
 #include "Engine/World.h"
 #include "BattleRoyaleGameState.h"
 #include "UnrealNetwork.h"
+#include "BattleRoyalePlayerState.h"
 
 void ABattleRoyalePlayerController::BeginPlay ()
 {
@@ -16,6 +17,15 @@ void ABattleRoyalePlayerController::BeginPlay ()
 	//Set input mode to UI only
 	FInputModeUIOnly uiInputMode;
 	SetInputMode (uiInputMode);
+}
+
+void ABattleRoyalePlayerController::Tick (float DeltaTime)
+{
+	//If redeem kill timer is activated, update player state
+	if (_redeemTimerActivated)
+		_playerState->Tick (DeltaTime);
+
+	//GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "THIS IS A TEST YO!");
 }
 
 void ABattleRoyalePlayerController::SelectStartingZone_Implementation (int zoneIndex)
@@ -77,6 +87,14 @@ void ABattleRoyalePlayerController::ClientRegisterGameStart_Implementation ()
 {
 	ShowMouseCursor (false);
 	_gameStarted = true;
+}
+
+void ABattleRoyalePlayerController::ActivateRedeemTimer (bool state)
+{
+	_redeemTimerActivated = state;
+
+	if (_playerState == nullptr)
+		_playerState = Cast <ABattleRoyalePlayerState> (PlayerState);
 }
 
 bool ABattleRoyalePlayerController::GetStartingZoneChosen ()

@@ -22,11 +22,11 @@ void APlayerControllerBase::Possess (APawn* InPawn)
 {
 	Super::Possess (InPawn);
 
-	//Get the character controller
+	/*//Get the character controller
 	ACharacterBase* character = Cast <ACharacterBase> (InPawn);
 
 	//Initialize character
-	character->InitializeCharacter ();
+	character->InitializeCharacter ();*/
 }
 
 void APlayerControllerBase::ShowMouseCursor (bool state)

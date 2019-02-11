@@ -16,6 +16,8 @@ public:
 
 	void Tick (float DeltaTime);
 
+	void MakeVictorious ();
+
 	UFUNCTION (BlueprintCallable)
 	float GetCurrentRedeemKillTime ();
 	UFUNCTION (BlueprintCallable)
@@ -23,6 +25,8 @@ public:
 	
 	UFUNCTION (BlueprintCallable)
 	bool GetPermanentDead ();
+	UFUNCTION (BlueprintCallable)
+	bool GetVictorious ();
 
 protected:
 	virtual void OnKill () override;
@@ -31,6 +35,7 @@ protected:
 private:
 	void ActivateRedeemKillTimer (bool state);
 	void UpdateRedeemKillTimer (float deltaTime);
+	void DiePermanently ();
 
 	UPROPERTY (Replicated)
 	float _currentRedeemKillTime = 0.0f;
@@ -38,4 +43,6 @@ private:
 	int _requiredRedeemKills = 0;
 	UPROPERTY (Replicated)
 	bool _permanentDead = false;
+	UPROPERTY (Replicated)
+	bool _victorious = false;
 };

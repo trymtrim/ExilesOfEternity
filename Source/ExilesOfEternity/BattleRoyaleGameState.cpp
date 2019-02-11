@@ -10,6 +10,7 @@
 #include "BattleRoyalePlayerController.h"
 #include "ConstructorHelpers.h"
 #include "PlayAreaCircle.h"
+#include "ExilesOfEternityGameModeBase.h"
 
 void ABattleRoyaleGameState::LoadGameStageInfo (UGameStageInfo* gameStageInfo)
 {
@@ -42,6 +43,10 @@ void ABattleRoyaleGameState::StartGame ()
 
 void ABattleRoyaleGameState::StartNextStage ()
 {
+	//If game has ended, return
+	if (_gameEnded)
+		return;
+
 	//Change to next stage
 	_stage++;
 
@@ -54,6 +59,44 @@ void ABattleRoyaleGameState::StartNextStage ()
 		FTimerHandle startNextStageTimerHandle;
 		GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
 	}
+}
+
+void ABattleRoyaleGameState::ReportPermanentDeath (ABattleRoyalePlayerState* playerState)
+{
+	//Add player to list of permanent dead players
+	_permanentDeadPlayers.Add (playerState);
+
+	//Check if there is only one player alive left
+	int alivePlayers = 0;
+	ABattleRoyalePlayerState* winningPlayer = nullptr;
+
+	for (int i = 0; i < PlayerArray.Num (); i++)
+	{
+		if (!_permanentDeadPlayers.Contains (PlayerArray [i]))
+		{
+			alivePlayers++;
+			winningPlayer = Cast <ABattleRoyalePlayerState> (PlayerArray [i]);
+		}
+	}
+
+	//If there is only one player still alive, make that player victorious
+	if (alivePlayers == 1)
+	{
+		winningPlayer->MakeVictorious ();
+		
+		//Set input mode to UI only
+		Cast <ABattleRoyalePlayerController> (winningPlayer->GetPawn ()->GetController ())->SetInputUIOnly ();
+
+		//End game
+		EndGame ();
+	}
+}
+
+void ABattleRoyaleGameState::EndGame ()
+{
+	_gameEnded = true;
+
+	Cast <AExilesOfEternityGameModeBase> (GetWorld ()->GetAuthGameMode ())->EndGame ();
 }
 
 int ABattleRoyaleGameState::GetGameStartTime ()

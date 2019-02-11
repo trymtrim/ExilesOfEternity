@@ -63,12 +63,18 @@ void ABattleRoyalePlayerController::AutoSelectStartingZone ()
 	//Get game state
 	ABattleRoyaleGameState* gameState = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ());
 
-	//Select first available starting zone
-	for (int i = 1; i < 21; i++)
+	TArray <int> availableStartingZones;
+
+	//Add available starting zones to list of available starting zones
+	for (int i = 1; i < 19; i++)
 	{
 		if (gameState->GetStartingZoneAvailable (i))
-			SelectStartingZone (i);
+			availableStartingZones.Add (i);
 	}
+
+	//Select a random starting zone from available starting zones
+	int randomIndex = FMath::RandRange (0, availableStartingZones.Num () - 1);
+	SelectStartingZone (availableStartingZones [randomIndex]);
 }
 
 bool ABattleRoyalePlayerController::SelectStartingZone_Validate (int zoneIndex)

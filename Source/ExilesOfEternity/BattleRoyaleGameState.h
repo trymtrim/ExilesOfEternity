@@ -8,6 +8,7 @@
 #include "BattleRoyaleGameState.generated.h"
 
 class APlayAreaCircle;
+class ABattleRoyalePlayerState;
 
 UCLASS(BlueprintType, Blueprintable)
 class EXILESOFETERNITY_API UGameStageInfo : public UDataAsset
@@ -43,6 +44,7 @@ public:
 	void SetStartingZoneTaken (int zoneIndex);
 	void StartGame ();
 	void StartNextStage ();
+	void ReportPermanentDeath (ABattleRoyalePlayerState* playerState);
 
 	UFUNCTION (BlueprintCallable)
 	int GetGameStartTime ();
@@ -65,6 +67,8 @@ protected:
 	virtual void BeginPlay () override;
 
 private:
+	void EndGame ();
+
 	UPROPERTY (Replicated)
 	TArray <int> _takenStartingZones;
 
@@ -75,4 +79,8 @@ private:
 
 	UGameStageInfo* _gameStageInfo;
 	APlayAreaCircle* _playAreaCircle;
+
+	TArray <ABattleRoyalePlayerState*> _permanentDeadPlayers;
+
+	bool _gameEnded = false;
 };

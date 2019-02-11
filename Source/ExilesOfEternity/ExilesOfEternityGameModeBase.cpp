@@ -88,6 +88,16 @@ void AExilesOfEternityGameModeBase::RespawnCharacter (ACharacterBase* characterC
 	characterController->SetActorLocation (playerStarts [spawnIndex]->GetActorLocation ());
 }
 
+void AExilesOfEternityGameModeBase::EndGame ()
+{
+	_gameEnded = true;
+}
+
+bool AExilesOfEternityGameModeBase::GetGameEnded ()
+{
+	return _gameEnded;
+}
+
 void AExilesOfEternityGameModeBase::CheckPlayerConnection ()
 {
 	//If there are no longer any players connected, exit game instance

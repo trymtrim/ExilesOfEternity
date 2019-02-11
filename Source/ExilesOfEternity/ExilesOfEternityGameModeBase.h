@@ -18,6 +18,10 @@ public:
 
 	//Called from character controller when the character dies
 	virtual void ReportDeath (ACharacterBase* characterController);
+	
+	void EndGame ();
+
+	bool GetGameEnded ();
 
 protected:
 	//Called when the game starts or when spawned
@@ -32,4 +36,6 @@ private:
 	void CheckPlayerConnection ();
 
 	int _playerCount = 0;
+
+	bool _gameEnded = false;
 };

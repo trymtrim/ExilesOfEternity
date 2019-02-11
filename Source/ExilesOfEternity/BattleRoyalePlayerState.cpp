@@ -16,8 +16,8 @@ void ABattleRoyalePlayerState::Tick (float DeltaTime)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	//If redeem kill timer is currently running, update it
-	if (_currentRedeemKillTime > 0.0f)
+	//If redeem kill timer is currently running and the player is not victorious, update it
+	if (_currentRedeemKillTime > 0.0f && !_victorious)
 		UpdateRedeemKillTimer (DeltaTime);
 }
 
@@ -59,7 +59,7 @@ void ABattleRoyalePlayerState::OnDeath ()
 			_requiredRedeemKills++;
 	}
 	else //If the game is in the last stages, die permanenty
-		_permanentDead = true;
+		DiePermanently ();
 }
 
 void ABattleRoyalePlayerState::ActivateRedeemKillTimer (bool state)
@@ -88,11 +88,31 @@ void ABattleRoyalePlayerState::UpdateRedeemKillTimer (float deltaTime)
 		ActivateRedeemKillTimer (false);
 
 		//Permanent death
-		_permanentDead = true;
+		DiePermanently ();
 
 		//Die
 		Cast <ACharacterBase> (GetPawn ())->Die ();
 	}
+}
+
+void ABattleRoyalePlayerState::DiePermanently ()
+{
+	//If player is victorious, return
+	if (_victorious)
+		return;
+
+	_permanentDead = true;
+
+	//Get game state
+	ABattleRoyaleGameState* gameState = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ());
+
+	//Update player state in game state
+	gameState->ReportPermanentDeath (this);
+}
+
+void ABattleRoyalePlayerState::MakeVictorious ()
+{
+	_victorious = true;
 }
 
 float ABattleRoyalePlayerState::GetCurrentRedeemKillTime ()
@@ -110,6 +130,11 @@ bool ABattleRoyalePlayerState::GetPermanentDead ()
 	return _permanentDead;
 }
 
+bool ABattleRoyalePlayerState::GetVictorious ()
+{
+	return _victorious;
+}
+
 void ABattleRoyalePlayerState::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);
@@ -117,4 +142,5 @@ void ABattleRoyalePlayerState::GetLifetimeReplicatedProps (TArray <FLifetimeProp
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _currentRedeemKillTime, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _requiredRedeemKills, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _permanentDead, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _victorious, COND_OwnerOnly);
 }

@@ -18,6 +18,16 @@ void APlayerControllerBase::BeginPlay ()
 	ShowMouseCursor (false);
 }
 
+void APlayerControllerBase::SetInputUIOnly_Implementation ()
+{
+	//Enable mouse cursor
+	bShowMouseCursor = true;
+
+	//Set input mode to UI
+	FInputModeUIOnly uiInputMode;
+	SetInputMode (uiInputMode);
+}
+
 void APlayerControllerBase::Possess (APawn* InPawn)
 {
 	Super::Possess (InPawn);

@@ -18,6 +18,9 @@ public:
 	//Called to bind functionality to input
 	virtual void SetupInputComponent () override;
 
+	UFUNCTION (Client, Reliable)
+	void SetInputUIOnly ();
+
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;

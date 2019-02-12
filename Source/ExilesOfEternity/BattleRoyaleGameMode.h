@@ -20,6 +20,10 @@ public:
 	void ProcedurallySpawnSpellCapsules ();
 
 	virtual void ReportDeath (ACharacterBase* characterController) override;
+	
+	//For testing
+	UFUNCTION (BlueprintCallable)
+	void PlaytestStartGame (AController* controller);
 
 private:
 	void CheckForGameStart ();

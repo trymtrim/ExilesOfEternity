@@ -32,6 +32,9 @@ protected:
 
 	void RespawnCharacter (ACharacterBase* characterController);
 
+	//For testing
+	AController* firstPlayerController = nullptr;
+
 private:
 	void CheckPlayerConnection ();
 

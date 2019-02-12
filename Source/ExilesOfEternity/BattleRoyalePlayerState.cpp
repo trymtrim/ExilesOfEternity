@@ -17,7 +17,7 @@ void ABattleRoyalePlayerState::Tick (float DeltaTime)
 	PrimaryActorTick.bCanEverTick = true;
 
 	//If redeem kill timer is currently running and the player is not victorious, update it
-	if (_currentRedeemKillTime > 0.0f && !_victorious)
+	if (_currentRedeemKillTime > 0.0f && !_victorious && !Cast <ACharacterBase> (GetPawn ())->GetDead ())
 		UpdateRedeemKillTimer (DeltaTime);
 }
 
@@ -110,6 +110,39 @@ void ABattleRoyalePlayerState::DiePermanently ()
 	gameState->ReportPermanentDeath (this);
 }
 
+void ABattleRoyalePlayerState::StartRespawnTimer (float respawnTime)
+{
+	//Set respawn time
+	_respawnTime = respawnTime;
+
+	//Update respawn timer every second
+	FTimerHandle respawnTimerHandle;
+	GetWorld ()->GetTimerManager ().SetTimer (respawnTimerHandle, this, &ABattleRoyalePlayerState::UpdateRespawnTimer, 1.0f, false);
+}
+
+void ABattleRoyalePlayerState::StopRepawnTimer ()
+{
+	_respawnTime = -1;
+}
+
+void ABattleRoyalePlayerState::UpdateRespawnTimer ()
+{
+	//If respawn timer is stopped, return
+	if (_respawnTime < 0)
+		return;
+
+	//If respawn time is not finished, continue updating it
+	if (_respawnTime > 1)
+	{
+		_respawnTime--;
+
+		FTimerHandle respawnTimerHandle;
+		GetWorld ()->GetTimerManager ().SetTimer (respawnTimerHandle, this, &ABattleRoyalePlayerState::UpdateRespawnTimer, 1.0f, false);
+	}
+	else //If respawn time is finished, automatically choose spawn position
+		Cast <ABattleRoyalePlayerController> (GetPawn ()->GetController ())->AutoSpawnPlayerCharacter ();
+}
+
 void ABattleRoyalePlayerState::MakeVictorious ()
 {
 	_victorious = true;
@@ -135,6 +168,11 @@ bool ABattleRoyalePlayerState::GetVictorious ()
 	return _victorious;
 }
 
+int ABattleRoyalePlayerState::GetRespawnTime ()
+{
+	return _respawnTime;
+}
+
 void ABattleRoyalePlayerState::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);
@@ -143,4 +181,5 @@ void ABattleRoyalePlayerState::GetLifetimeReplicatedProps (TArray <FLifetimeProp
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _requiredRedeemKills, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _permanentDead, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _victorious, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _respawnTime, COND_OwnerOnly);
 }

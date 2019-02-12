@@ -102,15 +102,25 @@ void APlayAreaCircle::CheckPlayersOutsidePlayArea ()
 
 		if (playerController)
 		{
-			//Get current player location
-			FVector playerLocation = playerController->GetCharacter ()->GetActorLocation ();
-
 			//If the player is outside of the play area, deal damage
-			if (FVector::Distance (FVector (GetActorLocation ().X, GetActorLocation ().Y, playerLocation.Z), playerLocation) > GetActorScale ().X * 50.0f)
+			if (!GetActorInsidePlayArea (playerController->GetCharacter ()))
 			{
 				float damage = 3.0f;
 				UGameplayStatics::ApplyDamage (playerController->GetCharacter (), damage, nullptr, this, nullptr);
 			}
 		}
 	}
+}
+
+bool APlayAreaCircle::GetActorInsidePlayArea (AActor* actor)
+{
+	//Get current actor location
+	FVector actorLocation = actor->GetActorLocation ();
+
+	//If the actor is outside of the play area, return false
+	if (FVector::Distance (FVector (GetActorLocation ().X, GetActorLocation ().Y, actorLocation.Z), actorLocation) > GetActorScale ().X * 50.0f)
+		return false;
+
+	//Otherwise, return true
+	return true;
 }

@@ -36,6 +36,9 @@ void ABattleRoyaleGameState::StartGame ()
 	_gameStarted = true;
 	_stage = 1;
 
+	//Set game start time
+	_startTime = GetServerWorldTimeSeconds ();
+
 	//Start timer for current stage and start next stage when timer is finished
 	FTimerHandle startNextStageTimerHandle;
 	GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
@@ -114,9 +117,19 @@ bool ABattleRoyaleGameState::GetGameStarted ()
 	return _gameStarted;
 }
 
+float ABattleRoyaleGameState::GetStartTime ()
+{
+	return _startTime;
+}
+
 int ABattleRoyaleGameState::GetStage ()
 {
 	return _stage;
+}
+
+int ABattleRoyaleGameState::GetStageDuration (int stageIndex)
+{
+	return _gameStageInfo->StageDurations [stageIndex - 1];
 }
 
 FVector ABattleRoyaleGameState::GetCircleLocation ()
@@ -134,10 +147,35 @@ float ABattleRoyaleGameState::GetRedeemKillTime ()
 	return _gameStageInfo->RedeemKillTime;
 }
 
+bool ABattleRoyaleGameState::GetSpawnPositionInsidePlayArea (int spawnIndex)
+{
+	//Get all spawn locations
+	TArray <AActor*> playerStarts;
+	UGameplayStatics::GetAllActorsOfClass (GetWorld (), APlayerStart::StaticClass (), playerStarts);
+
+	AActor* spawnLocation = nullptr;
+
+	//Find the correct spawn locatioin based on spawn index
+	for (int i = 0; i < playerStarts.Num (); i++)
+	{
+		if (Cast <APlayerStart> (playerStarts [i])->PlayerStartTag == FName (*FString::FromInt (spawnIndex)))
+			spawnLocation = playerStarts [i];
+	}
+
+	//If the actor is inside of the play area, return true
+	if (_playAreaCircle->GetActorInsidePlayArea (spawnLocation))
+		return true;
+
+	//Otherwise, return false
+	return false;
+}
+
 void ABattleRoyaleGameState::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);
 
 	DOREPLIFETIME (ABattleRoyaleGameState, _takenStartingZones);
 	DOREPLIFETIME (ABattleRoyaleGameState, _gameStarted);
+	DOREPLIFETIME (ABattleRoyaleGameState, _startTime);
+	DOREPLIFETIME (ABattleRoyaleGameState, _stage);
 }

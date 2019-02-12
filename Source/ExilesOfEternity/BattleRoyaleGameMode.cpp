@@ -26,8 +26,27 @@ ABattleRoyaleGameMode::ABattleRoyaleGameMode ()
 
 void ABattleRoyaleGameMode::Tick (float DeltaTime)
 {
-	if (!_gameStarted)
-		CheckForGameStart ();
+	//if (!_gameStarted)
+		//CheckForGameStart ();
+}
+
+void ABattleRoyaleGameMode::PlaytestStartGame (AController* controller)
+{
+	if (_gameStarted || controller != firstPlayerController)
+		return;
+
+	_gameStarted = true;
+	
+	for (FConstPlayerControllerIterator Iterator = GetWorld ()->GetPlayerControllerIterator (); Iterator; ++Iterator)
+	{
+		ABattleRoyalePlayerController* playerController = Cast <ABattleRoyalePlayerController> (Cast <APlayerController> (*Iterator));
+
+		if (!playerController->GetStartingZoneChosen ())
+			playerController->AutoSelectStartingZone ();
+	}
+
+	FTimerHandle startGameTimerHandle;
+	GetWorld ()->GetTimerManager ().SetTimer (startGameTimerHandle, this, &ABattleRoyaleGameMode::StartGame, 1.0f, false);
 }
 
 void ABattleRoyaleGameMode::CheckForGameStart ()
@@ -131,18 +150,19 @@ void ABattleRoyaleGameMode::SetSpellCapsuleLocation (AActor* spellCapsule)
 
 void ABattleRoyaleGameMode::ReportDeath (ACharacterBase* characterController)
 {
-	//Declare respawn time
-	float respawnTime = 2.0f;
-
 	//Get player state
 	ABattleRoyalePlayerState* playerState = Cast <ABattleRoyalePlayerState> (characterController->GetPlayerState ());
 
 	//If player is permanent dead or current redeem kill timer is less than respawn timer, return
-	if (playerState->GetPermanentDead () || playerState->GetCurrentRedeemKillTime () <= respawnTime)
+	if (playerState->GetPermanentDead ())
 		return;
 
+	//Declare the time it takes before the player can respawn
+	float timeBeforeRespawn = 1.5f;
+
+	playerState->StartRespawnTimer (10.0f + timeBeforeRespawn);
+
 	//Respawn character
-	FTimerDelegate respawnDelegate = FTimerDelegate::CreateUObject (this, &ABattleRoyaleGameMode::RespawnCharacter, characterController);
 	FTimerHandle respawnTimerHandle;
-	GetWorld ()->GetTimerManager ().SetTimer (respawnTimerHandle, respawnDelegate, respawnTime, false);
+	GetWorld ()->GetTimerManager ().SetTimer (respawnTimerHandle, characterController, &ACharacterBase::ClientHandleRespawn, timeBeforeRespawn, false);
 }

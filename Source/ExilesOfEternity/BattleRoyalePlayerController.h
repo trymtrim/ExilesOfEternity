@@ -21,10 +21,17 @@ public:
 
 	void AutoSelectStartingZone ();
 
+	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
+	void SpawnPlayerCharacter (int zoneIndex);
+
+	void AutoSpawnPlayerCharacter ();
+
 	UFUNCTION (BlueprintCallable)
 	bool GetStartingZoneChosen ();
 	UFUNCTION (BlueprintCallable)
 	int GetChosenStartingZone ();
+	UFUNCTION (BlueprintCallable)
+	int GetRecentPlayerSpawnPosition ();
 
 	void RegisterGameStart ();
 	UFUNCTION (Client, Reliable)
@@ -36,6 +43,8 @@ protected:
 	virtual void BeginPlay () override;
 
 private:
+	void ResetPlayerCharacter ();
+
 	UPROPERTY (Replicated)
 	int _chosenStartingZone = 0;
 
@@ -43,4 +52,7 @@ private:
 
 	bool _redeemTimerActivated = false;
 	ABattleRoyalePlayerState* _playerState;
+
+	UPROPERTY (Replicated)
+	int _recentPlayerSpawnPosition;
 };

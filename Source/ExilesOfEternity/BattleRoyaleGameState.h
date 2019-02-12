@@ -52,9 +52,13 @@ public:
 	bool GetStartingZoneAvailable (int zoneIndex);
 	UFUNCTION (BlueprintCallable)
 	bool GetGameStarted ();
+	UFUNCTION (BlueprintCallable)
+	float GetStartTime ();
 
 	UFUNCTION (BlueprintCallable)
 	int GetStage ();
+	UFUNCTION (BlueprintCallable)
+	int GetStageDuration (int stageIndex);
 	UFUNCTION (BlueprintCallable)
 	FVector GetCircleLocation ();
 	UFUNCTION (BlueprintCallable)
@@ -62,6 +66,9 @@ public:
 
 	UFUNCTION (BlueprintCallable)
 	float GetRedeemKillTime ();
+
+	UFUNCTION (BlueprintCallable)
+	bool GetSpawnPositionInsidePlayArea (int spawnIndex);
 
 protected:
 	virtual void BeginPlay () override;
@@ -75,12 +82,15 @@ private:
 	UPROPERTY (Replicated)
 	bool _gameStarted = false;
 
-	int _stage = 0;
+	UPROPERTY (Replicated)
+	int _stage = 1;
 
 	UGameStageInfo* _gameStageInfo;
 	APlayAreaCircle* _playAreaCircle;
 
 	TArray <ABattleRoyalePlayerState*> _permanentDeadPlayers;
 
+	UPROPERTY (Replicated)
+	float _startTime;
 	bool _gameEnded = false;
 };

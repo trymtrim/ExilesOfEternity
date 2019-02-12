@@ -18,7 +18,7 @@ public:
 	//Called to bind functionality to input
 	virtual void SetupInputComponent () override;
 
-	UFUNCTION (Client, Reliable)
+	UFUNCTION (Client, Reliable, BlueprintCallable)
 	void SetInputUIOnly ();
 
 protected:
@@ -26,6 +26,7 @@ protected:
 	virtual void BeginPlay () override;
 	virtual void Possess (APawn* InPawn) override;
 
+	UFUNCTION (Client, Reliable)
 	void ShowMouseCursor (bool state);
 
 private:

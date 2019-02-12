@@ -23,6 +23,8 @@ public:
 
 	void StartShrinking (int stage);
 
+	bool GetActorInsidePlayArea (AActor* actor);
+
 private:
 	void UpdateShrinking (float deltaTime);
 	void CheckPlayersOutsidePlayArea ();

@@ -25,11 +25,17 @@ public:
 	//Called to bind functionality to input
 	virtual void SetupPlayerInputComponent (class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION (BlueprintCallable)
 	void Die ();
 	void ResetCharacter ();
 
 	UFUNCTION (BlueprintCallable)
 	void SetImmunity (bool state);
+
+	UFUNCTION (Client, Reliable)
+	void ClientHandleRespawn ();
+
+	bool GetDead ();
 
 protected:
 	//Called when the game starts or when spawned
@@ -57,6 +63,9 @@ protected:
 	void DieBP ();
 	UFUNCTION (BlueprintImplementableEvent)
 	void ResetCharacterBP ();
+
+	UFUNCTION (BlueprintImplementableEvent)
+	void HandleRespawnBP ();
 
 	UFUNCTION (BlueprintCallable)
 	bool AddSpell (Spells spell);

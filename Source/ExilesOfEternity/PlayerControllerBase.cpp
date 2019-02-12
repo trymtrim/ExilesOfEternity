@@ -39,7 +39,7 @@ void APlayerControllerBase::Possess (APawn* InPawn)
 	character->InitializeCharacter ();*/
 }
 
-void APlayerControllerBase::ShowMouseCursor (bool state)
+void APlayerControllerBase::ShowMouseCursor_Implementation (bool state)
 {
 	//Enable or disable mouse cursor
 	bShowMouseCursor = state;

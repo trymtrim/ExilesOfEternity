@@ -49,6 +49,10 @@ FString AExilesOfEternityGameModeBase::InitNewPlayer (APlayerController* NewPlay
 
 AActor* AExilesOfEternityGameModeBase::ChoosePlayerStart_Implementation (AController* Player)
 {
+	//For testing
+	if (firstPlayerController == nullptr)
+		firstPlayerController = Player;
+
 	//Increase player count by one
 	_playerCount++;
 

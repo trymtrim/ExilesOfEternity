@@ -571,6 +571,11 @@ void ACharacterBase::ResetCharacter ()
 	ResetCharacterBP ();
 }
 
+void ACharacterBase::ClientHandleRespawn_Implementation ()
+{
+	HandleRespawnBP ();
+}
+
 bool ACharacterBase::GetCanMove ()
 {
 	//If character is dead, return false
@@ -583,6 +588,11 @@ bool ACharacterBase::GetCanMove ()
 bool ACharacterBase::GetImmunity ()
 {
 	return _immune;
+}
+
+bool ACharacterBase::GetDead ()
+{
+	return _dead;
 }
 
 FRotator ACharacterBase::GetAimRotation (FVector startPosition)

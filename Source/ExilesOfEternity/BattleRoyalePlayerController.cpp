@@ -14,6 +14,13 @@ void ABattleRoyalePlayerController::BeginPlay ()
 {
 	//Set input mode to UI only
 	SetInputUIOnly ();
+
+	//If game has already started, remove player from game
+	if (!GetWorld ()->IsServer ())
+	{
+		if (Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ())->GetGameStarted ())
+			UGameplayStatics::OpenLevel (GetWorld (), "LobbyLevel");
+	}
 }
 
 void ABattleRoyalePlayerController::Tick (float DeltaTime)

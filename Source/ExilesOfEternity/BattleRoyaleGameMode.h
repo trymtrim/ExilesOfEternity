@@ -29,6 +29,4 @@ private:
 	void CheckForGameStart ();
 	void StartGame ();
 	void SetSpellCapsuleLocation (AActor* spellCapsule);
-
-	bool _gameStarted = false;
 };

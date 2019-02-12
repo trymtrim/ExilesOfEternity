@@ -35,6 +35,8 @@ protected:
 	//For testing
 	AController* firstPlayerController = nullptr;
 
+	bool _gameStarted = false;
+
 private:
 	void CheckPlayerConnection ();
 

@@ -78,7 +78,7 @@ void ACharacterBase::Tick (float DeltaTime)
 
 		//If character is under world bounds, teleport to center of map
 		if (GetActorLocation ().Z < -20000.0f)
-			SetActorLocation (FVector (0.0f, 0.0f, 0.0f));
+			SetActorLocation (FVector (40000.0f, 40000.0f, 0.0f));
 	}
 }
 

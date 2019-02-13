@@ -24,7 +24,9 @@ public:
 	UFUNCTION (BlueprintCallable)
 	int GetTeamNumber ();
 
+	UFUNCTION (BlueprintCallable)
 	int GetKills ();
+	UFUNCTION (BlueprintCallable)
 	int GetDeaths ();
 
 protected:

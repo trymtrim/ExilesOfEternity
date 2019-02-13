@@ -179,7 +179,8 @@ void ABattleRoyalePlayerState::GetLifetimeReplicatedProps (TArray <FLifetimeProp
 
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _currentRedeemKillTime, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _requiredRedeemKills, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _permanentDead, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _victorious, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _respawnTime, COND_OwnerOnly);
+
+	DOREPLIFETIME (ABattleRoyalePlayerState, _permanentDead);
 }

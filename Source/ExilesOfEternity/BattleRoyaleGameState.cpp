@@ -39,6 +39,9 @@ void ABattleRoyaleGameState::StartGame ()
 	//Set game start time
 	_startTime = GetServerWorldTimeSeconds ();
 
+	//Assign player count
+	_playerCount = PlayerArray.Num ();
+
 	//Start timer for current stage and start next stage when timer is finished
 	FTimerHandle startNextStageTimerHandle;
 	GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
@@ -168,6 +171,16 @@ bool ABattleRoyaleGameState::GetSpawnPositionInsidePlayArea (int spawnIndex)
 
 	//Otherwise, return false
 	return false;
+}
+
+TArray <ABattleRoyalePlayerState*> ABattleRoyaleGameState::GetPermanentDeadPlayers ()
+{
+	return _permanentDeadPlayers;
+}
+
+int ABattleRoyaleGameState::GetPlayerCount ()
+{
+	return _playerCount;
 }
 
 void ABattleRoyaleGameState::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const

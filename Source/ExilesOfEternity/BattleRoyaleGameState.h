@@ -70,6 +70,9 @@ public:
 	UFUNCTION (BlueprintCallable)
 	bool GetSpawnPositionInsidePlayArea (int spawnIndex);
 
+	TArray <ABattleRoyalePlayerState*> GetPermanentDeadPlayers ();
+	int GetPlayerCount ();
+
 protected:
 	virtual void BeginPlay () override;
 
@@ -88,6 +91,7 @@ private:
 	UGameStageInfo* _gameStageInfo;
 	APlayAreaCircle* _playAreaCircle;
 
+	int _playerCount = 0;
 	TArray <ABattleRoyalePlayerState*> _permanentDeadPlayers;
 
 	UPROPERTY (Replicated)

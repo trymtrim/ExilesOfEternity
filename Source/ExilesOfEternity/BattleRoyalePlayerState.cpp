@@ -6,6 +6,7 @@
 #include "UnrealNetwork.h"
 #include "BattleRoyalePlayerController.h"
 #include "CharacterBase.h"
+#include "Kismet/GameplayStatics.h"
 
 ABattleRoyalePlayerState::ABattleRoyalePlayerState ()
 {
@@ -106,8 +107,17 @@ void ABattleRoyalePlayerState::DiePermanently ()
 	//Get game state
 	ABattleRoyaleGameState* gameState = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ());
 
+	//Find out how this player placed
+	int placement = gameState->GetPlayerCount () - gameState->GetPermanentDeadPlayers ().Num ();
+
+	//Set game over text
+	_gameOverText = "You placed " + FString::FromInt (placement) + ". out of " + FString::FromInt (gameState->GetPlayerCount ()) + " players";
+
 	//Update player state in game state
 	gameState->ReportPermanentDeath (this);
+
+	//Set input to UI only
+	Cast <ABattleRoyalePlayerController> (GetPawn ()->GetController ())->SetInputUIOnly ();
 }
 
 void ABattleRoyalePlayerState::StartRespawnTimer (float respawnTime)
@@ -146,6 +156,9 @@ void ABattleRoyalePlayerState::UpdateRespawnTimer ()
 void ABattleRoyalePlayerState::MakeVictorious ()
 {
 	_victorious = true;
+
+	//Set game over text
+	_gameOverText = "You are victorious!";
 }
 
 float ABattleRoyalePlayerState::GetCurrentRedeemKillTime ()
@@ -173,6 +186,11 @@ int ABattleRoyalePlayerState::GetRespawnTime ()
 	return _respawnTime;
 }
 
+FString ABattleRoyalePlayerState::GetGameOverText ()
+{
+	return _gameOverText;
+}
+
 void ABattleRoyalePlayerState::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);
@@ -181,6 +199,7 @@ void ABattleRoyalePlayerState::GetLifetimeReplicatedProps (TArray <FLifetimeProp
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _requiredRedeemKills, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _victorious, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _respawnTime, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _gameOverText, COND_OwnerOnly);
 
 	DOREPLIFETIME (ABattleRoyalePlayerState, _permanentDead);
 }

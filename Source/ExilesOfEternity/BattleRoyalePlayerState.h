@@ -33,6 +33,9 @@ public:
 	UFUNCTION (BlueprintCallable)
 	int GetRespawnTime ();
 
+	UFUNCTION (BlueprintCallable)
+	FString GetGameOverText ();
+
 protected:
 	virtual void OnKill () override;
 	virtual void OnDeath () override;
@@ -53,4 +56,6 @@ private:
 	bool _victorious = false;
 	UPROPERTY (Replicated)
 	int _respawnTime = 0;
+	UPROPERTY (Replicated)
+	FString _gameOverText;
 };

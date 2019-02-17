@@ -498,7 +498,7 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	AExilesOfEternityGameModeBase* gameMode = Cast <AExilesOfEternityGameModeBase> (GetWorld ()->GetAuthGameMode ());
 
 	//If dead, immune or game has ended, return, and don't heal above max health
-	if (_dead || Damage > 0.0f &&_immune || gameMode->GetGameEnded () || Damage < 0.0f && _currentHealth >= _maxHealth)
+	if (_dead || Damage > 0.0f && _immune || gameMode->GetGameEnded () || Damage < 0.0f && _currentHealth >= _maxHealth)
 		return 0.0f;
 
 	//If the damage causer is on the same team as this character, don't apply damage

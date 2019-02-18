@@ -26,8 +26,8 @@ ABattleRoyaleGameMode::ABattleRoyaleGameMode ()
 
 void ABattleRoyaleGameMode::Tick (float DeltaTime)
 {
-	//if (!_gameStarted)
-		//CheckForGameStart ();
+	if (!_gameStarted)
+		CheckForGameStart ();
 }
 
 void ABattleRoyaleGameMode::PlaytestStartGame (AController* controller)

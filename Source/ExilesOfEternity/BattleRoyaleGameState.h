@@ -32,6 +32,22 @@ public:
 	float RedeemKillTime;
 };
 
+UCLASS(BlueprintType, Blueprintable)
+class EXILESOFETERNITY_API UPlayerProgressionInfo : public UDataAsset
+{
+	GENERATED_BODY ()
+
+public:
+	UPROPERTY (EditAnywhere)
+	int MaxLevel;
+	UPROPERTY (EditAnywhere)
+	TArray <int> ExperienceNeededPerLevel;
+	UPROPERTY (EditAnywhere)
+	TArray <float> HealthPerLevel;
+	UPROPERTY (EditAnywhere)
+	TArray <float> BasicSpellDamagePerLevel;
+};
+
 UCLASS()
 class EXILESOFETERNITY_API ABattleRoyaleGameState : public AGameStateBase
 {
@@ -39,12 +55,14 @@ class EXILESOFETERNITY_API ABattleRoyaleGameState : public AGameStateBase
 
 public:
 	UFUNCTION (BlueprintCallable)
-	void LoadGameStageInfo (UGameStageInfo* gameStageInfo);
+	void LoadGameInfo (UGameStageInfo* gameStageInfo, UPlayerProgressionInfo* playerProgressionInfo);
 
 	void SetStartingZoneTaken (int zoneIndex);
 	void StartGame ();
 	void StartNextStage ();
 	void ReportPermanentDeath (ABattleRoyalePlayerState* playerState);
+
+	UPlayerProgressionInfo* GetPlayerProgressionInfo ();
 
 	UFUNCTION (BlueprintCallable)
 	int GetGameStartTime ();
@@ -89,6 +107,7 @@ private:
 	int _stage = 1;
 
 	UGameStageInfo* _gameStageInfo;
+	UPlayerProgressionInfo* _playerProgressionInfo;
 	APlayAreaCircle* _playAreaCircle;
 
 	int _playerCount = 0;

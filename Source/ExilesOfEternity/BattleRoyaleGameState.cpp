@@ -12,9 +12,10 @@
 #include "PlayAreaCircle.h"
 #include "ExilesOfEternityGameModeBase.h"
 
-void ABattleRoyaleGameState::LoadGameStageInfo (UGameStageInfo* gameStageInfo)
+void ABattleRoyaleGameState::LoadGameInfo (UGameStageInfo* gameStageInfo, UPlayerProgressionInfo* playerProgressionInfo)
 {
 	_gameStageInfo = gameStageInfo;
+	_playerProgressionInfo = playerProgressionInfo;
 }
 
 void ABattleRoyaleGameState::BeginPlay ()
@@ -103,6 +104,11 @@ void ABattleRoyaleGameState::EndGame ()
 	_gameEnded = true;
 
 	Cast <AExilesOfEternityGameModeBase> (GetWorld ()->GetAuthGameMode ())->EndGame ();
+}
+
+UPlayerProgressionInfo* ABattleRoyaleGameState::GetPlayerProgressionInfo ()
+{
+	return _playerProgressionInfo;
 }
 
 int ABattleRoyaleGameState::GetGameStartTime ()

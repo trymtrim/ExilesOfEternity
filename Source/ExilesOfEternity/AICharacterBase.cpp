@@ -4,6 +4,8 @@
 #include "UnrealNetwork.h"
 #include "Engine/World.h"
 #include "Runtime/Engine/Public/TimerManager.h"
+#include "CharacterBase.h"
+#include "BattleRoyalePlayerState.h"
 
 AAICharacterBase::AAICharacterBase ()
 {
@@ -97,7 +99,7 @@ float AAICharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEven
 
 	//If current health is zero or less, die
 	if (_currentHealth <= 0.0f)
-		Die ();
+		Die (DamageCauser);
 	else if (Damage > 0.0f)
 		OnDamageBP (DamageCauser);
 	else if (Damage < 0.0f && _currentHealth > _maxHealth)
@@ -106,7 +108,7 @@ float AAICharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEven
 	return Super::TakeDamage (Damage, DamageEvent, EventInstigator, DamageCauser);
 }
 
-void AAICharacterBase::Die ()
+void AAICharacterBase::Die (AActor* damageCauser)
 {
 	//If already dead, return;
 	if (_dead)
@@ -118,6 +120,15 @@ void AAICharacterBase::Die ()
 	_dead = true;
 
 	DieBP ();
+
+	//If the damage causer is a player, give that player experience
+	if (damageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
+	{
+		ABattleRoyalePlayerState* playerState = Cast <ABattleRoyalePlayerState> (Cast <ACharacterBase> (damageCauser)->GetPlayerState ());
+		
+		if (playerState)
+			playerState->GainExperience (50);
+	}
 }
 
 void AAICharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const

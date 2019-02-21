@@ -28,8 +28,6 @@ void ABattleRoyalePlayerController::Tick (float DeltaTime)
 	//If redeem kill timer is activated, update player state
 	if (_redeemTimerActivated)
 		_playerState->Tick (DeltaTime);
-
-	//GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "THIS IS A TEST YO!");
 }
 
 void ABattleRoyalePlayerController::SelectStartingZone_Implementation (int zoneIndex)
@@ -60,6 +58,11 @@ void ABattleRoyalePlayerController::SelectStartingZone_Implementation (int zoneI
 	gameState->SetStartingZoneTaken (zoneIndex);
 	//Set chosen starting zone
 	_chosenStartingZone = zoneIndex;
+
+	//Set player health
+	Cast <ACharacterBase> (GetCharacter ())->SetHealth (gameState->GetPlayerProgressionInfo ()->HealthPerLevel [0]);
+	//Set basic spell damage
+	Cast <ACharacterBase> (GetCharacter ())->SetBasicSpellDamage (gameState->GetPlayerProgressionInfo ()->BasicSpellDamagePerLevel [0]);
 }
 
 bool ABattleRoyalePlayerController::SelectStartingZone_Validate (int zoneIndex)

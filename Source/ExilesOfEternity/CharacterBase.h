@@ -25,6 +25,8 @@ public:
 	//Called to bind functionality to input
 	virtual void SetupPlayerInputComponent (class UInputComponent* PlayerInputComponent) override;
 
+	void SetHealth (float health);
+	void SetBasicSpellDamage (float _damage);
 	UFUNCTION (BlueprintCallable)
 	void Die ();
 	void ResetCharacter ();
@@ -70,6 +72,8 @@ protected:
 	UFUNCTION (BlueprintCallable)
 	bool AddSpell (Spells spell);
 
+	UFUNCTION (BlueprintCallable)
+	float GetBasicSpellDamage ();
 	UFUNCTION (BlueprintCallable)
 	bool GetCanMove ();
 	UFUNCTION (BlueprintCallable)
@@ -179,4 +183,6 @@ private:
 
 	UPROPERTY (Replicated)
 	TArray <float> _ownedSpellsCooldownPercentages;
+
+	float _basicSpellDamage = 15.0f;
 };

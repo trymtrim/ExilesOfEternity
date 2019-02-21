@@ -45,7 +45,7 @@ protected:
 
 private:
 	void RegainHealth ();
-	void Die ();
+	void Die (AActor* damageCauser);
 
 	UPROPERTY (Replicated)
 	bool _dead = false;

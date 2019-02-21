@@ -82,6 +82,17 @@ void ACharacterBase::Tick (float DeltaTime)
 	}
 }
 
+void ACharacterBase::SetHealth (float health)
+{
+	_currentHealth = health;
+	_maxHealth = health;
+}
+
+void ACharacterBase::SetBasicSpellDamage (float damage)
+{
+	_basicSpellDamage = damage;
+}
+
 bool ACharacterBase::AddSpell (Spells spell)
 {
 	//If owned spells is full, return
@@ -574,6 +585,11 @@ void ACharacterBase::ResetCharacter ()
 void ACharacterBase::ClientHandleRespawn_Implementation ()
 {
 	HandleRespawnBP ();
+}
+
+float ACharacterBase::GetBasicSpellDamage ()
+{
+	return _basicSpellDamage;
 }
 
 bool ACharacterBase::GetCanMove ()

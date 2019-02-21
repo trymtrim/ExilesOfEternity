@@ -6,6 +6,8 @@
 #include "PlayerStateBase.h"
 #include "BattleRoyalePlayerState.generated.h"
 
+class UPlayerProgressionInfo;
+
 UCLASS()
 class EXILESOFETERNITY_API ABattleRoyalePlayerState : public APlayerStateBase
 {
@@ -14,11 +16,22 @@ class EXILESOFETERNITY_API ABattleRoyalePlayerState : public APlayerStateBase
 public:
 	ABattleRoyalePlayerState ();
 
+	virtual void BeginPlay () override;
+
 	void Tick (float DeltaTime);
 
+	void GainExperience (int experience);
+	void LevelUp ();
 	void StartRespawnTimer (float respawnTime);
 	void StopRepawnTimer ();
 	void MakeVictorious ();
+
+	UFUNCTION (BlueprintCallable)
+	int GetLevel ();
+	UFUNCTION (BlueprintCallable)
+	int GetCurrentExperience ();
+	UFUNCTION (BlueprintCallable)
+	int GetNeededExperience ();
 
 	UFUNCTION (BlueprintCallable)
 	float GetCurrentRedeemKillTime ();
@@ -45,7 +58,13 @@ private:
 	void UpdateRedeemKillTimer (float deltaTime);
 	void DiePermanently ();
 	void UpdateRespawnTimer ();
-
+	
+	UPROPERTY (Replicated)
+	int _level = 1;
+	UPROPERTY (Replicated)
+	int _currentExperience = 0;
+	UPROPERTY (Replicated)
+	int _neededExperience;
 	UPROPERTY (Replicated)
 	float _currentRedeemKillTime = 0.0f;
 	UPROPERTY (Replicated)
@@ -58,4 +77,6 @@ private:
 	int _respawnTime = 0;
 	UPROPERTY (Replicated)
 	FString _gameOverText;
+
+	UPlayerProgressionInfo* _playerProgressionInfo;
 };

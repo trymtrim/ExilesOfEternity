@@ -13,6 +13,20 @@ ABattleRoyalePlayerState::ABattleRoyalePlayerState ()
 	NetUpdateFrequency = 30.0f;
 }
 
+void ABattleRoyalePlayerState::BeginPlay ()
+{
+	//Get player progressions info
+	_playerProgressionInfo = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ())->GetPlayerProgressionInfo ();
+
+	//Set needed experience to level up
+	_neededExperience = _playerProgressionInfo->ExperienceNeededPerLevel [0];
+	/*
+	//Set health
+	Cast <ACharacterBase> (GetPawn ())->SetHealth (_playerProgressionInfo->HealthPerLevel [0]);
+	//Set basic spell damage
+	Cast <ACharacterBase> (GetPawn ())->SetBasicSpellDamage (_playerProgressionInfo->BasicSpellDamagePerLevel [0]);*/
+}
+
 void ABattleRoyalePlayerState::Tick (float DeltaTime)
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -20,6 +34,46 @@ void ABattleRoyalePlayerState::Tick (float DeltaTime)
 	//If redeem kill timer is currently running and the player is not victorious, update it
 	if (_currentRedeemKillTime > 0.0f && !_victorious && !Cast <ACharacterBase> (GetPawn ())->GetDead ())
 		UpdateRedeemKillTimer (DeltaTime);
+}
+
+void ABattleRoyalePlayerState::GainExperience (int experience)
+{
+	//If player is already max level, return
+	if (_level == _playerProgressionInfo->MaxLevel)
+		return;
+
+	//Add experience to current experience
+	_currentExperience += experience;
+
+	//If player has reached needed experience, level up
+	if (_currentExperience >= _neededExperience)
+		LevelUp ();
+}
+
+void ABattleRoyalePlayerState::LevelUp ()
+{
+	//Add one level
+	_level++;
+
+	//Upgrade health
+	Cast <ACharacterBase> (GetPawn ())->SetHealth (_playerProgressionInfo->HealthPerLevel [_level - 1]);
+	//Upgrade basic spell damage
+	Cast <ACharacterBase> (GetPawn ())->SetBasicSpellDamage (_playerProgressionInfo->BasicSpellDamagePerLevel [_level - 1]);
+
+	//If player reached max level
+	if (_level == _playerProgressionInfo->MaxLevel)
+	{
+		//Set current experience to max
+		_currentExperience = _neededExperience;
+	}
+	else //If player did not reach max level
+	{
+		//Move the excessive experience to next level
+		_currentExperience = _neededExperience - _currentExperience;
+
+		//Set needed experience for next level
+		_neededExperience = _playerProgressionInfo->ExperienceNeededPerLevel [_level - 1];
+	}
 }
 
 void ABattleRoyalePlayerState::OnKill ()
@@ -161,6 +215,21 @@ void ABattleRoyalePlayerState::MakeVictorious ()
 	_gameOverText = "You are victorious!";
 }
 
+int ABattleRoyalePlayerState::GetLevel ()
+{
+	return _level;
+}
+
+int ABattleRoyalePlayerState::GetCurrentExperience ()
+{
+	return _currentExperience;
+}
+
+int ABattleRoyalePlayerState::GetNeededExperience ()
+{
+	return _neededExperience;
+}
+
 float ABattleRoyalePlayerState::GetCurrentRedeemKillTime ()
 {
 	return _currentRedeemKillTime;
@@ -200,6 +269,9 @@ void ABattleRoyalePlayerState::GetLifetimeReplicatedProps (TArray <FLifetimeProp
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _victorious, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _respawnTime, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _gameOverText, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _currentExperience, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ABattleRoyalePlayerState, _neededExperience, COND_OwnerOnly);
 
+	DOREPLIFETIME (ABattleRoyalePlayerState, _level);
 	DOREPLIFETIME (ABattleRoyalePlayerState, _permanentDead);
 }

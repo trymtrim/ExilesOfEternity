@@ -69,7 +69,7 @@ void ABattleRoyalePlayerState::LevelUp ()
 	else //If player did not reach max level
 	{
 		//Move the excessive experience to next level
-		_currentExperience = _neededExperience - _currentExperience;
+		_currentExperience = _currentExperience - _neededExperience;
 
 		//Set needed experience for next level
 		_neededExperience = _playerProgressionInfo->ExperienceNeededPerLevel [_level - 1];

@@ -21,17 +21,10 @@ void AAICharacterBase::BeginPlay ()
 	{
 		//Set start location
 		_startLocation = GetActorLocation ();
+
+		//Set health
+		_currentHealth = _maxHealth;
 	}
-}
-
-void AAICharacterBase::InitializeAI (float health, float maxAggroRange)
-{
-	//Set health
-	_maxHealth = health;
-	_currentHealth = _maxHealth;
-
-	//Set max aggro range
-	_maxAggroRange = maxAggroRange;
 }
 
 void AAICharacterBase::Tick (float DeltaTime)
@@ -127,7 +120,7 @@ void AAICharacterBase::Die (AActor* damageCauser)
 		ABattleRoyalePlayerState* playerState = Cast <ABattleRoyalePlayerState> (Cast <ACharacterBase> (damageCauser)->GetPlayerState ());
 		
 		if (playerState)
-			playerState->GainExperience (50);
+			playerState->GainExperience (_experience);
 	}
 }
 

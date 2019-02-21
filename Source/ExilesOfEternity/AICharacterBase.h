@@ -22,8 +22,6 @@ protected:
 	virtual float TakeDamage (float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION (BlueprintCallable)
-	void InitializeAI (float health, float maxAggroRange);
-	UFUNCTION (BlueprintCallable)
 	void Retreat ();
 	UFUNCTION (BlueprintCallable)
 	void StopRetreating ();
@@ -35,10 +33,15 @@ protected:
 	UFUNCTION (BlueprintImplementableEvent)
 	void DieBP ();
 
-	UPROPERTY (Replicated, BlueprintReadOnly)
+	UPROPERTY (Replicated, BlueprintReadOnly, EditAnyWhere)
 	float _maxHealth = 50.0f;
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _currentHealth = 50.0f;
+
+	UPROPERTY (EditAnyWhere)
+	float _maxAggroRange = 5000.0f;
+	UPROPERTY (EditAnyWhere)
+	int _experience = 50;
 
 	UPROPERTY (BlueprintReadOnly)
 	FVector _startLocation;
@@ -50,7 +53,6 @@ private:
 	UPROPERTY (Replicated)
 	bool _dead = false;
 
-	float _maxAggroRange = 5000.0f;
 	
 	bool _retreating = false;
 };

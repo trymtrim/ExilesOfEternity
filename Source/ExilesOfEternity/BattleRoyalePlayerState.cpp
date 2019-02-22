@@ -20,11 +20,6 @@ void ABattleRoyalePlayerState::BeginPlay ()
 
 	//Set needed experience to level up
 	_neededExperience = _playerProgressionInfo->ExperienceNeededPerLevel [0];
-	/*
-	//Set health
-	Cast <ACharacterBase> (GetPawn ())->SetHealth (_playerProgressionInfo->HealthPerLevel [0]);
-	//Set basic spell damage
-	Cast <ACharacterBase> (GetPawn ())->SetBasicSpellDamage (_playerProgressionInfo->BasicSpellDamagePerLevel [0]);*/
 }
 
 void ABattleRoyalePlayerState::Tick (float DeltaTime)
@@ -55,10 +50,14 @@ void ABattleRoyalePlayerState::LevelUp ()
 	//Add one level
 	_level++;
 
+	ACharacterBase* characterController = Cast <ACharacterBase> (GetPawn ());
 	//Upgrade health
-	Cast <ACharacterBase> (GetPawn ())->SetHealth (_playerProgressionInfo->HealthPerLevel [_level - 1]);
+	characterController->SetHealth (_playerProgressionInfo->HealthPerLevel [_level - 1]);
 	//Upgrade basic spell damage
-	Cast <ACharacterBase> (GetPawn ())->SetBasicSpellDamage (_playerProgressionInfo->BasicSpellDamagePerLevel [_level - 1]);
+	characterController->SetBasicSpellDamage (_playerProgressionInfo->BasicSpellDamagePerLevel [_level - 1]);
+
+	//Add spell upgrade
+	characterController->AddSpellUpgrade ();
 
 	//If player reached max level
 	if (_level == _playerProgressionInfo->MaxLevel)
@@ -73,7 +72,15 @@ void ABattleRoyalePlayerState::LevelUp ()
 
 		//Set needed experience for next level
 		_neededExperience = _playerProgressionInfo->ExperienceNeededPerLevel [_level - 1];
+
+		//If current experience is more than needed experience, level up again
+		if (_currentExperience >= _neededExperience)
+			LevelUp ();
 	}
+
+	//If player reached level 6, unlock ultimate spell
+	if (_level == 6)
+		characterController->UnlockUltimateSpell ();
 }
 
 void ABattleRoyalePlayerState::OnKill ()

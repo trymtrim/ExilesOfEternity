@@ -29,11 +29,6 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 
 	emptySpell.Name = "Empty";
 	emptySpell.Type = SpellTypes (0);
-	emptySpell.Cooldown = 0.0f;
-	emptySpell.Damage = 0.0f;
-	emptySpell.Range = 0.0f;
-	emptySpell.Radius = 0.0f;
-	emptySpell.Duration = 0.0f;
 
 	//Iterate through all rows in the data table and add the spell attributes to the map
 	int currentRow = 1;
@@ -74,29 +69,29 @@ SpellTypes USpellAttributes::GetType (Spells spell)
 	return _spellMap [spell].Type;
 }
 
-float USpellAttributes::GetCooldown (Spells spell)
+float USpellAttributes::GetCooldown (Spells spell, int rank)
 {
-	return _spellMap [spell].Cooldown;
+	return _spellMap [spell].Cooldown [rank - 1];
 }
 
-float USpellAttributes::GetDamage (Spells spell)
+float USpellAttributes::GetDamage (Spells spell, int rank)
 {
-	return _spellMap [spell].Damage;
+	return _spellMap [spell].Damage [rank - 1];
 }
 
-float USpellAttributes::GetRange (Spells spell)
+float USpellAttributes::GetRange (Spells spell, int rank)
 {
-	return _spellMap [spell].Range;
+	return _spellMap [spell].Range [rank - 1];
 }
 
-float USpellAttributes::GetRadius (Spells spell)
+float USpellAttributes::GetRadius (Spells spell, int rank)
 {
-	return _spellMap [spell].Radius;
+	return _spellMap [spell].Radius [rank - 1];
 }
 
-float USpellAttributes::GetDuration (Spells spell)
+float USpellAttributes::GetDuration (Spells spell, int rank)
 {
-	return _spellMap [spell].Duration;
+	return _spellMap [spell].Duration [rank - 1];
 }
 
 bool USpellAttributes::GetGlobalCooldown (Spells spell)
@@ -119,9 +114,9 @@ UTexture2D* USpellAttributes::GetIcon (Spells spell)
 	return _spellMap [spell].Icon;
 }
 
-FString USpellAttributes::GetTooltip (Spells spell)
+FString USpellAttributes::GetTooltip (Spells spell, int rank)
 {
-	return _spellMap [spell].Tooltip;
+	return _spellMap [spell].Tooltip [rank - 1];
 }
 
 FColor USpellAttributes::GetIconColor (Spells spell)

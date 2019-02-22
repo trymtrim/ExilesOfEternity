@@ -31,12 +31,21 @@ public:
 	void Die ();
 	void ResetCharacter ();
 
+	void AddSpellUpgrade ();
+	void UnlockUltimateSpell ();
+
 	UFUNCTION (BlueprintCallable)
 	void SetImmunity (bool state);
 
 	UFUNCTION (Client, Reliable)
 	void ClientHandleRespawn ();
 
+	UFUNCTION (BlueprintCallable)
+	int GetSpellCount ();
+	UFUNCTION (BlueprintCallable)
+	int GetSpellUpgradesAvailable ();
+	UFUNCTION (BlueprintCallable)
+	bool GetUltimateSpellUnlocked ();
 	bool GetDead ();
 
 protected:
@@ -71,6 +80,11 @@ protected:
 
 	UFUNCTION (BlueprintCallable)
 	bool AddSpell (Spells spell);
+	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
+	void UpgradeSpell (Spells spell);
+
+	UFUNCTION (BlueprintCallable)
+	int GetSpellRank (Spells spell);
 
 	UFUNCTION (BlueprintCallable)
 	float GetBasicSpellDamage ();
@@ -108,8 +122,8 @@ private:
 
 	UFUNCTION (Client, Reliable)
 	void ClientAddOwnedSpell (Spells spell);
-
-	void UnlockUltimateSpell ();
+	UFUNCTION (Client, Reliable)
+	void ClientUpgradeSpell (Spells spell);
 
 	void UseSpellInput (int hotkeyIndex);
 	template <int hotkeyIndex>
@@ -167,6 +181,7 @@ private:
 	UPROPERTY (Replicated)
 	bool _currentlyProjectingSpell = false;
 
+	UPROPERTY (Replicated)
 	bool _ultimateSpellUnlocked = false;
 	float _ultimateSpellCooldown = 60.0f;
 	float _basicSpellCooldown = 1.0f;
@@ -184,5 +199,10 @@ private:
 	UPROPERTY (Replicated)
 	TArray <float> _ownedSpellsCooldownPercentages;
 
+	TMap <Spells, int> _spellRanks;
+
 	float _basicSpellDamage = 15.0f;
+
+	UPROPERTY (Replicated)
+	int _spellUpgradesAvailable = 0;
 };

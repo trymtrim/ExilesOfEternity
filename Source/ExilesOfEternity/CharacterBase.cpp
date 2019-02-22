@@ -111,6 +111,9 @@ bool ACharacterBase::AddSpell (Spells spell)
 	//Add spell to owned spells client-side
 	ClientAddOwnedSpell (spell);
 
+	//Set spell rank to 1
+	_spellRanks.Add (spell, 1);
+
 	return true;
 }
 
@@ -118,6 +121,40 @@ void ACharacterBase::ClientAddOwnedSpell_Implementation (Spells spell)
 {
 	//Add spell
 	_ownedSpells.Add (spell);
+
+	//Set spell rank to 1
+	_spellRanks.Add (spell, 1);
+}
+
+void ACharacterBase::UpgradeSpell_Implementation (Spells spell)
+{
+	//If spell already is at max rank, return
+	if (_spellRanks [spell] == 3 || _spellUpgradesAvailable == 0)
+		return;
+
+	//Set spell rank to one higher
+	_spellRanks [spell]++;
+
+	//Update spell upgrade client-side
+	ClientUpgradeSpell (spell);
+
+	_spellUpgradesAvailable--;
+}
+
+bool ACharacterBase::UpgradeSpell_Validate (Spells spell)
+{
+	return true;
+}
+
+void ACharacterBase::ClientUpgradeSpell_Implementation (Spells spell)
+{
+	//Set spell rank to one higher
+	_spellRanks [spell]++;
+}
+
+void ACharacterBase::AddSpellUpgrade ()
+{
+	_spellUpgradesAvailable++;
 }
 
 void ACharacterBase::UnlockUltimateSpell ()
@@ -163,7 +200,7 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 	{
 		//If currently projecting a spell, activate that spell, otherwise use basic spell
 		if (tempCurrentlyProjectingSpell)
-			UseProjectionSpell (_currentlyActivatedSpell, GetAimLocation (USpellAttributes::GetRange (_currentlyActivatedSpell), false));
+			UseProjectionSpell (_currentlyActivatedSpell, GetAimLocation (USpellAttributes::GetRange (_currentlyActivatedSpell, GetSpellRank (_currentlyActivatedSpell)), false));
 		else
 		{
 			//If spell is on cooldown, return
@@ -288,7 +325,7 @@ void ACharacterBase::CancelSpell_Implementation ()
 void ACharacterBase::PutSpellOnCooldown (Spells spell)
 {
 	//Put spell on cooldown based on the respective spell's cooldown
-	_spellCooldowns [spell] = USpellAttributes::GetCooldown (spell);
+	_spellCooldowns [spell] = USpellAttributes::GetCooldown (spell, GetSpellRank (spell));
 
 	if (USpellAttributes::GetGlobalCooldown (spell))
 		ActivateGlobalCooldown ();
@@ -345,6 +382,14 @@ void ACharacterBase::ActivateGlobalCooldown ()
 	}
 }
 
+int ACharacterBase::GetSpellRank (Spells spell)
+{
+	if (!_spellRanks.Contains (spell))
+		return 1;
+
+	return _spellRanks [spell];
+}
+
 bool ACharacterBase::GetSpellIsOnCooldown (Spells spell)
 {
 	if (IsLocallyControlled ())
@@ -382,8 +427,16 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 	{
 		Spells spellToUpdate = _ownedSpells [i];
 
+		//If spell is on cooldown
 		if (_spellCooldowns [spellToUpdate] > 0.0f)
 		{
+			//Get the spell's original cooldown
+			float originalSpellCooldown = USpellAttributes::GetCooldown (spellToUpdate, GetSpellRank (spellToUpdate));
+
+			//If current cooldown is higher than the spell's original cooldown, set current cooldown to original cooldown
+			if (_spellCooldowns [spellToUpdate] > originalSpellCooldown)
+				_spellCooldowns [spellToUpdate] = originalSpellCooldown;
+
 			//Update cooldown
 			_spellCooldowns [spellToUpdate] -= deltaTime;
 
@@ -402,7 +455,7 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 				}
 			}
 			else
-				_ownedSpellsCooldownPercentages [i] = _spellCooldowns [spellToUpdate] / USpellAttributes::GetCooldown (spellToUpdate);
+				_ownedSpellsCooldownPercentages [i] = _spellCooldowns [spellToUpdate] / USpellAttributes::GetCooldown (spellToUpdate, GetSpellRank (spellToUpdate));
 		}
 	}
 
@@ -606,6 +659,21 @@ bool ACharacterBase::GetImmunity ()
 	return _immune;
 }
 
+int ACharacterBase::GetSpellCount ()
+{
+	return _ownedSpells.Num ();
+}
+
+int ACharacterBase::GetSpellUpgradesAvailable ()
+{
+	return _spellUpgradesAvailable;
+}
+
+bool ACharacterBase::GetUltimateSpellUnlocked ()
+{
+	return _ultimateSpellUnlocked;
+}
+
 bool ACharacterBase::GetDead ()
 {
 	return _dead;
@@ -687,7 +755,9 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 
 	DOREPLIFETIME_CONDITION (ACharacterBase, _currentlyActivatedSpell, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _currentlyProjectingSpell, COND_OwnerOnly);
-
+	
+	DOREPLIFETIME_CONDITION (ACharacterBase, _spellUpgradesAvailable, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _ultimateSpellUnlocked, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _ownedSpellsCooldownPercentages, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _ultimateSpellCooldownPercentage, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellCooldownPercentage, COND_OwnerOnly);

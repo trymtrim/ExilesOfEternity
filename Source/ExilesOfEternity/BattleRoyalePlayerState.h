@@ -20,6 +20,7 @@ public:
 
 	void Tick (float DeltaTime);
 
+	UFUNCTION (BlueprintCallable)
 	void GainExperience (int experience);
 	void LevelUp ();
 	void StartRespawnTimer (float respawnTime);

@@ -49,17 +49,17 @@ struct Spell
 {
 	FString Name;
 	SpellTypes Type;
-	float Cooldown;
-	float Damage;
-	float Range;
-	float Radius;
-	float Duration;
+	TArray <float> Cooldown;
+	TArray <float> Damage;
+	TArray <float> Range;
+	TArray <float> Radius;
+	TArray <float> Duration;
 	bool GlobalCooldown;
 	bool UsableWhileMoving;
 	SpellAnimations Animation;
 	UTexture2D* Icon;
 	FColor IconColor;
-	FString Tooltip;
+	TArray <FString> Tooltip;
 	TSubclassOf <AActor> SpellCapsule;
 };
 
@@ -75,15 +75,15 @@ struct FSpellStats : public FTableRowBase
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
 	TEnumAsByte <SpellTypes> Type;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
-	float Cooldown;
+	TArray <float> Cooldown;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
-	float Damage;
+	TArray <float> Damage;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
-	float Range;
+	TArray <float> Range;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
-	float Radius;
+	TArray <float> Radius;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
-	float Duration;
+	TArray <float> Duration;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
 	bool GlobalCooldown;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
@@ -94,8 +94,8 @@ struct FSpellStats : public FTableRowBase
 	UTexture2D* Icon;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
 	FColor IconColor;
-	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
-	FString Tooltip;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly, meta = (MultiLine = true))
+	TArray <FString> Tooltip;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf <AActor> SpellCapsule;
 };
@@ -111,15 +111,15 @@ public:
 
 	UFUNCTION (BlueprintCallable)
 	static SpellTypes GetType (Spells spell);
-	static float GetCooldown (Spells spell);
+	static float GetCooldown (Spells spell, int rank);
 	UFUNCTION (BlueprintCallable)
-	static float GetDamage (Spells spell);
+	static float GetDamage (Spells spell, int rank);
 	UFUNCTION (BlueprintCallable)
-	static float GetRange (Spells spell);
+	static float GetRange (Spells spell, int rank);
 	UFUNCTION (BlueprintCallable)
-	static float GetRadius (Spells spell);
+	static float GetRadius (Spells spell, int rank);
 	UFUNCTION (BlueprintCallable)
-	static float GetDuration (Spells spell);
+	static float GetDuration (Spells spell, int rank);
 	static bool GetGlobalCooldown (Spells spell);
 	UFUNCTION (BlueprintCallable)
 	static bool GetUsableWhileMoving (Spells spell);
@@ -128,7 +128,7 @@ public:
 	UFUNCTION (BlueprintCallable)
 	static UTexture2D* GetIcon (Spells spell);
 	UFUNCTION (BlueprintCallable)
-	static FString GetTooltip (Spells spell);
+	static FString GetTooltip (Spells spell, int rank);
 	UFUNCTION (BlueprintCallable)
 	static FColor GetIconColor (Spells spell);
 	static TSubclassOf <AActor> GetSpellCapsule (Spells spell);

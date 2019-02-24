@@ -617,7 +617,7 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 
 		//Update kill count for player who caused the killing blow
 		if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
-			Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->AddKill ();
+			Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->AddKill (GetPlayerState ());
 	}
 	else if (Damage > 0.0f)
 		OnDamageBP ();

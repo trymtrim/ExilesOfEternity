@@ -51,7 +51,7 @@ public:
 	FString GetGameOverText ();
 
 protected:
-	virtual void OnKill () override;
+	virtual void OnKill (APlayerState* playerState) override;
 	virtual void OnDeath () override;
 
 private:

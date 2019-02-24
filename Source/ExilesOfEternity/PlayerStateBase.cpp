@@ -18,12 +18,12 @@ void APlayerStateBase::SetTeamNumber (int number)
 	_teamNumber = number;
 }
 
-void APlayerStateBase::AddKill ()
+void APlayerStateBase::AddKill (APlayerState* playerState)
 {
 	_kills++;
 
 	//Call overridable function to be handled by each seperate game mode
-	OnKill ();
+	OnKill (playerState);
 }
 
 void APlayerStateBase::AddDeath ()
@@ -54,7 +54,7 @@ int APlayerStateBase::GetDeaths ()
 	return _deaths;
 }
 
-void APlayerStateBase::OnKill () {}
+void APlayerStateBase::OnKill (APlayerState* playerState) {}
 void APlayerStateBase::OnDeath () {}
 
 void APlayerStateBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const

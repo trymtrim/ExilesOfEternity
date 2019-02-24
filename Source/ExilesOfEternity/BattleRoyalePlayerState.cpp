@@ -83,7 +83,7 @@ void ABattleRoyalePlayerState::LevelUp ()
 		characterController->UnlockUltimateSpell ();
 }
 
-void ABattleRoyalePlayerState::OnKill ()
+void ABattleRoyalePlayerState::OnKill (APlayerState* playerState)
 {
 	//If redeem kill timer is currently running
 	if (_currentRedeemKillTime > 0.0f)
@@ -95,6 +95,9 @@ void ABattleRoyalePlayerState::OnKill ()
 		if (_requiredRedeemKills == 0)
 			ActivateRedeemKillTimer (false);
 	}
+
+	//Gain experience
+	GainExperience (Cast <ABattleRoyalePlayerState> (playerState)->GetLevel () * 40);
 }
 
 void ABattleRoyalePlayerState::OnDeath ()

@@ -16,7 +16,7 @@ public:
 	
 	void SetNickname (FString name);
 	void SetTeamNumber (int number);
-	void AddKill ();
+	void AddKill (APlayerState* playerState);
 	void AddDeath ();
 
 	UFUNCTION (BlueprintCallable)
@@ -30,7 +30,7 @@ public:
 	int GetDeaths ();
 
 protected:
-	virtual void OnKill ();
+	virtual void OnKill (APlayerState* playerState);
 	virtual void OnDeath ();
 
 private:

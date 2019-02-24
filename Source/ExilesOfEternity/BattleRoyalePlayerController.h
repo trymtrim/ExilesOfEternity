@@ -22,6 +22,7 @@ public:
 	void AutoSelectStartingZone ();
 
 	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
+	void SelectPlayerSpawnPosition (int zoneIndex);
 	void SpawnPlayerCharacter (int zoneIndex);
 
 	void AutoSpawnPlayerCharacter ();
@@ -55,4 +56,5 @@ private:
 
 	UPROPERTY (Replicated)
 	int _recentPlayerSpawnPosition;
+	int _selectedPlayerSpawnPosition = 0;
 };

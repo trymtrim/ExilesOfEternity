@@ -89,7 +89,17 @@ void ABattleRoyalePlayerController::AutoSelectStartingZone ()
 	SelectStartingZone (availableStartingZones [randomIndex]);
 }
 
-void ABattleRoyalePlayerController::SpawnPlayerCharacter_Implementation (int zoneIndex)
+void ABattleRoyalePlayerController::SelectPlayerSpawnPosition_Implementation (int zoneIndex)
+{
+	_selectedPlayerSpawnPosition = zoneIndex;
+}
+
+bool ABattleRoyalePlayerController::SelectPlayerSpawnPosition_Validate (int zoneIndex)
+{
+	return true;
+}
+
+void ABattleRoyalePlayerController::SpawnPlayerCharacter (int zoneIndex)
 {
 	//Get all start locations
 	TArray <AActor*> playerStarts;
@@ -113,13 +123,14 @@ void ABattleRoyalePlayerController::SpawnPlayerCharacter_Implementation (int zon
 	Cast <ABattleRoyalePlayerState> (PlayerState)->StopRepawnTimer ();
 }
 
-bool ABattleRoyalePlayerController::SpawnPlayerCharacter_Validate (int zoneIndex)
-{
-	return true;
-}
-
 void ABattleRoyalePlayerController::AutoSpawnPlayerCharacter ()
 {
+	if (_selectedPlayerSpawnPosition != 0)
+	{
+		SpawnPlayerCharacter (_selectedPlayerSpawnPosition);
+		return;
+	}
+
 	//Get game state
 	ABattleRoyaleGameState* gameState = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ());
 
@@ -143,6 +154,7 @@ void ABattleRoyalePlayerController::ResetPlayerCharacter ()
 	Cast <ACharacterBase> (GetCharacter ())->ResetCharacter ();
 
 	_recentPlayerSpawnPosition = 0;
+	_selectedPlayerSpawnPosition = 0;
 }
 
 void ABattleRoyalePlayerController::RegisterGameStart ()

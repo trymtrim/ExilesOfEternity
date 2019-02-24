@@ -32,12 +32,15 @@ void ACharacterBase::BeginPlay ()
 	//Initialize server specific elements
 	if (GetWorld ()->IsServer ())
 	{
-		//Initialize base stats
+		//Initialize health
 		_currentHealth = _maxHealth;
 
 		//Initialize character spell cooldowns
 		_characterSpellCooldowns.Add (BASIC, 0.0f);
 		_characterSpellCooldowns.Add (ULTIMATE, _ultimateSpellCooldown);
+
+		//Set static health regen timer
+		_staticHealthRegenTimer = _staticHealthRegenTime;
 	}
 
 	//GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "THIS IS A TEST YO!");
@@ -75,6 +78,9 @@ void ACharacterBase::Tick (float DeltaTime)
 	{
 		//Update cooldowns
 		UpdateCooldowns (DeltaTime);
+
+		//Regain health
+		StaticHealthRegen (DeltaTime);
 
 		//If character is under world bounds, teleport to center of map
 		if (GetActorLocation ().Z < -20000.0f)
@@ -551,6 +557,29 @@ void ACharacterBase::ResetCooldowns ()
 	_basicSpellCooldownPercentage = 0.0f;
 }
 
+void ACharacterBase::StaticHealthRegen (float deltaTime)
+{
+	//If character is dead, has full health, return
+	if (_dead || _currentHealth >= _maxHealth)
+		return;
+
+	_staticHealthRegenTimer -= deltaTime;
+
+	//If health regen time reaches zero
+	if (_staticHealthRegenTimer <= 0.0f)
+	{
+		//Regain 3 % of max health
+		_currentHealth += _maxHealth / 33.3f;
+
+		//If health reached above max health, set health to max health
+		if (_currentHealth > _maxHealth)
+			_currentHealth = _maxHealth;
+
+		//Reset static health regen timer
+		_staticHealthRegenTimer = _staticHealthRegenTime;
+	}
+}
+
 void ACharacterBase::SetImmunity (bool state)
 {
 	_immune = state;
@@ -574,6 +603,9 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 		if (damageCauserTeamNumber == ourTeamNumber && Damage > 0.0f)
 			return 0.0f;
 	}
+
+	//Delay static health regen
+	_staticHealthRegenTimer = 10.0f + _staticHealthRegenTime;
 
 	//Reduce the damage taken from current health
 	_currentHealth -= Damage;
@@ -631,6 +663,8 @@ void ACharacterBase::ResetCharacter ()
 	_dead = false;
 	//Reset health
 	_currentHealth = _maxHealth;
+	//Reset static health regen timer
+	_staticHealthRegenTimer = _staticHealthRegenTime;
 
 	ResetCharacterBP ();
 }

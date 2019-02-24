@@ -169,6 +169,8 @@ private:
 	UFUNCTION (Client, Reliable)
 	void ClientDie ();
 
+	void StaticHealthRegen (float deltaTime);
+
 	UPROPERTY (Replicated)
 	bool _dead = false;
 
@@ -201,8 +203,12 @@ private:
 
 	TMap <Spells, int> _spellRanks;
 
+	UPROPERTY (EditAnywhere)
 	float _basicSpellDamage = 15.0f;
 
 	UPROPERTY (Replicated)
 	int _spellUpgradesAvailable = 0;
+
+	float _staticHealthRegenTime = 3.0f;
+	float _staticHealthRegenTimer;
 };

@@ -67,10 +67,15 @@ void ACharacterBase::Tick (float DeltaTime)
 {
 	Super::Tick (DeltaTime);
 
+	//Update owning client specific elements
 	if (IsLocallyControlled ())
 	{
 		//Update cooldown percentages
 		UpdateCooldownPercentages (DeltaTime);
+
+		//Update using basic spell
+		if (_usingBasicSpell)
+			UpdateUsingBasicSpell ();
 	}
 
 	//Update server specific elements
@@ -138,6 +143,13 @@ void ACharacterBase::UpgradeSpell_Implementation (Spells spell)
 	if (_spellRanks [spell] == 3 || _spellUpgradesAvailable == 0)
 		return;
 
+	//If spell rank is 2 and player level is below 5, return
+	if (_spellRanks [spell] == 2 && level > 0)
+	{
+		if (level < 5)
+			return;
+	}
+
 	//Set spell rank to one higher
 	_spellRanks [spell]++;
 
@@ -193,6 +205,23 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 		tempCurrentlyProjectingSpell = true;
 	}
 
+	//If spell is not basic
+	if (hotkeyIndex != 0)
+	{
+		//If spell is not ultimate
+		if (hotkeyIndex != -1)
+		{
+			//Get spell based on hotkey index
+			Spells spellToUse = _uiHandler->GetSpellPanelSpells () [hotkeyIndex - 1];
+
+			//If spell has global cooldown, stop using basic spell
+			if (USpellAttributes::GetGlobalCooldown (spellToUse))
+				StopUsingBasicSpell ();
+		}
+		else //If spell is ultimate, stop using basic spell
+			StopUsingBasicSpell ();
+	}
+
 	if (hotkeyIndex == -1)
 	{
 		//If spell is on cooldown, return
@@ -210,7 +239,7 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 		else
 		{
 			//If spell is on cooldown, return
-			if (GetSpellIsOnCooldown (BASIC))
+			if (GetSpellIsOnCooldown (BASIC) || _basicSpellCharges == 0)
 				return;
 
 			UseCharacterSpell (BASIC);
@@ -229,6 +258,26 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 		if (!(tempCurrentlyProjectingSpell && _currentlyActivatedSpell == spellToUse))
 			UseSpell (spellToUse);
 	}
+}
+
+void ACharacterBase::StartUsingBasicSpell ()
+{
+	_usingBasicSpell = true;
+}
+
+void ACharacterBase::UpdateUsingBasicSpell ()
+{
+	//If spell is on cooldown, return
+	if (GetSpellIsOnCooldown (BASIC))
+		return;
+
+	//Use basic spell
+	UseSpellInput (0);
+}
+
+void ACharacterBase::StopUsingBasicSpell ()
+{
+	_usingBasicSpell = false;
 }
 
 void ACharacterBase::UseSpell_Implementation (Spells spell)
@@ -272,6 +321,10 @@ void ACharacterBase::UseCharacterSpell_Implementation (CharacterSpells spell)
 {
 	//If dead or the spell is on cooldown, return
 	if (_dead || GetSpellIsOnCooldown (spell))
+		return;
+
+	//If spell is basic and there are no charges left, return
+	if (spell == BASIC && _basicSpellCharges == 0)
 		return;
 
 	//Cancel current spell
@@ -344,7 +397,8 @@ void ACharacterBase::PutSpellOnCooldown (CharacterSpells spell)
 		_characterSpellCooldowns [spell] = _ultimateSpellCooldown;
 	else //If spell is basic, put basic on cooldown
 	{
-		//TODO: Handle basic spell cooldown system
+		//Handle basic spell cooldown system
+		_basicSpellCharges--;
 
 		_characterSpellCooldowns [spell] = _basicSpellCooldown; //Temp float
 	}
@@ -487,7 +541,17 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 		}
 	}
 
-	//TODO: Handle basic spell cooldown system
+	//Handle basic spell cooldown system
+	if (_basicSpellCharges < _maxBasicSpellCharges)
+	{
+		_basicSpellChargeTimer -= deltaTime;
+
+		if (_basicSpellChargeTimer <= 0.0f)
+		{
+			_basicSpellCharges++;
+			_basicSpellChargeTimer = _basicSpellChargeTime;
+		}
+	}
 
 	//Update basic spell cooldown
 	if (_characterSpellCooldowns [BASIC] > 0.0f)
@@ -550,7 +614,9 @@ void ACharacterBase::ResetCooldowns ()
 		_ultimateSpellCooldownPercentage = 0.0f;
 	}
 
-	//TODO: Handle basic spell cooldown system
+	//Handle basic spell cooldown system
+	_basicSpellCharges = _maxBasicSpellCharges;
+	_basicSpellChargeTimer = _basicSpellChargeTime;
 
 	//Reset basic spell cooldown
 	_characterSpellCooldowns [BASIC] = 0.0f;
@@ -795,6 +861,9 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION (ACharacterBase, _ownedSpellsCooldownPercentages, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _ultimateSpellCooldownPercentage, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellCooldownPercentage, COND_OwnerOnly);
+
+	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellCharges, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellChargeTimer, COND_OwnerOnly);
 }
 
 //Called to bind functionality to input
@@ -803,7 +872,8 @@ void ACharacterBase::SetupPlayerInputComponent (UInputComponent* PlayerInputComp
 	Super::SetupPlayerInputComponent (PlayerInputComponent);
 
 	PlayerInputComponent->BindAction ("UseUltimateSpell", IE_Pressed, this, &ACharacterBase::UseSpellInput <-1>);
-	PlayerInputComponent->BindAction ("UseBasicSpell", IE_Pressed, this, &ACharacterBase::UseSpellInput <0>);
+	PlayerInputComponent->BindAction ("UseBasicSpell", IE_Pressed, this, &ACharacterBase::StartUsingBasicSpell);
+	PlayerInputComponent->BindAction ("UseBasicSpell", IE_Released, this, &ACharacterBase::StopUsingBasicSpell);
 	PlayerInputComponent->BindAction ("CancelSpell", IE_Pressed, this, &ACharacterBase::CancelSpell);
 
 	PlayerInputComponent->BindAction ("UseSpell1", IE_Pressed, this, &ACharacterBase::UseSpellInput <1>);

@@ -20,6 +20,9 @@ void ABattleRoyalePlayerState::BeginPlay ()
 
 	//Set needed experience to level up
 	_neededExperience = _playerProgressionInfo->ExperienceNeededPerLevel [0];
+
+	//Set level in character controller
+	characterController.level = _level;
 }
 
 void ABattleRoyalePlayerState::Tick (float DeltaTime)
@@ -81,6 +84,9 @@ void ABattleRoyalePlayerState::LevelUp ()
 	//If player reached level 6, unlock ultimate spell
 	if (_level == 6)
 		characterController->UnlockUltimateSpell ();
+
+	//Set level in character controller
+	characterController.level = _level;
 }
 
 void ABattleRoyalePlayerState::OnKill (APlayerState* playerState)

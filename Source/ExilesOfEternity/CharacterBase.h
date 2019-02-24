@@ -48,6 +48,8 @@ public:
 	bool GetUltimateSpellUnlocked ();
 	bool GetDead ();
 
+	int level = 0; //Used for specific game modes
+
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;
@@ -116,6 +118,16 @@ protected:
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _basicSpellCooldownPercentage;
 
+	//Basic spell charging
+	UPROPERTY (BlueprintReadOnly)
+	int _maxBasicSpellCharges = 5;
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	int _basicSpellCharges = 5;
+	UPROPERTY (BlueprintReadOnly)
+	float _basicSpellChargeTime = 2.0f;
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	float _basicSpellChargeTimer = 2.0f;
+
 private:
 	UFUNCTION (Server, Reliable, WithValidation)
 	void ServerInitializeCharacter ();
@@ -134,6 +146,10 @@ private:
 
 	UFUNCTION (Server, Reliable, WithValidation)
 	void UseSpell (Spells spell);
+
+	void StartUsingBasicSpell ();
+	void UpdateUsingBasicSpell ();
+	void StopUsingBasicSpell ();
 
 	//Basic and ultimate spell
 	UFUNCTION (Server, Reliable, WithValidation)
@@ -186,9 +202,11 @@ private:
 	UPROPERTY (Replicated)
 	bool _ultimateSpellUnlocked = false;
 	float _ultimateSpellCooldown = 60.0f;
-	float _basicSpellCooldown = 1.0f;
+	float _basicSpellCooldown = 0.35f;
 
-	float _globalCooldown = 0.65f;
+	float _globalCooldown = 0.35f;
+
+	bool _usingBasicSpell = false;
 
 	TMap <Spells, bool> _globalCooldownsActivated;
 	bool _ultimateCooldownsActivated = false;

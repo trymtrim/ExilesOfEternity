@@ -66,6 +66,16 @@ void UExilesOfEternityGameInstance::OnMessage (FString message)
 		URefreshResponse* joinGameResponce = Cast <URefreshResponse> (UWebSocketBlueprintLibrary::JsonToObject (message, URefreshResponse::StaticClass (), false));
 		OnRefreshBP.Broadcast (joinGameResponce->gameInstanceNames);
 	}
+	else if (type == "JoinLobby")
+	{
+		UJoinLobbyResponse* joinLobbyResponce = Cast <UJoinLobbyResponse> (UWebSocketBlueprintLibrary::JsonToObject (message, UJoinLobbyResponse::StaticClass (), false));
+		OnJoinLobbyBP.Broadcast (joinLobbyResponce->gameName, joinLobbyResponce->playerNames);
+	}
+	else if (type == "RefreshLobby")
+	{
+		URefreshLobbyResponse* refreshLobbyResponce = Cast <URefreshLobbyResponse> (UWebSocketBlueprintLibrary::JsonToObject (message, URefreshLobbyResponse::StaticClass (), false));
+		OnRefreshLobbyBP.Broadcast (refreshLobbyResponce->playerNames);
+	}
 }
 
 void UExilesOfEternityGameInstance::CreateGame (FString gameName, FString gameMode)
@@ -98,6 +108,48 @@ void UExilesOfEternityGameInstance::JoinGame (FString gameName)
 	UJoinGameRequest* request = NewObject <UJoinGameRequest> ();
 
 	request->type = "JoinGame";
+	request->gameName = gameName;
+
+	UWebSocketBlueprintLibrary::ObjectToJson (request, message);
+	_webSocket->SendText (message);
+}
+
+void UExilesOfEternityGameInstance::JoinLobby (FString gameName, FString playerName)
+{
+	FString message;
+	UJoinLobbyRequest* request = NewObject <UJoinLobbyRequest> ();
+
+	request->type = "JoinLobby";
+	request->gameName = gameName;
+
+	if (playerName == "")
+		request->playerName = "Player";
+	else
+		request->playerName = playerName;
+
+	UWebSocketBlueprintLibrary::ObjectToJson (request, message);
+	_webSocket->SendText (message);
+}
+
+void UExilesOfEternityGameInstance::LeaveLobby (FString gameName, FString playerName)
+{
+	FString message;
+	ULeaveLobbyRequest* request = NewObject <ULeaveLobbyRequest> ();
+
+	request->type = "LeaveLobby";
+	request->gameName = gameName;
+	request->playerName = playerName;
+
+	UWebSocketBlueprintLibrary::ObjectToJson (request, message);
+	_webSocket->SendText (message);
+}
+
+void UExilesOfEternityGameInstance::StartGame (FString gameName)
+{
+	FString message;
+	UStartGameRequest* request = NewObject <UStartGameRequest> ();
+
+	request->type = "StartGame";
 	request->gameName = gameName;
 
 	UWebSocketBlueprintLibrary::ObjectToJson (request, message);

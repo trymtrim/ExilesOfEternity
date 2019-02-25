@@ -18,7 +18,7 @@ public:
 
 	void Initialize ();
 	UFUNCTION (Client, Reliable)
-	void ClientInitialize ();
+	void ClientInitializePlayerState ();
 
 	void Tick (float DeltaTime);
 

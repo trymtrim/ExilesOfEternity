@@ -20,9 +20,12 @@ void ABattleRoyalePlayerState::Initialize ()
 
 	//Set needed experience to level up
 	_neededExperience = _playerProgressionInfo->ExperienceNeededPerLevel [0];
+
+	//Initialize client-side
+	ClientInitializePlayerState ();
 }
 
-void ABattleRoyalePlayerState::ClientInitialize_Implementation ()
+void ABattleRoyalePlayerState::ClientInitializePlayerState_Implementation ()
 {
 	//Get player progressions info
 	_playerProgressionInfo = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ())->GetPlayerProgressionInfo ();

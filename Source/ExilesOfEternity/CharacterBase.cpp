@@ -809,12 +809,7 @@ FRotator ACharacterBase::GetAimRotation (FVector startPosition)
 FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 {
 	if (initialCheck)
-	{
 		_locationCheckMaxDistance = maxDistance;
-		_locationCheckCount = 0;
-	}
-
-	_locationCheckCount++;
 
 	//Line trace from camera to check if there is something in the crosshair's sight
 	FCollisionQueryParams traceParams = FCollisionQueryParams (FName (TEXT ("RV_Trace")), true, this);
@@ -846,6 +841,9 @@ FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 	{
 		float distanceCheck = 5.0f; //Make this higher to improve performance
 		float newMaxDistance = maxDistance - distanceCheck;
+
+		if (newMaxDistance < 10.0f)
+			return FVector (1000000.0f, 1000000.0f, 1000000.0f);
 
 		return GetAimLocation (newMaxDistance, false);
 	}

@@ -46,6 +46,10 @@ void ABattleRoyaleGameState::StartGame ()
 	//Start timer for current stage and start next stage when timer is finished
 	FTimerHandle startNextStageTimerHandle;
 	GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
+
+	//Initialize player states
+	for (int i = 0; i < PlayerArray.Num (); i++)
+		Cast <ABattleRoyalePlayerState> (PlayerArray [i])->Initialize ();
 }
 
 void ABattleRoyaleGameState::StartNextStage ()

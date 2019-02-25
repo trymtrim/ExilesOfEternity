@@ -195,6 +195,7 @@ private:
 	UCameraComponent* _cameraComponent;
 
 	float _locationCheckMaxDistance;
+	float _locationCheckCount;
 
 	UPROPERTY (Replicated)
 	bool _currentlyProjectingSpell = false;

@@ -13,7 +13,16 @@ ABattleRoyalePlayerState::ABattleRoyalePlayerState ()
 	NetUpdateFrequency = 30.0f;
 }
 
-void ABattleRoyalePlayerState::BeginPlay ()
+void ABattleRoyalePlayerState::Initialize ()
+{
+	//Get player progressions info
+	_playerProgressionInfo = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ())->GetPlayerProgressionInfo ();
+
+	//Set needed experience to level up
+	_neededExperience = _playerProgressionInfo->ExperienceNeededPerLevel [0];
+}
+
+void ABattleRoyalePlayerState::ClientInitialize_Implementation ()
 {
 	//Get player progressions info
 	_playerProgressionInfo = Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ())->GetPlayerProgressionInfo ();
@@ -26,9 +35,13 @@ void ABattleRoyalePlayerState::Tick (float DeltaTime)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	//If redeem kill timer is currently running and the player is not victorious, update it
-	if (_currentRedeemKillTime > 0.0f && !_victorious && !Cast <ACharacterBase> (GetPawn ())->GetDead ())
-		UpdateRedeemKillTimer (DeltaTime);
+	//Update server specific elements
+	if (GetWorld ()->IsServer ())
+	{
+		//If redeem kill timer is currently running and the player is not victorious, update it
+		if (_currentRedeemKillTime > 0.0f && !_victorious && !Cast <ACharacterBase> (GetPawn ())->GetDead ())
+			UpdateRedeemKillTimer (DeltaTime);
+	}
 }
 
 void ABattleRoyalePlayerState::GainExperience (int experience)

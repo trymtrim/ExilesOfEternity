@@ -16,7 +16,9 @@ class EXILESOFETERNITY_API ABattleRoyalePlayerState : public APlayerStateBase
 public:
 	ABattleRoyalePlayerState ();
 
-	virtual void BeginPlay () override;
+	void Initialize ();
+	UFUNCTION (Client, Reliable)
+	void ClientInitialize ();
 
 	void Tick (float DeltaTime);
 
@@ -65,7 +67,7 @@ private:
 	UPROPERTY (Replicated)
 	int _currentExperience = 0;
 	UPROPERTY (Replicated)
-	int _neededExperience;
+	int _neededExperience = 100;
 	UPROPERTY (Replicated)
 	float _currentRedeemKillTime = 0.0f;
 	UPROPERTY (Replicated)

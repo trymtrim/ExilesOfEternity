@@ -711,6 +711,9 @@ void ACharacterBase::Die ()
 	_dead = true;
 
 	DieBP ();
+	
+	//Cancel current spell
+	CancelCurrentSpellBP ();
 
 	Cast <AExilesOfEternityGameModeBase> (GetWorld ()->GetAuthGameMode ())->ReportDeath (this);
 }
@@ -806,7 +809,12 @@ FRotator ACharacterBase::GetAimRotation (FVector startPosition)
 FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 {
 	if (initialCheck)
+	{
 		_locationCheckMaxDistance = maxDistance;
+		_locationCheckCount = 0;
+	}
+
+	_locationCheckCount++;
 
 	//Line trace from camera to check if there is something in the crosshair's sight
 	FCollisionQueryParams traceParams = FCollisionQueryParams (FName (TEXT ("RV_Trace")), true, this);

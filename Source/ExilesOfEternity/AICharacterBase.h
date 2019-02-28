@@ -52,7 +52,6 @@ private:
 
 	UPROPERTY (Replicated)
 	bool _dead = false;
-
 	
 	bool _retreating = false;
 };

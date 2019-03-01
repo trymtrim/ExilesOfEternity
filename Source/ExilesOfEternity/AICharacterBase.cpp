@@ -21,6 +21,7 @@ void AAICharacterBase::BeginPlay ()
 	{
 		//Set start location
 		_startLocation = GetActorLocation ();
+		_originalStartLocation = _startLocation;
 
 		//Set health
 		_currentHealth = _maxHealth;
@@ -34,17 +35,33 @@ void AAICharacterBase::Tick (float DeltaTime)
 	//Execute server specific actions
 	if (GetWorld ()->IsServer ())
 	{
+		//Update aggro range percentage
+		_aggroRangePercentage = FVector::Distance (GetActorLocation (), _startLocation) / _maxAggroRange;
+
 		//If AI is out of max aggro range, retreat
-		if (!_retreating && FVector::Distance (GetActorLocation (), _startLocation) > _maxAggroRange)
+		if (!_retreating && _aggroRangePercentage >= 1.0f)
 			Retreat ();
 	}
+}
+
+void AAICharacterBase::SetAggroStartLocation (FVector location)
+{
+	_startLocation = location;
+}
+
+void AAICharacterBase::SetHasAggro (bool state)
+{
+	_hasAggro = state;
 }
 
 void AAICharacterBase::Retreat ()
 {
 	//Retreat
-	RetreatBP ();
 	_retreating = true;
+	_hasAggro = false;
+	_startLocation = _originalStartLocation;
+
+	RetreatBP ();
 
 	//Regain health
 	FTimerHandle regainHealthTimerHandle;
@@ -98,6 +115,10 @@ float AAICharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEven
 	else if (Damage < 0.0f && _currentHealth > _maxHealth)
 		_currentHealth = _maxHealth;
 
+	//If the damage causer is a player, call on deal damage event on the damage causer
+	if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
+		Cast <ACharacterBase> (DamageCauser)->OnDealDamageBP (this, Damage);
+
 	return Super::TakeDamage (Damage, DamageEvent, EventInstigator, DamageCauser);
 }
 
@@ -131,4 +152,6 @@ void AAICharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& O
 	DOREPLIFETIME (AAICharacterBase, _maxHealth);
 	DOREPLIFETIME (AAICharacterBase, _currentHealth);
 	DOREPLIFETIME (AAICharacterBase, _dead);
+	DOREPLIFETIME (AAICharacterBase, _aggroRangePercentage);
+	DOREPLIFETIME (AAICharacterBase, _hasAggro);
 }

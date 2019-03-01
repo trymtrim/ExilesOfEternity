@@ -16,6 +16,11 @@ public:
 
 	virtual void Tick (float DeltaTime) override;
 
+	UFUNCTION (BlueprintCallable)
+	void SetAggroStartLocation (FVector location);
+	UFUNCTION (BlueprintCallable)
+	void SetHasAggro (bool state);
+
 protected:
 	virtual void BeginPlay () override;
 
@@ -37,21 +42,25 @@ protected:
 	float _maxHealth = 50.0f;
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _currentHealth = 50.0f;
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	bool _dead = false;
 
-	UPROPERTY (EditAnyWhere)
+	UPROPERTY (EditAnyWhere, BlueprintReadOnly)
 	float _maxAggroRange = 5000.0f;
 	UPROPERTY (EditAnyWhere)
 	int _experience = 50;
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	float _aggroRangePercentage = 0.0f;
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	bool _hasAggro = false;
 
 	UPROPERTY (BlueprintReadOnly)
 	FVector _startLocation;
+	FVector _originalStartLocation;
 
 private:
 	void RegainHealth ();
 	void Die (AActor* damageCauser);
-
-	UPROPERTY (Replicated)
-	bool _dead = false;
 	
 	bool _retreating = false;
 };

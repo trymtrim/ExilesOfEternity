@@ -27,6 +27,8 @@ public:
 
 	UFUNCTION (BlueprintCallable)
 	void AddSpellToPanel (Spells spell, UWidget* widget);
+	UFUNCTION (BlueprintCallable)
+	void RemoveSpellFromPanel (Spells spell, UWidget* widget);
 
 	TArray <Spells> GetSpellPanelSpells ();
 

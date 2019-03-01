@@ -57,6 +57,22 @@ void UUIHandler::AddSpellToPanel (Spells spell, UWidget* widget)
 	}
 }
 
+void UUIHandler::RemoveSpellFromPanel (Spells spell, UWidget * widget)
+{
+	for (int i = 0; i < _spellPanelSpells.Num (); i++)
+	{
+		if (_spellPanelSpells [i] == spell)
+		{
+			ReplacePanelChild (widget, i);
+
+			_spellPanelSpells [i] = EMPTY;
+			_spellPositionChanged = true;
+
+			return;
+		}
+	}
+}
+
 TArray <Spells> UUIHandler::GetSpellPanelSpells ()
 {
 	return _spellPanelSpells;

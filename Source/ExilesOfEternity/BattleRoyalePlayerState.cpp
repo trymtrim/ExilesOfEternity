@@ -99,7 +99,7 @@ void ABattleRoyalePlayerState::LevelUp ()
 		characterController->UnlockUltimateSpell ();
 
 	//Set level in character controller
-	characterController->level = _level;
+	characterController->LevelUp (_level);
 }
 
 void ABattleRoyalePlayerState::OnKill (APlayerState* playerState)

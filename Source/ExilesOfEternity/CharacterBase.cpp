@@ -114,10 +114,13 @@ bool ACharacterBase::AddSpell (Spells spell)
 	_ownedSpells.Add (spell);
 	AddSpellBP (spell);
 
-	//Add spell cooldown
-	_spellCooldowns.Add (spell, 0.0f);
-	_ownedSpellsCooldownPercentages.Add (0.0f);
-	_globalCooldownsActivated.Add (spell, false);
+	if (!_spellCooldowns.Contains (spell))
+	{
+		//Add spell cooldown
+		_spellCooldowns.Add (spell, 0.0f);
+		_ownedSpellsCooldownPercentages.Add (0.0f);
+		_globalCooldownsActivated.Add (spell, false);
+	}
 
 	//Add spell to owned spells client-side
 	ClientAddOwnedSpell (spell);
@@ -173,6 +176,43 @@ void ACharacterBase::ClientUpgradeSpell_Implementation (Spells spell)
 void ACharacterBase::AddSpellUpgrade ()
 {
 	_spellUpgradesAvailable++;
+}
+
+void ACharacterBase::DropSpell_Implementation (Spells spell)
+{
+	if (!_ownedSpells.Contains (spell))
+		return;
+
+	//Remove spell from owned spells
+	_ownedSpells.Remove (spell);
+	_spellRanks.Remove (spell);
+
+	//Update spell drop client-side
+	ClientDropSpell (spell);
+
+	//Declare spawn parameters
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	FVector spawnPosition = GetActorLocation () - FVector (0.0f, 0.0f, 88.0f);
+	FRotator spawnRotation = FRotator (0.0f, 0.0f, 0.0f);
+
+
+
+	//Spawn spell capsule
+	GetWorld ()->SpawnActor <AActor> (USpellAttributes::GetSpellCapsule (spell), spawnPosition, spawnRotation, spawnParams);
+}
+
+bool ACharacterBase::DropSpell_Validate (Spells spell)
+{
+	return true;
+}
+
+void ACharacterBase::ClientDropSpell_Implementation (Spells spell)
+{
+	_ownedSpells.Remove (spell);
+	_spellRanks.Remove (spell);
+
+	RemoveSpellBP (spell);
 }
 
 void ACharacterBase::UnlockUltimateSpell ()
@@ -663,6 +703,20 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	//If the damage causer is on the same team as this character, don't apply damage
 	if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
 	{
+		//Call on deal damage event on the damage causer
+		if (Damage < 0.0f)
+		{
+			_currentHealing -= Damage;
+
+			if (_currentHealing >= 3.0f)
+			{
+				Cast <ACharacterBase> (DamageCauser)->OnDealDamageBP (this, -_currentHealing);
+				_currentHealing = 0.0f;
+			}
+		}
+		else
+			Cast <ACharacterBase> (DamageCauser)->OnDealDamageBP (this, Damage);
+
 		int damageCauserTeamNumber = Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->GetTeamNumber ();
 		int ourTeamNumber = Cast <APlayerStateBase> (GetPlayerState ())->GetTeamNumber ();
 
@@ -686,9 +740,15 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 			Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->AddKill (GetPlayerState ());
 	}
 	else if (Damage > 0.0f)
+	{
 		OnDamageBP ();
-	else if (Damage < 0.0f && _currentHealth > _maxHealth)
-		_currentHealth = _maxHealth;
+		OnFloatingDamageBP (Damage);
+	}
+	else if (Damage < 0.0f)
+	{
+		if (_currentHealth > _maxHealth)
+			_currentHealth = _maxHealth;
+	}
 
 	return Super::TakeDamage (Damage, DamageEvent, EventInstigator, DamageCauser);
 }
@@ -780,6 +840,14 @@ bool ACharacterBase::GetUltimateSpellUnlocked ()
 bool ACharacterBase::GetDead ()
 {
 	return _dead;
+}
+
+void ACharacterBase::LevelUp (int newLevel)
+{
+	level = newLevel;
+
+	//Call level-up blueprint event
+	OnLevelUpBP (newLevel);
 }
 
 FRotator ACharacterBase::GetAimRotation (FVector startPosition)

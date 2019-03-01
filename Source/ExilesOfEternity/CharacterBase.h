@@ -31,6 +31,8 @@ public:
 	void Die ();
 	void ResetCharacter ();
 
+	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
+	void DropSpell (Spells spell);
 	void AddSpellUpgrade ();
 	void UnlockUltimateSpell ();
 
@@ -46,9 +48,17 @@ public:
 	int GetSpellUpgradesAvailable ();
 	UFUNCTION (BlueprintCallable)
 	bool GetUltimateSpellUnlocked ();
+	UFUNCTION (BlueprintCallable)
 	bool GetDead ();
 
-	int level = 0; //Used for specific game modes
+	UFUNCTION (BlueprintImplementableEvent)
+	void OnDealDamageBP (AActor* actor, float damage);
+
+	//Used for specific game modes
+	void LevelUp (int newLevel);
+	UFUNCTION (BlueprintImplementableEvent)
+	void OnLevelUpBP (int level);
+	int level = 0;
 
 protected:
 	//Called when the game starts or when spawned
@@ -61,6 +71,8 @@ protected:
 	UFUNCTION (BlueprintImplementableEvent)
 	void AddSpellBP (Spells spell);
 	UFUNCTION (BlueprintImplementableEvent)
+	void RemoveSpellBP (Spells spell);
+	UFUNCTION (BlueprintImplementableEvent)
 	void UseSpellBP (Spells spell);
 	UFUNCTION (BlueprintImplementableEvent)
 	void UseCharacterSpellBP (CharacterSpells spell);
@@ -72,6 +84,8 @@ protected:
 	void ActivateProjectionSpellBP (Spells spell, FVector location);
 	UFUNCTION (BlueprintImplementableEvent)
 	void OnDamageBP ();
+	UFUNCTION (BlueprintImplementableEvent)
+	void OnFloatingDamageBP (float Damage);
 	UFUNCTION (BlueprintImplementableEvent)
 	void DieBP ();
 	UFUNCTION (BlueprintImplementableEvent)
@@ -136,6 +150,8 @@ private:
 	void ClientAddOwnedSpell (Spells spell);
 	UFUNCTION (Client, Reliable)
 	void ClientUpgradeSpell (Spells spell);
+	UFUNCTION (Client, Reliable)
+	void ClientDropSpell (Spells spell);
 
 	void UseSpellInput (int hotkeyIndex);
 	template <int hotkeyIndex>
@@ -229,4 +245,6 @@ private:
 
 	float _staticHealthRegenTime = 3.0f;
 	float _staticHealthRegenTimer;
+
+	float _currentHealing = 0.0f;
 };

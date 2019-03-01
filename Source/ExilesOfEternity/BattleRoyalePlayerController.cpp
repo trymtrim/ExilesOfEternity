@@ -178,6 +178,11 @@ void ABattleRoyalePlayerController::ActivateRedeemTimer (bool state)
 		_playerState = Cast <ABattleRoyalePlayerState> (PlayerState);
 }
 
+void ABattleRoyalePlayerController::ShowLevelUpMessage_Implementation (const FString& message, int level)
+{
+	OnLevelUpMessageBP.Broadcast (message, level);
+}
+
 bool ABattleRoyalePlayerController::GetStartingZoneChosen ()
 {
 	if (_chosenStartingZone == 0)

@@ -8,6 +8,8 @@
 
 class ABattleRoyalePlayerState;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams (FOnLevelUpMessage, FString, message, int, level);
+
 UCLASS()
 class EXILESOFETERNITY_API ABattleRoyalePlayerController : public APlayerControllerBase
 {
@@ -39,6 +41,12 @@ public:
 	void ClientRegisterGameStart ();
 
 	void ActivateRedeemTimer (bool state);
+
+	UFUNCTION (Client, Reliable)
+	void ShowLevelUpMessage (const FString& message, int level);
+
+	UPROPERTY (BlueprintAssignable)
+	FOnLevelUpMessage OnLevelUpMessageBP;
 
 protected:
 	virtual void BeginPlay () override;

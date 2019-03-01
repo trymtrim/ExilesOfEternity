@@ -58,7 +58,7 @@ public:
 	void LevelUp (int newLevel);
 	UFUNCTION (BlueprintImplementableEvent)
 	void OnLevelUpBP (int level);
-	int level = 0;
+	int level = 1;
 
 protected:
 	//Called when the game starts or when spawned
@@ -95,7 +95,7 @@ protected:
 	void HandleRespawnBP ();
 
 	UFUNCTION (BlueprintCallable)
-	bool AddSpell (Spells spell);
+	bool AddSpell (Spells spell, bool hack); //REMINDER: Remove hack later
 	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
 	void UpgradeSpell (Spells spell);
 

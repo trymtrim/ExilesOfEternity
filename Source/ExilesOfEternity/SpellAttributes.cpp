@@ -39,6 +39,7 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 
 		Spell spell;
 
+		spell.Name = stats->Name;
 		spell.Type = stats->Type;
 		spell.Cooldown = stats->Cooldown;
 		spell.Damage = stats->Damage;
@@ -62,6 +63,11 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 	}
 
 	_spellMap = map;
+}
+
+FString USpellAttributes::GetName (Spells spell)
+{
+	return _spellMap [spell].Name;
 }
 
 SpellTypes USpellAttributes::GetType (Spells spell)

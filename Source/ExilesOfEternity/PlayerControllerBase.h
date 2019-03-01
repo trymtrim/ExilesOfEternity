@@ -6,6 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "PlayerControllerBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams (FOnMessage, FString, message, bool, error);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnKillMessage, FString, message);
+
 UCLASS()
 class EXILESOFETERNITY_API APlayerControllerBase : public APlayerController
 {
@@ -20,6 +23,16 @@ public:
 
 	UFUNCTION (Client, Reliable, BlueprintCallable)
 	void SetInputUIOnly ();
+
+	UFUNCTION (Client, Reliable, BlueprintCallable)
+	void AddMessage (const FString& message, bool error);
+	UFUNCTION (Client, Reliable)
+	void AddKillMessage (const FString& message);
+
+	UPROPERTY (BlueprintAssignable)
+	FOnMessage OnMessageBP;
+	UPROPERTY (BlueprintAssignable)
+	FOnKillMessage OnKillMessageBP;
 
 protected:
 	//Called when the game starts or when spawned

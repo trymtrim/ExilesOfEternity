@@ -96,7 +96,16 @@ void ABattleRoyalePlayerState::LevelUp ()
 
 	//If player reached level 6, unlock ultimate spell
 	if (_level == 6)
+	{
 		characterController->UnlockUltimateSpell ();
+
+		//Show level-up message
+		Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("Ultimate ability unlocked", _level);
+	}
+	else if (_level < 6)
+		Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("New spell slot available", _level);
+	else
+		Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("", _level);
 
 	//Set level in character controller
 	characterController->LevelUp (_level);
@@ -117,6 +126,9 @@ void ABattleRoyalePlayerState::OnKill (APlayerState* playerState)
 
 	//Gain experience
 	GainExperience (Cast <ABattleRoyalePlayerState> (playerState)->GetLevel () * 40);
+
+	//Add kill message
+	Cast <APlayerControllerBase> (GetPawn ()->GetController ())->AddKillMessage ("You killed " + Cast <APlayerStateBase> (playerState)->GetNickname ());
 }
 
 void ABattleRoyalePlayerState::OnDeath ()
@@ -139,8 +151,8 @@ void ABattleRoyalePlayerState::OnDeath ()
 			//Set required redeem kills to one
 			_requiredRedeemKills = 1;
 		}
-		else //If redeem kill timer is currently running, add one required redeem kill
-			_requiredRedeemKills++;
+		else //If redeem kill timer is currently running, die permanently
+			DiePermanently ();
 	}
 	else //If the game is in the last stages, die permanenty
 		DiePermanently ();

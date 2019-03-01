@@ -104,11 +104,29 @@ void ACharacterBase::SetBasicSpellDamage (float damage)
 	_basicSpellDamage = damage;
 }
 
-bool ACharacterBase::AddSpell (Spells spell)
+bool ACharacterBase::AddSpell (Spells spell, bool hack)
 {
 	//If owned spells is full, return
-	if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell))
-		return false;
+	if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell) || level <= _ownedSpells.Num ())
+	{
+		//Add error message
+		if (_ownedSpells.Contains (spell))
+			Cast <APlayerControllerBase> (GetController ())->AddMessage ("You already own this spell", true);
+		else
+			Cast <APlayerControllerBase> (GetController ())->AddMessage ("Not enough spell slots", true);
+
+		//Temp solution propably
+		if (level <= _ownedSpells.Num () && _ownedSpells.Num () != 6 && !_ownedSpells.Contains (spell))
+		{
+			if (!hack)
+				return false;
+		}
+		else
+			return false;
+	}
+
+	//Add unlock message
+	Cast <APlayerControllerBase> (GetController ())->AddMessage ("You unlocked " + USpellAttributes::GetName (spell), false);
 
 	//Add spell
 	_ownedSpells.Add (spell);
@@ -195,8 +213,6 @@ void ACharacterBase::DropSpell_Implementation (Spells spell)
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	FVector spawnPosition = GetActorLocation () - FVector (0.0f, 0.0f, 88.0f);
 	FRotator spawnRotation = FRotator (0.0f, 0.0f, 0.0f);
-
-
 
 	//Spawn spell capsule
 	GetWorld ()->SpawnActor <AActor> (USpellAttributes::GetSpellCapsule (spell), spawnPosition, spawnRotation, spawnParams);

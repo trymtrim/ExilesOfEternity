@@ -28,6 +28,16 @@ void APlayerControllerBase::SetInputUIOnly_Implementation ()
 	SetInputMode (uiInputMode);
 }
 
+void APlayerControllerBase::AddMessage_Implementation (const FString& message, bool error)
+{
+	OnMessageBP.Broadcast (message, error);
+}
+
+void APlayerControllerBase::AddKillMessage_Implementation (const FString& message)
+{
+	OnKillMessageBP.Broadcast (message);
+}
+
 void APlayerControllerBase::Possess (APawn* InPawn)
 {
 	Super::Possess (InPawn);

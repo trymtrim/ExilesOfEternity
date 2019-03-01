@@ -110,6 +110,8 @@ public:
 	static void LoadSpells (UDataTable* spellDataTable);
 
 	UFUNCTION (BlueprintCallable)
+	static FString GetName (Spells spell);
+	UFUNCTION (BlueprintCallable)
 	static SpellTypes GetType (Spells spell);
 	static float GetCooldown (Spells spell, int rank);
 	UFUNCTION (BlueprintCallable)

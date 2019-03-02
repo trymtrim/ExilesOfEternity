@@ -721,6 +721,9 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	//If the damage causer is on the same team as this character, don't apply damage
 	if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
 	{
+		int damageCauserTeamNumber = Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->GetTeamNumber ();
+		int ourTeamNumber = Cast <APlayerStateBase> (GetPlayerState ())->GetTeamNumber ();
+
 		//Call on deal damage event on the damage causer
 		if (Damage < 0.0f)
 		{
@@ -732,11 +735,8 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 				_currentHealing = 0.0f;
 			}
 		}
-		else
+		else if (damageCauserTeamNumber != ourTeamNumber)
 			Cast <ACharacterBase> (DamageCauser)->OnDealDamageBP (this, Damage);
-
-		int damageCauserTeamNumber = Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->GetTeamNumber ();
-		int ourTeamNumber = Cast <APlayerStateBase> (GetPlayerState ())->GetTeamNumber ();
 
 		if (damageCauserTeamNumber == ourTeamNumber && Damage > 0.0f)
 			return 0.0f;

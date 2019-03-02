@@ -25,6 +25,9 @@ protected:
 	virtual float TakeDamage (float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION (BlueprintCallable)
+	void Die (AActor* damageCauser);
+
+	UFUNCTION (BlueprintCallable)
 	void Retreat ();
 	UFUNCTION (BlueprintCallable)
 	void StopRetreating ();
@@ -61,9 +64,7 @@ protected:
 
 private:
 	void RegainHealth ();
-	void Die (AActor* damageCauser);
 	
-
 	//Testing
 	void LevelUp ();
 	int _level = 1;

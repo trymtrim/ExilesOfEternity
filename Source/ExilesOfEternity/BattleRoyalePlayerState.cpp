@@ -136,7 +136,7 @@ void ABattleRoyalePlayerState::OnKill (APlayerState* playerState)
 	}
 
 	//Gain experience
-	GainExperience (Cast <ABattleRoyalePlayerState> (playerState)->GetLevel () * 40);
+	GainExperience (Cast <ABattleRoyalePlayerState> (playerState)->GetLevel () * 25 + 25);
 
 	//Add kill message
 	Cast <APlayerControllerBase> (GetPawn ()->GetController ())->AddKillMessage ("You killed " + Cast <APlayerStateBase> (playerState)->GetNickname ());

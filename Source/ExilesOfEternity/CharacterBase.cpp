@@ -107,13 +107,13 @@ void ACharacterBase::SetBasicSpellDamage (float damage)
 bool ACharacterBase::AddSpell (Spells spell, bool hack)
 {
 	//If owned spells is full, return
-	if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell) || level <= _ownedSpells.Num ())
+	if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell) || level + 1 <= _ownedSpells.Num ())
 	{
 		//Add error message
 		if (_ownedSpells.Contains (spell))
-			Cast <APlayerControllerBase> (GetController ())->AddMessage ("You already own this spell", true);
+			Cast <APlayerControllerBase> (GetController ())->AddMessage ("You already have that ability", true);
 		else
-			Cast <APlayerControllerBase> (GetController ())->AddMessage ("Not enough spell slots", true);
+			Cast <APlayerControllerBase> (GetController ())->AddMessage ("Not enough ability slots", true);
 
 		//Temp solution propably
 		if (level <= _ownedSpells.Num () && _ownedSpells.Num () != 6 && !_ownedSpells.Contains (spell))
@@ -178,6 +178,8 @@ void ACharacterBase::UpgradeSpell_Implementation (Spells spell)
 	ClientUpgradeSpell (spell);
 
 	_spellUpgradesAvailable--;
+
+	Cast <APlayerControllerBase> (GetController ())->AddMessage (USpellAttributes::GetName (spell) + " upgraded to rank " + FString::FromInt (_spellRanks [spell]), false);
 }
 
 bool ACharacterBase::UpgradeSpell_Validate (Spells spell)

@@ -23,9 +23,13 @@ void AAICharacterBase::BeginPlay ()
 		_startLocation = GetActorLocation ();
 		_originalStartLocation = _startLocation;
 
-		//Set health
-		_currentHealth = _maxHealth;
+		//Start level-up process
+		FTimerHandle levelUpTimerHandle;
+		GetWorld ()->GetTimerManager ().SetTimer (levelUpTimerHandle, this, &AAICharacterBase::LevelUp, 60.0f, false);
 	}
+
+	//Set health
+	_currentHealth = _maxHealth;
 }
 
 void AAICharacterBase::Tick (float DeltaTime)
@@ -44,14 +48,12 @@ void AAICharacterBase::Tick (float DeltaTime)
 	}
 }
 
-void AAICharacterBase::SetAggroStartLocation (FVector location)
-{
-	_startLocation = location;
-}
-
 void AAICharacterBase::SetHasAggro (bool state)
 {
 	_hasAggro = state;
+
+	if (_hasAggro)
+		_startLocation = GetActorLocation ();
 }
 
 void AAICharacterBase::Retreat ()
@@ -142,6 +144,30 @@ void AAICharacterBase::Die (AActor* damageCauser)
 		
 		if (playerState)
 			playerState->GainExperience (_experience);
+	}
+}
+
+void AAICharacterBase::LevelUp ()
+{
+	//Add one level
+	_level++;
+
+	//Add more health
+	bool updateCurrentHealth = false;
+
+	if (_currentHealth >= _maxHealth)
+		updateCurrentHealth = true;
+
+	_maxHealth += 15;
+
+	if (updateCurrentHealth)
+		_currentHealth = _maxHealth;
+
+	//If AI has not reached max level, continue level-up process
+	if (_level < 12)
+	{
+		FTimerHandle levelUpTimerHandle;
+		GetWorld ()->GetTimerManager ().SetTimer (levelUpTimerHandle, this, &AAICharacterBase::LevelUp, 60.0f, false);
 	}
 }
 

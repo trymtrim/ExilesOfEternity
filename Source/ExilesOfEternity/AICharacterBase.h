@@ -17,8 +17,6 @@ public:
 	virtual void Tick (float DeltaTime) override;
 
 	UFUNCTION (BlueprintCallable)
-	void SetAggroStartLocation (FVector location);
-	UFUNCTION (BlueprintCallable)
 	void SetHasAggro (bool state);
 
 protected:
@@ -58,9 +56,15 @@ protected:
 	FVector _startLocation;
 	FVector _originalStartLocation;
 
+	UPROPERTY (BlueprintReadOnly)
+	bool _retreating = false;
+
 private:
 	void RegainHealth ();
 	void Die (AActor* damageCauser);
 	
-	bool _retreating = false;
+
+	//Testing
+	void LevelUp ();
+	int _level = 1;
 };

@@ -50,10 +50,10 @@ void AAICharacterBase::Tick (float DeltaTime)
 
 void AAICharacterBase::SetHasAggro (bool state)
 {
-	_hasAggro = state;
-
-	if (_hasAggro)
+	if (!_hasAggro && state)
 		_startLocation = GetActorLocation ();
+
+	_hasAggro = state;
 }
 
 void AAICharacterBase::Retreat ()
@@ -126,7 +126,7 @@ float AAICharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEven
 
 void AAICharacterBase::Die (AActor* damageCauser)
 {
-	//If already dead, return;
+	//If already dead, return
 	if (_dead)
 		return;
 

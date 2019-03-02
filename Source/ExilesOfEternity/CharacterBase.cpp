@@ -7,6 +7,7 @@
 #include "ExilesOfEternityGameModeBase.h"
 #include "PlayerControllerBase.h"
 #include "PlayerStateBase.h"
+#include "Kismet/GameplayStatics.h"
 
 //Sets default values
 ACharacterBase::ACharacterBase ()
@@ -89,7 +90,12 @@ void ACharacterBase::Tick (float DeltaTime)
 
 		//If character is under world bounds, teleport to center of map
 		if (GetActorLocation ().Z < -20000.0f)
-			SetActorLocation (FVector (40000.0f, 40000.0f, 0.0f));
+		{
+			if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "GameLevel")
+				SetActorLocation (FVector (40000.0f, 40000.0f, 0.0f));
+			else if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel")
+				SetActorLocation (FVector (0.0f, 0.0f, 5000.0f));
+		}
 	}
 }
 
@@ -486,7 +492,7 @@ void ACharacterBase::ActivateGlobalCooldown ()
 		{
 			//Update cooldown
 			_characterSpellCooldowns [ULTIMATE] = _globalCooldown;
-			_ultimateCooldownsActivated = false;
+			_ultimateCooldownsActivated = true;
 		}
 	}
 

@@ -145,7 +145,7 @@ void ABattleRoyalePlayerState::OnKill (APlayerState* playerState)
 void ABattleRoyalePlayerState::OnDeath ()
 {
 	//If character is dead permanently, return
-	if (_permanentDead)
+	if (_permanentDead || _victorious)
 		return;
 
 	//Get game state

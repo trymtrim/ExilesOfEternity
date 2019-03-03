@@ -8,6 +8,8 @@
 #include "SpellAttributes.h"
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "CharacterBase.h"
+#include "AICharacterBase.h"
+#include "Kismet/GameplayStatics.h"
 
 ABattleRoyaleGameMode::ABattleRoyaleGameMode ()
 {
@@ -87,6 +89,14 @@ void ABattleRoyaleGameMode::StartGame ()
 
 		playerController->RegisterGameStart ();
 	}
+
+	//Get all AIs in the map
+	TArray <AActor*> AIs;
+	UGameplayStatics::GetAllActorsOfClass (GetWorld (), AAICharacterBase::StaticClass (), AIs);
+
+	//Register game start for all AIs
+	for (int i = 0; i < AIs.Num (); i++)
+		Cast <AAICharacterBase> (AIs [i])->RegisterGameStart ();
 }
 
 void ABattleRoyaleGameMode::ProcedurallySpawnSpellCapsules ()

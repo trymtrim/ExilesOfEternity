@@ -9,6 +9,7 @@
 class UWebSocketBase;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE (FOnConnected);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE (FOnDisconnected);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnJoinGame, FString, ipAddress);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnRefresh, const TArray <FString>&, gameInstanceNames);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams (FOnJoinLobby, FString, gameName, const TArray <FString>&, playerNames);
@@ -22,6 +23,9 @@ class EXILESOFETERNITY_API UExilesOfEternityGameInstance : public UGameInstance
 public:
 	UFUNCTION (BlueprintCallable)
 	void ConnectToMasterServer ();
+	UFUNCTION (BlueprintCallable)
+	void DisconnectFromMasterServer ();
+
 	//void ConnectToLocalServer ();
 
 	UFUNCTION (BlueprintCallable)
@@ -39,6 +43,8 @@ public:
 
 	UPROPERTY (BlueprintAssignable)
 	FOnConnected OnConnectedBP;
+	UPROPERTY (BlueprintAssignable)
+	FOnDisconnected OnDisconnectedBP;
 	UPROPERTY (BlueprintAssignable)
 	FOnJoinGame OnJoinGameBP;
 	UPROPERTY (BlueprintAssignable)

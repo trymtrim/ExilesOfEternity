@@ -6,6 +6,7 @@
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "CharacterBase.h"
 #include "BattleRoyalePlayerState.h"
+#include "Kismet/GameplayStatics.h"
 
 AAICharacterBase::AAICharacterBase ()
 {
@@ -23,13 +24,21 @@ void AAICharacterBase::BeginPlay ()
 		_startLocation = GetActorLocation ();
 		_originalStartLocation = _startLocation;
 
-		//Start level-up process
-		FTimerHandle levelUpTimerHandle;
-		GetWorld ()->GetTimerManager ().SetTimer (levelUpTimerHandle, this, &AAICharacterBase::LevelUp, 60.0f, false);
+		if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel")
+			RegisterGameStart ();
 	}
 
 	//Set health
 	_currentHealth = _maxHealth;
+}
+
+void AAICharacterBase::RegisterGameStart ()
+{
+	RegisterGameStartBP ();
+
+	//Start level-up process
+	FTimerHandle levelUpTimerHandle;
+	GetWorld ()->GetTimerManager ().SetTimer (levelUpTimerHandle, this, &AAICharacterBase::LevelUp, 60.0f, false);
 }
 
 void AAICharacterBase::Tick (float DeltaTime)

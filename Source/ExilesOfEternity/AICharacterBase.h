@@ -16,6 +16,8 @@ public:
 
 	virtual void Tick (float DeltaTime) override;
 
+	void RegisterGameStart ();
+
 	UFUNCTION (BlueprintCallable)
 	void SetHasAggro (bool state);
 
@@ -32,6 +34,8 @@ protected:
 	UFUNCTION (BlueprintCallable)
 	void StopRetreating ();
 
+	UFUNCTION (BlueprintImplementableEvent)
+	void RegisterGameStartBP ();
 	UFUNCTION (BlueprintImplementableEvent)
 	void RetreatBP ();
 	UFUNCTION (BlueprintImplementableEvent)

@@ -42,6 +42,10 @@ void ACharacterBase::BeginPlay ()
 
 		//Set static health regen timer
 		_staticHealthRegenTimer = _staticHealthRegenTime;
+
+		//Temp
+		if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel")
+			level = 6;
 	}
 
 	//GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "THIS IS A TEST YO!");
@@ -247,8 +251,8 @@ void ACharacterBase::UnlockUltimateSpell ()
 
 void ACharacterBase::UseSpellInput (int hotkeyIndex)
 {
-	//If dead, return
-	if (_dead)
+	//If dead, victorious or currently using ultimate spell, return
+	if (_dead || _victorious || _usingUltimateSpell && hotkeyIndex != -1)
 		return;
 
 	//If the spell is not basic or ultimate and the spell slot with the given hotkey index doesn't have a spell, return
@@ -346,8 +350,8 @@ void ACharacterBase::StopUsingBasicSpell ()
 
 void ACharacterBase::UseSpell_Implementation (Spells spell)
 {
-	//If the player is dead, doesn't have the spell or the spell is on cooldown, return
-	if (_dead || !_ownedSpells.Contains (spell) || GetSpellIsOnCooldown (spell))
+	//If the player is dead, victorious, doesn't have the spell, the spell is on cooldown or currently using ultimate spell, return
+	if (_dead || _victorious || !_ownedSpells.Contains (spell) || GetSpellIsOnCooldown (spell) || _usingUltimateSpell)
 		return;
 
 	//If spell is not usable while moving, check if character is moving before using spell
@@ -383,13 +387,23 @@ bool ACharacterBase::UseSpell_Validate (Spells spell)
 
 void ACharacterBase::UseCharacterSpell_Implementation (CharacterSpells spell)
 {
-	//If dead or the spell is on cooldown, return
-	if (_dead || GetSpellIsOnCooldown (spell))
+	//If dead, victorious, the spell is on cooldown or currently using ultimate spell, return
+	if (_dead || _victorious || GetSpellIsOnCooldown (spell) && !_usingUltimateSpell)
 		return;
+
+	//If the spell is ultimate and currently using ultimate spell, stop using it
+	if (_usingUltimateSpell && spell == ULTIMATE)
+	{
+		StopUsingUltimateSpell (false);
+		return;
+	}
 
 	//If spell is basic and there are no charges left, return
 	if (spell == BASIC && _basicSpellCharges == 0)
 		return;
+
+	if (spell == ULTIMATE)
+		_usingUltimateSpell = true;
 
 	//Cancel current spell
 	CancelCurrentSpellBP ();
@@ -407,8 +421,8 @@ bool ACharacterBase::UseCharacterSpell_Validate (CharacterSpells spell)
 
 void ACharacterBase::UseProjectionSpell_Implementation (Spells spell, FVector location)
 {
-	//If dead or the spell is on cooldown, return
-	if (_dead || GetSpellIsOnCooldown (spell))
+	//If dead, victorious or the spell is on cooldown, return
+	if (_dead || _victorious || GetSpellIsOnCooldown (spell))
 		return;
 
 	//Cancel current spell
@@ -827,6 +841,17 @@ void ACharacterBase::ClientHandleRespawn_Implementation ()
 	HandleRespawnBP ();
 }
 
+void ACharacterBase::StopUsingUltimateSpell (bool finished)
+{
+	_usingUltimateSpell = false;
+	StopUsingUltimateSpellBP (finished);
+}
+
+void ACharacterBase::MakeVictorious ()
+{
+	_victorious = true;
+}
+
 float ACharacterBase::GetBasicSpellDamage ()
 {
 	return _basicSpellDamage;
@@ -834,8 +859,8 @@ float ACharacterBase::GetBasicSpellDamage ()
 
 bool ACharacterBase::GetCanMove ()
 {
-	//If character is dead, return false
-	if (_dead)
+	//If character is dead or has won the game, return false
+	if (_dead || _victorious)
 		return false;
 
 	return true;
@@ -859,6 +884,11 @@ int ACharacterBase::GetSpellUpgradesAvailable ()
 bool ACharacterBase::GetUltimateSpellUnlocked ()
 {
 	return _ultimateSpellUnlocked;
+}
+
+bool ACharacterBase::GetUsingUltimateSpell ()
+{
+	return _usingUltimateSpell;
 }
 
 bool ACharacterBase::GetDead ()
@@ -962,6 +992,9 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 
 	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellCharges, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellChargeTimer, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _usingUltimateSpell, COND_OwnerOnly);
+
+	DOREPLIFETIME_CONDITION (ACharacterBase, _victorious, COND_OwnerOnly);
 }
 
 //Called to bind functionality to input

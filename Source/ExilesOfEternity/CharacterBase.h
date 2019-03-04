@@ -34,6 +34,7 @@ public:
 	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
 	void DropSpell (Spells spell);
 	void AddSpellUpgrade ();
+	UFUNCTION (BlueprintCallable)
 	void UnlockUltimateSpell ();
 
 	UFUNCTION (BlueprintCallable)
@@ -43,11 +44,18 @@ public:
 	void ClientHandleRespawn ();
 
 	UFUNCTION (BlueprintCallable)
+	void StopUsingUltimateSpell (bool finished);
+
+	void MakeVictorious ();
+
+	UFUNCTION (BlueprintCallable)
 	int GetSpellCount ();
 	UFUNCTION (BlueprintCallable)
 	int GetSpellUpgradesAvailable ();
 	UFUNCTION (BlueprintCallable)
 	bool GetUltimateSpellUnlocked ();
+	UFUNCTION (BlueprintCallable)
+	bool GetUsingUltimateSpell ();
 	UFUNCTION (BlueprintCallable)
 	bool GetDead ();
 
@@ -90,9 +98,10 @@ protected:
 	void DieBP ();
 	UFUNCTION (BlueprintImplementableEvent)
 	void ResetCharacterBP ();
-
 	UFUNCTION (BlueprintImplementableEvent)
 	void HandleRespawnBP ();
+	UFUNCTION (BlueprintImplementableEvent)
+	void StopUsingUltimateSpellBP (bool finished);
 
 	UFUNCTION (BlueprintCallable)
 	bool AddSpell (Spells spell, bool hack); //REMINDER: Remove hack later
@@ -217,12 +226,14 @@ private:
 
 	UPROPERTY (Replicated)
 	bool _ultimateSpellUnlocked = false;
-	float _ultimateSpellCooldown = 60.0f;
+	float _ultimateSpellCooldown = 90.0f;
 	float _basicSpellCooldown = 0.35f;
 
 	float _globalCooldown = 0.35f;
 
 	bool _usingBasicSpell = false;
+	UPROPERTY (Replicated)
+	bool _usingUltimateSpell = false;
 
 	TMap <Spells, bool> _globalCooldownsActivated;
 	bool _ultimateCooldownsActivated = false;
@@ -247,4 +258,7 @@ private:
 	float _staticHealthRegenTimer;
 
 	float _currentHealing = 0.0f;
+
+	UPROPERTY (Replicated)
+	bool _victorious = false;
 };

@@ -43,8 +43,10 @@ void UExilesOfEternityGameInstance::DisconnectFromMasterServer ()
 void UExilesOfEternityGameInstance::OnConnectionComplete ()
 {
 	//TODO: Query database from master server for things etc.
-
+	
 	OnConnectedBP.Broadcast ();
+
+	_isConnected = true;
 
 	UE_LOG (LogTemp, Warning, TEXT ("Connected to master server"));
 }
@@ -57,6 +59,8 @@ void UExilesOfEternityGameInstance::OnConnectionError ()
 
 void UExilesOfEternityGameInstance::OnConnectionClosed ()
 {
+	_isConnected = false;
+
 	OnDisconnectedBP.Broadcast ();
 
 	UE_LOG (LogTemp, Warning, TEXT ("Disconnected from master server"));
@@ -173,6 +177,11 @@ void UExilesOfEternityGameInstance::StartGame (FString gameName)
 
 	_webSocket = UWebSocketBlueprintLibrary::Connect ("ws://127.0.0.1:1338");
 }*/
+
+bool UExilesOfEternityGameInstance::GetIsConnected ()
+{
+	return _isConnected;
+}
 
 void UExilesOfEternityGameInstance::Init ()
 {

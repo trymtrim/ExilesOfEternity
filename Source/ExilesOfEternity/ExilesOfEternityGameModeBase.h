@@ -39,7 +39,8 @@ protected:
 
 private:
 	void CheckPlayerConnection ();
-
+	
+	int _playerConnectionCheckCount = 0;
 	int _playerCount = 0;
 
 	bool _gameEnded = false;

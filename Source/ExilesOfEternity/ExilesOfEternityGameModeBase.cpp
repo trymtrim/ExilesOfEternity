@@ -104,10 +104,18 @@ bool AExilesOfEternityGameModeBase::GetGameEnded ()
 
 void AExilesOfEternityGameModeBase::CheckPlayerConnection ()
 {
-	//If there are no longer any players connected, exit game instance
+	//If there no longer are any players connected, exit game instance
 	if (_playerCount > 0)
 	{
 		if (GetNumPlayers () == 0)
+			GIsRequestingExit = true;
+	}
+	else
+	{
+		//If no players have connected within 30 seconds, exit game instance
+		_playerConnectionCheckCount++;
+
+		if (_playerConnectionCheckCount == 6)
 			GIsRequestingExit = true;
 	}
 }

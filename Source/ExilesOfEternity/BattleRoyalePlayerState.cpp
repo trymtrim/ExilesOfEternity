@@ -265,6 +265,9 @@ void ABattleRoyalePlayerState::MakeVictorious ()
 
 	//Set game over text
 	_gameOverText = "You are victorious!";
+
+	//Set character to victorious
+	Cast <ACharacterBase> (GetPawn ())->MakeVictorious ();
 }
 
 int ABattleRoyalePlayerState::GetLevel ()

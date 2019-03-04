@@ -41,6 +41,9 @@ public:
 	UFUNCTION (BlueprintCallable)
 	void StartGame (FString gameName);
 
+	UFUNCTION (BlueprintCallable)
+	bool GetIsConnected ();
+
 	UPROPERTY (BlueprintAssignable)
 	FOnConnected OnConnectedBP;
 	UPROPERTY (BlueprintAssignable)
@@ -71,4 +74,6 @@ private:
 
 	UPROPERTY ()
 	UWebSocketBase* _webSocket;
+
+	bool _isConnected = false;
 };

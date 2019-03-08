@@ -140,10 +140,16 @@ void ABattleRoyalePlayerState::OnKill (APlayerState* playerState)
 
 	//Add kill message
 	Cast <APlayerControllerBase> (GetPawn ()->GetController ())->AddKillMessage ("You killed " + Cast <APlayerStateBase> (playerState)->GetNickname ());
+
+	//Update scoreboard player state
+	Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ())->UpdateScoreboardPlayerStats (this);
 }
 
 void ABattleRoyalePlayerState::OnDeath ()
 {
+	//Update scoreboard player state
+	Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ())->UpdateScoreboardPlayerStats (this);
+
 	//If character is dead permanently, return
 	if (_permanentDead || _victorious)
 		return;

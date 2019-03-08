@@ -48,6 +48,22 @@ public:
 	TArray <float> BasicSpellDamagePerLevel;
 };
 
+USTRUCT (BlueprintType)
+struct FPlayerStats
+{
+	GENERATED_BODY ()
+
+	UPROPERTY (BlueprintReadOnly)
+	FString Name;
+	UPROPERTY (BlueprintReadOnly)
+	int Kills;
+	UPROPERTY (BlueprintReadOnly)
+	int Deaths;
+
+	UPROPERTY (BlueprintReadOnly)
+	ABattleRoyalePlayerState* playerState;
+};
+
 UCLASS()
 class EXILESOFETERNITY_API ABattleRoyaleGameState : public AGameStateBase
 {
@@ -91,6 +107,12 @@ public:
 	TArray <ABattleRoyalePlayerState*> GetPermanentDeadPlayers ();
 	int GetPlayerCount ();
 
+	//Scoreboard
+	void UpdateScoreboardPlayerStats (ABattleRoyalePlayerState* playerState);
+
+	UFUNCTION (BlueprintCallable)
+	TArray <FPlayerStats> GetAllPlayerStats ();
+
 protected:
 	virtual void BeginPlay () override;
 
@@ -116,4 +138,10 @@ private:
 	UPROPERTY (Replicated)
 	float _startTime;
 	bool _gameEnded = false;
+
+	//Scoreboard
+	void AddScoreboardPlayerStats (ABattleRoyalePlayerState* playerState);
+
+	UPROPERTY (Replicated)
+	TArray <FPlayerStats> _scoreboardPlayerStats;
 };

@@ -43,6 +43,10 @@ void ABattleRoyaleGameState::StartGame ()
 	//Assign player count
 	_playerCount = PlayerArray.Num ();
 
+	//Initialize scoreboard player stats
+	for (int i = 0; i < PlayerArray.Num (); i++)
+		AddScoreboardPlayerStats (Cast <ABattleRoyalePlayerState> (PlayerArray [i]));
+
 	//Start timer for current stage and start next stage when timer is finished
 	FTimerHandle startNextStageTimerHandle;
 	GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
@@ -182,7 +186,7 @@ bool ABattleRoyaleGameState::GetSpawnPositionInsidePlayArea (int spawnIndex)
 	//Otherwise, return false
 	return false;
 }
-
+ 
 TArray <ABattleRoyalePlayerState*> ABattleRoyaleGameState::GetPermanentDeadPlayers ()
 {
 	return _permanentDeadPlayers;
@@ -193,6 +197,40 @@ int ABattleRoyaleGameState::GetPlayerCount ()
 	return _playerCount;
 }
 
+//Scoreboard
+
+void ABattleRoyaleGameState::AddScoreboardPlayerStats (ABattleRoyalePlayerState* playerState)
+{
+	FPlayerStats playerStats;
+
+	playerStats.Name = playerState->GetNickname ();
+	playerStats.Kills = 0;
+	playerStats.Deaths = 0;
+
+	playerStats.playerState = playerState;
+
+	_scoreboardPlayerStats.Add (playerStats);
+}
+
+void ABattleRoyaleGameState::UpdateScoreboardPlayerStats (ABattleRoyalePlayerState* playerState)
+{
+	for (int i = 0; i < _scoreboardPlayerStats.Num (); i++)
+	{
+		if (_scoreboardPlayerStats [i].playerState == playerState)
+		{
+			_scoreboardPlayerStats [i].Kills = playerState->GetKills ();
+			_scoreboardPlayerStats [i].Deaths = playerState->GetDeaths ();
+
+			break;
+		}
+	}
+}
+
+TArray <FPlayerStats> ABattleRoyaleGameState::GetAllPlayerStats ()
+{
+	return _scoreboardPlayerStats;
+}
+
 void ABattleRoyaleGameState::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);
@@ -201,4 +239,5 @@ void ABattleRoyaleGameState::GetLifetimeReplicatedProps (TArray <FLifetimeProper
 	DOREPLIFETIME (ABattleRoyaleGameState, _gameStarted);
 	DOREPLIFETIME (ABattleRoyaleGameState, _startTime);
 	DOREPLIFETIME (ABattleRoyaleGameState, _stage);
+	DOREPLIFETIME (ABattleRoyaleGameState, _scoreboardPlayerStats);
 }

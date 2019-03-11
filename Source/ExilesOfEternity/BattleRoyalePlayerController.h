@@ -52,7 +52,7 @@ protected:
 	virtual void BeginPlay () override;
 
 private:
-	void ResetPlayerCharacter ();
+	void ResetPlayerCharacter (FVector spawnLocation);
 
 	UPROPERTY (Replicated)
 	int _chosenStartingZone = 0;

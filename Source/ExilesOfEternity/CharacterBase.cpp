@@ -394,7 +394,9 @@ void ACharacterBase::UseCharacterSpell_Implementation (CharacterSpells spell)
 	//If the spell is ultimate and currently using ultimate spell, stop using it
 	if (_usingUltimateSpell && spell == ULTIMATE)
 	{
-		StopUsingUltimateSpell (false);
+		if (_canCancelUltimate)
+			StopUsingUltimateSpell (false);
+
 		return;
 	}
 
@@ -403,7 +405,13 @@ void ACharacterBase::UseCharacterSpell_Implementation (CharacterSpells spell)
 		return;
 
 	if (spell == ULTIMATE)
+	{
 		_usingUltimateSpell = true;
+		_canCancelUltimate = false;
+
+		FTimerHandle canCancelUltimateTimerHandle;
+		GetWorld ()->GetTimerManager ().SetTimer (canCancelUltimateTimerHandle, this, &ACharacterBase::MakeUltimateCancellable, 1.0f, false);
+	}
 
 	//Cancel current spell
 	CancelCurrentSpellBP ();
@@ -417,6 +425,11 @@ void ACharacterBase::UseCharacterSpell_Implementation (CharacterSpells spell)
 bool ACharacterBase::UseCharacterSpell_Validate (CharacterSpells spell)
 {
 	return true;
+}
+
+void ACharacterBase::MakeUltimateCancellable ()
+{
+	_canCancelUltimate = true;
 }
 
 void ACharacterBase::UseProjectionSpell_Implementation (Spells spell, FVector location)

@@ -65,8 +65,14 @@ void ABattleRoyaleGameState::StartNextStage ()
 	//Change to next stage
 	_stage++;
 
+	//Set current stage start time
+	_currentStageStartTime = GetServerWorldTimeSeconds ();
+
 	//Tell play area circle to start shrinking
 	_playAreaCircle->StartShrinking (_stage);
+
+	//Broadcast new stage to all clients
+	BroadcastStartNextStage (_stage);
 
 	//If current stage is not the last stage, start timer for current stage and start next stage when timer is finished
 	if (_stage != 4)
@@ -74,6 +80,11 @@ void ABattleRoyaleGameState::StartNextStage ()
 		FTimerHandle startNextStageTimerHandle;
 		GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
 	}
+}
+
+void ABattleRoyaleGameState::BroadcastStartNextStage_Implementation (int stage)
+{
+	OnNewStageBP.Broadcast (stage);
 }
 
 void ABattleRoyaleGameState::ReportPermanentDeath (ABattleRoyalePlayerState* playerState)
@@ -159,6 +170,45 @@ FVector ABattleRoyaleGameState::GetCircleScale ()
 	return _playAreaCircle->GetActorScale3D ();
 }
 
+float ABattleRoyaleGameState::GetStageTimeLeft ()
+{
+	float stageTimeLeft = _startTime + 1;
+
+	for (int i = 0; i < _stage; i++)
+		stageTimeLeft += _gameStageInfo->StageDurations [i];
+
+	stageTimeLeft -= GetServerWorldTimeSeconds ();
+
+	return stageTimeLeft;
+}
+
+float ABattleRoyaleGameState::GetCircleClosingTimeLeft ()
+{
+	if (_stage < 2)
+		return 0.0f;
+
+	float closingTimeLeft = _gameStageInfo->StageDiameters [_stage - 2] - _gameStageInfo->StageDiameters [_stage - 1];
+	closingTimeLeft /= _gameStageInfo->ShrinkSpeed;
+
+	closingTimeLeft += _currentStageStartTime;
+	closingTimeLeft -= GetServerWorldTimeSeconds ();
+
+	return closingTimeLeft;
+}
+
+float ABattleRoyaleGameState::GetCircleClosingTimeLeftPercentage ()
+{
+	if (_stage < 2)
+		return 0.0f;
+
+	float closingTime = _gameStageInfo->StageDiameters [_stage - 2] - _gameStageInfo->StageDiameters [_stage - 1];
+	closingTime /= _gameStageInfo->ShrinkSpeed;
+
+	float closingTimeLeftPercentage = 1 - (GetCircleClosingTimeLeft () / closingTime);
+
+	return closingTimeLeftPercentage;
+}
+
 float ABattleRoyaleGameState::GetRedeemKillTime ()
 {
 	return _gameStageInfo->RedeemKillTime;
@@ -240,4 +290,5 @@ void ABattleRoyaleGameState::GetLifetimeReplicatedProps (TArray <FLifetimeProper
 	DOREPLIFETIME (ABattleRoyaleGameState, _startTime);
 	DOREPLIFETIME (ABattleRoyaleGameState, _stage);
 	DOREPLIFETIME (ABattleRoyaleGameState, _scoreboardPlayerStats);
+	DOREPLIFETIME (ABattleRoyaleGameState, _currentStageStartTime);
 }

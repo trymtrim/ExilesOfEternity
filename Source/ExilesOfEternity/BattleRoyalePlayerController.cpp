@@ -9,6 +9,7 @@
 #include "UnrealNetwork.h"
 #include "BattleRoyalePlayerState.h"
 #include "CharacterBase.h"
+#include "Runtime/Engine/Public/TimerManager.h"
 
 void ABattleRoyalePlayerController::BeginPlay ()
 {
@@ -109,14 +110,19 @@ void ABattleRoyalePlayerController::SpawnPlayerCharacter (int zoneIndex)
 	for (int i = 0; i < playerStarts.Num (); i++)
 	{
 		if (Cast <APlayerStart> (playerStarts [i])->PlayerStartTag == FName (*FString::FromInt (zoneIndex)))
-			GetCharacter ()->SetActorLocation (playerStarts [i]->GetActorLocation ());
+		{
+			//Reset character
+			FTimerDelegate resetDelegate = FTimerDelegate::CreateUObject (this, &ABattleRoyalePlayerController::ResetPlayerCharacter, playerStarts [i]->GetActorLocation ());
+			FTimerHandle resetTimerHandle;
+			GetWorld ()->GetTimerManager ().SetTimer (resetTimerHandle, resetDelegate, 1.0f, false);
+		}
 	}
 
 	//Reset character
-	FTimerHandle resetTimerHandle;
-	GetWorld ()->GetTimerManager ().SetTimer (resetTimerHandle, this, &ABattleRoyalePlayerController::ResetPlayerCharacter, 1.0f, false);
+	//FTimerHandle resetTimerHandle;
+	//GetWorld ()->GetTimerManager ().SetTimer (resetTimerHandle, this, &ABattleRoyalePlayerController::ResetPlayerCharacter, 1.0f, false);
 
-	//Set recent playeri spawn position to current spawn position
+	//Set recent player spawn position to current spawn position
 	_recentPlayerSpawnPosition = zoneIndex;
 
 	//Stop respawn timer
@@ -148,8 +154,10 @@ void ABattleRoyalePlayerController::AutoSpawnPlayerCharacter ()
 	SpawnPlayerCharacter (availableSpawnPositions [randomIndex]);
 }
 
-void ABattleRoyalePlayerController::ResetPlayerCharacter ()
+void ABattleRoyalePlayerController::ResetPlayerCharacter (FVector spawnLocation)
 {
+	GetCharacter ()->SetActorLocation (spawnLocation);
+
 	ShowMouseCursor (false);
 	Cast <ACharacterBase> (GetCharacter ())->ResetCharacter ();
 

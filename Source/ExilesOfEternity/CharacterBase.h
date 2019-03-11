@@ -180,6 +180,8 @@ private:
 	UFUNCTION (Server, Reliable, WithValidation)
 	void UseCharacterSpell (CharacterSpells spell);
 
+	void MakeUltimateCancellable ();
+
 	//Projection spells
 	UFUNCTION (Server, Reliable, WithValidation)
 	void UseProjectionSpell (Spells spell, FVector location);
@@ -234,6 +236,8 @@ private:
 	bool _usingBasicSpell = false;
 	UPROPERTY (Replicated)
 	bool _usingUltimateSpell = false;
+
+	bool _canCancelUltimate = false;
 
 	TMap <Spells, bool> _globalCooldownsActivated;
 	bool _ultimateCooldownsActivated = false;

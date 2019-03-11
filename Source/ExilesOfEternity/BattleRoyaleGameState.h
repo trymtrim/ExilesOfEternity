@@ -64,6 +64,8 @@ struct FPlayerStats
 	ABattleRoyalePlayerState* playerState;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNewStage, int, stage);
+
 UCLASS()
 class EXILESOFETERNITY_API ABattleRoyaleGameState : public AGameStateBase
 {
@@ -75,7 +77,6 @@ public:
 
 	void SetStartingZoneTaken (int zoneIndex);
 	void StartGame ();
-	void StartNextStage ();
 	void ReportPermanentDeath (ABattleRoyalePlayerState* playerState);
 
 	UPlayerProgressionInfo* GetPlayerProgressionInfo ();
@@ -99,6 +100,13 @@ public:
 	FVector GetCircleScale ();
 
 	UFUNCTION (BlueprintCallable)
+	float GetStageTimeLeft ();
+	UFUNCTION (BlueprintCallable)
+	float GetCircleClosingTimeLeft ();
+	UFUNCTION (BlueprintCallable)
+	float GetCircleClosingTimeLeftPercentage ();
+
+	UFUNCTION (BlueprintCallable)
 	float GetRedeemKillTime ();
 
 	UFUNCTION (BlueprintCallable)
@@ -113,10 +121,18 @@ public:
 	UFUNCTION (BlueprintCallable)
 	TArray <FPlayerStats> GetAllPlayerStats ();
 
+	UPROPERTY (BlueprintAssignable)
+	FOnNewStage OnNewStageBP;
+
 protected:
 	virtual void BeginPlay () override;
 
 private:
+	void StartNextStage ();
+
+	UFUNCTION (NetMulticast, Reliable)
+	void BroadcastStartNextStage (int stage);
+
 	void EndGame ();
 
 	UPROPERTY (Replicated)
@@ -138,6 +154,9 @@ private:
 	UPROPERTY (Replicated)
 	float _startTime;
 	bool _gameEnded = false;
+
+	UPROPERTY (Replicated)
+	float _currentStageStartTime;
 
 	//Scoreboard
 	void AddScoreboardPlayerStats (ABattleRoyalePlayerState* playerState);

@@ -65,6 +65,7 @@ struct FPlayerStats
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnNewStage, int, stage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE (FOnShrinkingStopped);
 
 UCLASS()
 class EXILESOFETERNITY_API ABattleRoyaleGameState : public AGameStateBase
@@ -77,6 +78,7 @@ public:
 
 	void SetStartingZoneTaken (int zoneIndex);
 	void StartGame ();
+	void ReportShrinkingStopped ();
 	void ReportPermanentDeath (ABattleRoyalePlayerState* playerState);
 
 	UPlayerProgressionInfo* GetPlayerProgressionInfo ();
@@ -123,6 +125,8 @@ public:
 
 	UPROPERTY (BlueprintAssignable)
 	FOnNewStage OnNewStageBP;
+	UPROPERTY (BlueprintAssignable)
+	FOnShrinkingStopped OnShrinkingStoppedBP;
 
 protected:
 	virtual void BeginPlay () override;
@@ -132,6 +136,8 @@ private:
 
 	UFUNCTION (NetMulticast, Reliable)
 	void BroadcastStartNextStage (int stage);
+	UFUNCTION (NetMulticast, Reliable)
+	void BroadcastShrinkingStopped ();
 
 	void EndGame ();
 

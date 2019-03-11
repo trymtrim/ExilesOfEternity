@@ -87,6 +87,16 @@ void ABattleRoyaleGameState::BroadcastStartNextStage_Implementation (int stage)
 	OnNewStageBP.Broadcast (stage);
 }
 
+void ABattleRoyaleGameState::ReportShrinkingStopped ()
+{
+	BroadcastShrinkingStopped ();
+}
+
+void ABattleRoyaleGameState::BroadcastShrinkingStopped_Implementation ()
+{
+	OnShrinkingStoppedBP.Broadcast ();
+}
+
 void ABattleRoyaleGameState::ReportPermanentDeath (ABattleRoyalePlayerState* playerState)
 {
 	//Add player to list of permanent dead players

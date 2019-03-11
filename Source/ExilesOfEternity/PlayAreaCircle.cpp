@@ -50,8 +50,6 @@ void APlayAreaCircle::StartShrinking (int stage)
 	//Set stage to the current game stage and start shrinking the circle
 	_stage = stage;
 	_currentlyShrinking = true;
-
-	GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "Shrinking started - Stage: " + FString::FromInt (_stage));
 }
 
 void APlayAreaCircle::UpdateShrinking (float deltaTime)
@@ -89,7 +87,7 @@ void APlayAreaCircle::UpdateShrinking (float deltaTime)
 	{
 		_currentlyShrinking = false;
 
-		GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "Shrinking stopped");
+		Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ())->ReportShrinkingStopped ();
 	}
 }
 

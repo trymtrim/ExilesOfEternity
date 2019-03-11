@@ -545,6 +545,22 @@ bool ACharacterBase::GetSpellIsOnCooldown (Spells spell)
 {
 	if (IsLocallyControlled ())
 	{
+		for (int i = 0; i < _ownedSpells.Num (); i++)
+		{
+			if (_ownedSpells [i] == spell)
+			{
+				if (_ownedSpellsCooldownPercentages.Num () > i)
+				{
+					if (_ownedSpellsCooldownPercentages [i] > 0.0f)
+						return true;
+
+					return false;
+				}
+
+				return false;
+			}
+		}
+
 		return false;
 	}
 	else if (GetWorld ()->IsServer ())
@@ -556,11 +572,34 @@ bool ACharacterBase::GetSpellIsOnCooldown (Spells spell)
 	return true;
 }
 
+bool ACharacterBase::GetCharacterSpellIsOnCooldown (CharacterSpells spell)
+{
+	if (spell == BASIC)
+	{
+		if (_basicSpellCooldownPercentage > 0.0f || _basicSpellCharges == 0)
+			return true;
+
+		return false;
+	}
+	else if (spell == ULTIMATE)
+	{
+		if (_ultimateSpellCooldownPercentage > 0.0f)
+			return true;
+
+		return false;
+	}
+
+	return true;
+}
+
 bool ACharacterBase::GetSpellIsOnCooldown (CharacterSpells spell)
 {
 	if (IsLocallyControlled ())
 	{
-		return false;
+		if (spell == ULTIMATE && _usingUltimateSpell)
+			return false;
+
+		return GetCharacterSpellIsOnCooldown (spell);
 	}
 	else if (GetWorld ()->IsServer ())
 	{
@@ -865,6 +904,11 @@ void ACharacterBase::MakeVictorious ()
 	_victorious = true;
 }
 
+void ACharacterBase::SetMovingSpell (bool state)
+{
+	_currentlyMovingSpell = state;
+}
+
 float ACharacterBase::GetBasicSpellDamage ()
 {
 	return _basicSpellDamage;
@@ -907,6 +951,23 @@ bool ACharacterBase::GetUsingUltimateSpell ()
 bool ACharacterBase::GetDead ()
 {
 	return _dead;
+}
+
+bool ACharacterBase::GetMovingSpell ()
+{
+	return _currentlyMovingSpell;
+}
+
+int ACharacterBase::GetSpellSlotIndex ()
+{
+	_currentSpellSlotIndex++;
+
+	return _currentSpellSlotIndex;
+}
+
+void ACharacterBase::ResetSpellSlotIndex ()
+{
+	_currentSpellSlotIndex = -1;
 }
 
 void ACharacterBase::LevelUp (int newLevel)

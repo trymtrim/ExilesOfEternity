@@ -182,6 +182,9 @@ FVector ABattleRoyaleGameState::GetCircleScale ()
 
 float ABattleRoyaleGameState::GetStageTimeLeft ()
 {
+	if (_stage == 4)
+		return 0.0f;
+
 	float stageTimeLeft = _startTime + 1;
 
 	for (int i = 0; i < _stage; i++)

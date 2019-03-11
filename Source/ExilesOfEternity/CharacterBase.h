@@ -49,6 +49,9 @@ public:
 	void MakeVictorious ();
 
 	UFUNCTION (BlueprintCallable)
+	void SetMovingSpell (bool state);
+
+	UFUNCTION (BlueprintCallable)
 	int GetSpellCount ();
 	UFUNCTION (BlueprintCallable)
 	int GetSpellUpgradesAvailable ();
@@ -58,6 +61,19 @@ public:
 	bool GetUsingUltimateSpell ();
 	UFUNCTION (BlueprintCallable)
 	bool GetDead ();
+
+	UFUNCTION (BlueprintCallable)
+	bool GetMovingSpell ();
+
+	UFUNCTION (BlueprintCallable)
+	bool GetSpellIsOnCooldown (Spells spell);
+	UFUNCTION (BlueprintCallable)
+	bool GetCharacterSpellIsOnCooldown (CharacterSpells spell);
+
+	UFUNCTION (BlueprintCallable)
+	int GetSpellSlotIndex ();
+	UFUNCTION (BlueprintCallable)
+	void ResetSpellSlotIndex ();
 
 	UFUNCTION (BlueprintImplementableEvent)
 	void OnDealDamageBP (AActor* actor, float damage);
@@ -198,7 +214,6 @@ private:
 
 	void ActivateGlobalCooldown ();
 
-	bool GetSpellIsOnCooldown (Spells spell);
 	bool GetSpellIsOnCooldown (CharacterSpells spell);
 
 	void UpdateCooldowns (float deltaTime);
@@ -265,4 +280,7 @@ private:
 
 	UPROPERTY (Replicated)
 	bool _victorious = false;
+
+	int _currentSpellSlotIndex = -1;
+	bool _currentlyMovingSpell = false;
 };

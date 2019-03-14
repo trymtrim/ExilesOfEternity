@@ -77,3 +77,14 @@ TArray <Spells> UUIHandler::GetSpellPanelSpells ()
 {
 	return _spellPanelSpells;
 }
+
+int UUIHandler::GetSpellPanelIndex (Spells spell)
+{
+	for (int i = 0; i < _spellPanelSpells.Num (); i++)
+	{
+		if (_spellPanelSpells [i] == spell)
+			return i + 1;
+	}
+
+	return 0;
+}

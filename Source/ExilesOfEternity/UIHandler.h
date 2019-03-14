@@ -32,6 +32,9 @@ public:
 
 	TArray <Spells> GetSpellPanelSpells ();
 
+	UFUNCTION (BlueprintCallable)
+	int GetSpellPanelIndex (Spells spell);
+
 private:
 	UPanelWidget* _spellPanel = nullptr;
 	UUserWidget* _baseUI;

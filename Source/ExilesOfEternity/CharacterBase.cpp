@@ -201,6 +201,8 @@ void ACharacterBase::ClientUpgradeSpell_Implementation (Spells spell)
 {
 	//Set spell rank to one higher
 	_spellRanks [spell]++;
+
+	ClientUpgradeSpellBP ();
 }
 
 void ACharacterBase::AddSpellUpgrade ()
@@ -753,6 +755,22 @@ void ACharacterBase::ResetCooldowns ()
 	_basicSpellCooldownPercentage = 0.0f;
 }
 
+void ACharacterBase::UpgradeSpellInput (int hotkeyIndex)
+{
+	//If there are no spell upgrades available, return
+	if (_spellUpgradesAvailable == 0)
+		return;
+
+	//Upgrade spell based on hotkey index
+	Spells spellToUpgrade = _uiHandler->GetSpellPanelSpells () [hotkeyIndex - 1];
+
+	//If spell already is at max rank, return
+	if (GetSpellRank (spellToUpgrade) == 3)
+		return;
+
+	UpgradeSpell (spellToUpgrade);
+}
+
 void ACharacterBase::StaticHealthRegen (float deltaTime)
 {
 	//If character is dead, has full health, return
@@ -1087,4 +1105,11 @@ void ACharacterBase::SetupPlayerInputComponent (UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction ("UseSpell4", IE_Pressed, this, &ACharacterBase::UseSpellInput <4>);
 	PlayerInputComponent->BindAction ("UseSpell5", IE_Pressed, this, &ACharacterBase::UseSpellInput <5>);
 	PlayerInputComponent->BindAction ("UseSpell6", IE_Pressed, this, &ACharacterBase::UseSpellInput <6>);
+
+	PlayerInputComponent->BindAction ("UpgradeSpell1", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <1>);
+	PlayerInputComponent->BindAction ("UpgradeSpell2", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <2>);
+	PlayerInputComponent->BindAction ("UpgradeSpell3", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <3>);
+	PlayerInputComponent->BindAction ("UpgradeSpell4", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <4>);
+	PlayerInputComponent->BindAction ("UpgradeSpell5", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <5>);
+	PlayerInputComponent->BindAction ("UpgradeSpell6", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <6>);
 }

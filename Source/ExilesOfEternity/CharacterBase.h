@@ -118,6 +118,8 @@ protected:
 	void HandleRespawnBP ();
 	UFUNCTION (BlueprintImplementableEvent)
 	void StopUsingUltimateSpellBP (bool finished);
+	UFUNCTION (BlueprintImplementableEvent)
+	void ClientUpgradeSpellBP ();
 
 	UFUNCTION (BlueprintCallable)
 	bool AddSpell (Spells spell, bool hack); //REMINDER: Remove hack later
@@ -223,6 +225,13 @@ private:
 
 	UFUNCTION (BlueprintCallable)
 	void ResetCooldowns ();
+
+	void UpgradeSpellInput (int hotkeyIndex);
+	template <int hotkeyIndex>
+	void UpgradeSpellInput ()
+	{
+		UpgradeSpellInput (hotkeyIndex);
+	}
 
 	UFUNCTION (Client, Reliable)
 	void ClientDie ();

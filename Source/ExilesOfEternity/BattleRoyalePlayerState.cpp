@@ -67,6 +67,8 @@ void ABattleRoyalePlayerState::GainExperience (int experience)
 	//If player has reached needed experience, level up
 	if (_currentExperience >= _neededExperience)
 		LevelUp ();
+
+	Cast <ACharacterBase> (GetPawn ())->GainExperienceBP (experience);
 }
 
 void ABattleRoyalePlayerState::LevelUp ()

@@ -79,6 +79,8 @@ public:
 	void OnDealDamageBP (AActor* actor, float damage);
 
 	//Used for specific game modes
+	UFUNCTION (BlueprintImplementableEvent)
+	void GainExperienceBP (int experience);
 	void LevelUp (int newLevel);
 	UFUNCTION (BlueprintImplementableEvent)
 	void OnLevelUpBP (int level);

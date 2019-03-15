@@ -102,6 +102,23 @@ void ABattleRoyaleGameState::ReportPermanentDeath (ABattleRoyalePlayerState* pla
 	//Add player to list of permanent dead players
 	_permanentDeadPlayers.Add (playerState);
 
+	//Check if a player has won
+	CheckForVictory (nullptr);
+}
+
+void ABattleRoyaleGameState::CheckForVictory (ABattleRoyalePlayerState* disconnectedPlayer)
+{
+	//If game is finished, return
+	if (_gameEnded)
+		return;
+
+	//If list of players contains the player who just disconnected, remove that player from the list
+	if (disconnectedPlayer != nullptr)
+	{
+		if (PlayerArray.Contains (disconnectedPlayer))
+			PlayerArray.Remove (disconnectedPlayer);
+	}
+
 	//Check if there is only one player alive left
 	int alivePlayers = 0;
 	ABattleRoyalePlayerState* winningPlayer = nullptr;
@@ -119,7 +136,7 @@ void ABattleRoyaleGameState::ReportPermanentDeath (ABattleRoyalePlayerState* pla
 	if (alivePlayers == 1)
 	{
 		winningPlayer->MakeVictorious ();
-		
+
 		//Set input mode to UI only
 		Cast <ABattleRoyalePlayerController> (winningPlayer->GetPawn ()->GetController ())->SetInputUIOnly ();
 

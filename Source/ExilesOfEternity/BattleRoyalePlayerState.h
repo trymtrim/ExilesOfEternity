@@ -16,6 +16,8 @@ class EXILESOFETERNITY_API ABattleRoyalePlayerState : public APlayerStateBase
 public:
 	ABattleRoyalePlayerState ();
 
+	virtual void Destroyed () override;
+
 	void Initialize ();
 	UFUNCTION (Client, Reliable)
 	void ClientInitializePlayerState ();

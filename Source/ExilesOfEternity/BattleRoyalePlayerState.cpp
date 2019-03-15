@@ -13,6 +13,14 @@ ABattleRoyalePlayerState::ABattleRoyalePlayerState ()
 	NetUpdateFrequency = 30.0f;
 }
 
+void ABattleRoyalePlayerState::Destroyed ()
+{
+	if (!GetWorld ()->IsServer ())
+		return;
+
+	Cast <ABattleRoyaleGameState> (GetWorld ()->GetGameState ())->CheckForVictory (this);
+}
+
 void ABattleRoyalePlayerState::Initialize ()
 {
 	//Get player progressions info

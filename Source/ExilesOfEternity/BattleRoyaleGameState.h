@@ -80,6 +80,7 @@ public:
 	void StartGame ();
 	void ReportShrinkingStopped ();
 	void ReportPermanentDeath (ABattleRoyalePlayerState* playerState);
+	void CheckForVictory (ABattleRoyalePlayerState* disconnectedPlayer);
 
 	UPlayerProgressionInfo* GetPlayerProgressionInfo ();
 

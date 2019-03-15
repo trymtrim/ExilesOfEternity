@@ -35,6 +35,14 @@ public:
 	int GetChosenStartingZone ();
 	UFUNCTION (BlueprintCallable)
 	int GetRecentPlayerSpawnPosition ();
+	UFUNCTION (BlueprintCallable)
+	bool GetGameStarting ();
+	UFUNCTION (BlueprintCallable)
+	int GetGameStartingWorldSeconds ();
+
+	void RegisterGameStarting ();
+	UFUNCTION (Client, Reliable)
+	void ClientRegisterGameStarting (int currentWorldSeconds);
 
 	void RegisterGameStart ();
 	UFUNCTION (Client, Reliable)
@@ -56,6 +64,9 @@ private:
 
 	UPROPERTY (Replicated)
 	int _chosenStartingZone = 0;
+
+	bool _gameStarting = false;
+	int _gameStartingWorldSeconds;
 
 	bool _gameStarted = false;
 

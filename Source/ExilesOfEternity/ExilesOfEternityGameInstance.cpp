@@ -5,6 +5,9 @@
 #include "WebSocket.h"
 #include "WebSocketBlueprintLibrary.h"
 #include "WebSockets/LobbyMessageObjects.h"
+#include "WebSockets/GameServerMessageObjects.h"
+#include "BattleRoyaleGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 void UExilesOfEternityGameInstance::ConnectToMasterServer ()
 {
@@ -171,12 +174,62 @@ void UExilesOfEternityGameInstance::StartGame (FString gameName)
 	_webSocket->SendText (message);
 }
 
-/*void UExilesOfEternityGameInstance::ConnectToLocalServer ()
+void UExilesOfEternityGameInstance::OnStart ()
+{
+	if (GetWorld ()->IsServer ())
+	{
+		if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "GameLevel")
+			ConnectToLocalServer ();
+	}
+}
+
+void UExilesOfEternityGameInstance::ConnectToLocalServer ()
 {
 	UE_LOG (LogTemp, Warning, TEXT ("Connect to local server"));
 
 	_webSocket = UWebSocketBlueprintLibrary::Connect ("ws://127.0.0.1:1338");
-}*/
+
+	//Bind on connection complete
+	FScriptDelegate onConnectionCompleteDelegate;
+	onConnectionCompleteDelegate.BindUFunction (this, "OnLocalConnectionComplete");
+	_webSocket->OnConnectComplete.AddUnique (onConnectionCompleteDelegate);
+
+	//Bind on message
+	FScriptDelegate onMessageDelegate;
+	onMessageDelegate.BindUFunction (this, "OnLocalMessage");
+	_webSocket->OnReceiveData.AddUnique (onMessageDelegate);
+}
+
+void UExilesOfEternityGameInstance::OnLocalConnectionComplete ()
+{
+	ObtainGameInfo ();
+}
+
+void UExilesOfEternityGameInstance::OnLocalMessage (FString message)
+{
+	UTypeCheck* typeCheck = Cast <UTypeCheck> (UWebSocketBlueprintLibrary::JsonToObject (message, UTypeCheck::StaticClass (), false));
+	FString type = typeCheck->type;
+
+	if (type == "GameInfo")
+	{
+		UGameInfoResponse* gameInfoResponse = Cast <UGameInfoResponse> (UWebSocketBlueprintLibrary::JsonToObject (message, UGameInfoResponse::StaticClass (), false));
+		Cast <ABattleRoyaleGameMode> (GetWorld ()->GetAuthGameMode ())->SetPlayerAmount (gameInfoResponse->playerCount);
+
+		_webSocket->Close ();
+	}
+}
+
+void UExilesOfEternityGameInstance::ObtainGameInfo ()
+{
+	FString message;
+	UGameInfoRequest* request = NewObject <UGameInfoRequest> ();
+
+	request->type = "GameInfo";
+	request->port = GetWorld ()->URL.Port;
+
+	UWebSocketBlueprintLibrary::ObjectToJson (request, message);
+	_webSocket->SendText (message);
+}
 
 bool UExilesOfEternityGameInstance::GetIsConnected ()
 {
@@ -184,11 +237,6 @@ bool UExilesOfEternityGameInstance::GetIsConnected ()
 }
 
 void UExilesOfEternityGameInstance::Init ()
-{
-
-}
-
-void UExilesOfEternityGameInstance::OnStart ()
 {
 
 }

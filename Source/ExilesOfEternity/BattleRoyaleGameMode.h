@@ -16,6 +16,9 @@ public:
 
 	virtual void Tick (float DeltaTime) override;
 
+	void SetPlayerAmount (int playerAmount);
+	void AddReadyPlayer ();
+
 	UFUNCTION (BlueprintCallable)
 	void ProcedurallySpawnSpellCapsules ();
 
@@ -29,4 +32,7 @@ private:
 	void CheckForGameStart ();
 	void StartGame ();
 	void SetSpellCapsuleLocation (AActor* spellCapsule);
+
+	int _playerAmount = 0;
+	int _readyPlayerAmount = 0;
 };

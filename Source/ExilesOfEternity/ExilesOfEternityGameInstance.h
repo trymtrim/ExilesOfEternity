@@ -26,7 +26,7 @@ public:
 	UFUNCTION (BlueprintCallable)
 	void DisconnectFromMasterServer ();
 
-	//void ConnectToLocalServer ();
+	void ConnectToLocalServer ();
 
 	UFUNCTION (BlueprintCallable)
 	void CreateGame (FString gameName, FString gameMode);
@@ -71,6 +71,13 @@ private:
 	void OnConnectionClosed ();
 	UFUNCTION ()
 	void OnMessage (FString message);
+
+	UFUNCTION ()
+	void OnLocalConnectionComplete ();
+	UFUNCTION ()
+	void OnLocalMessage (FString message);
+
+	void ObtainGameInfo ();
 
 	UPROPERTY ()
 	UWebSocketBase* _webSocket;

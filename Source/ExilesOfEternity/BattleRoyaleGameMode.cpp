@@ -32,6 +32,18 @@ void ABattleRoyaleGameMode::Tick (float DeltaTime)
 		CheckForGameStart ();
 }
 
+void ABattleRoyaleGameMode::SetPlayerAmount (int playerAmount)
+{
+	_playerAmount = playerAmount;
+
+	GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, FString::FromInt (_playerAmount));
+}
+
+void ABattleRoyaleGameMode::AddReadyPlayer ()
+{
+	_readyPlayerAmount++;
+}
+
 void ABattleRoyaleGameMode::PlaytestStartGame (AController* controller)
 {
 	if (_gameStarted || controller != firstPlayerController)
@@ -57,7 +69,7 @@ void ABattleRoyaleGameMode::CheckForGameStart ()
 	ABattleRoyaleGameState* gameState = Cast <ABattleRoyaleGameState> (GameState);
 
 	//If start timer is finished, start game
-	if (gameState->GetGameStartTime () - gameState->GetServerWorldTimeSeconds () <= 0.0f)
+	if (gameState->GetGameStartTime () - gameState->GetServerWorldTimeSeconds () <= 0.0f || _readyPlayerAmount == _playerAmount && _playerAmount != 0)
 	{
 		//Automatically choose spawn location for every player that has not chosen yet
 		for (FConstPlayerControllerIterator Iterator = GetWorld ()->GetPlayerControllerIterator (); Iterator; ++Iterator)
@@ -66,11 +78,14 @@ void ABattleRoyaleGameMode::CheckForGameStart ()
 
 			if (!playerController->GetStartingZoneChosen ())
 				playerController->AutoSelectStartingZone ();
+
+			//Register for player that the game is starting
+			playerController->RegisterGameStarting ();
 		}
 
 		//Officially start game after one second
 		FTimerHandle startGameTimerHandle;
-		GetWorld ()->GetTimerManager ().SetTimer (startGameTimerHandle, this, &ABattleRoyaleGameMode::StartGame, 1.0f, false);
+		GetWorld ()->GetTimerManager ().SetTimer (startGameTimerHandle, this, &ABattleRoyaleGameMode::StartGame, 5.0f, false);
 
 		//Set game to started
 		_gameStarted = true;
@@ -79,10 +94,10 @@ void ABattleRoyaleGameMode::CheckForGameStart ()
 
 void ABattleRoyaleGameMode::StartGame ()
 {
-	//Update game state
+	//Register game start for game state
 	Cast <ABattleRoyaleGameState> (GameState)->StartGame ();
 
-	//Update player controllers
+	//Reguster gane start for all player controllers
 	for (FConstPlayerControllerIterator Iterator = GetWorld ()->GetPlayerControllerIterator (); Iterator; ++Iterator)
 	{
 		ABattleRoyalePlayerController* playerController = Cast <ABattleRoyalePlayerController> (Cast <APlayerController> (*Iterator));

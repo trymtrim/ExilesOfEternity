@@ -10,6 +10,7 @@
 #include "BattleRoyalePlayerState.h"
 #include "CharacterBase.h"
 #include "Runtime/Engine/Public/TimerManager.h"
+#include "BattleRoyaleGameMode.h"
 
 void ABattleRoyalePlayerController::BeginPlay ()
 {
@@ -59,6 +60,9 @@ void ABattleRoyalePlayerController::SelectStartingZone_Implementation (int zoneI
 	gameState->SetStartingZoneTaken (zoneIndex);
 	//Set chosen starting zone
 	_chosenStartingZone = zoneIndex;
+
+	//Set player ready
+	Cast <ABattleRoyaleGameMode> (GetWorld ()->GetAuthGameMode ())->AddReadyPlayer ();
 
 	//Set player health
 	Cast <ACharacterBase> (GetCharacter ())->SetHealth (gameState->GetPlayerProgressionInfo ()->HealthPerLevel [0]);
@@ -165,6 +169,17 @@ void ABattleRoyalePlayerController::ResetPlayerCharacter (FVector spawnLocation)
 	_selectedPlayerSpawnPosition = 0;
 }
 
+void ABattleRoyalePlayerController::RegisterGameStarting ()
+{
+	ClientRegisterGameStarting (GetWorld ()->GetGameState ()->GetServerWorldTimeSeconds ());
+}
+
+void ABattleRoyalePlayerController::ClientRegisterGameStarting_Implementation (int currentWorldSeconds)
+{
+	_gameStarting = true;
+	_gameStartingWorldSeconds = currentWorldSeconds;
+}
+
 void ABattleRoyalePlayerController::RegisterGameStart ()
 {
 	_gameStarted = true;
@@ -207,6 +222,16 @@ int ABattleRoyalePlayerController::GetChosenStartingZone ()
 int ABattleRoyalePlayerController::GetRecentPlayerSpawnPosition ()
 {
 	return _recentPlayerSpawnPosition;
+}
+
+bool ABattleRoyalePlayerController::GetGameStarting ()
+{
+	return _gameStarting;
+}
+
+int ABattleRoyalePlayerController::GetGameStartingWorldSeconds ()
+{
+	return _gameStartingWorldSeconds;
 }
 
 void ABattleRoyalePlayerController::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const

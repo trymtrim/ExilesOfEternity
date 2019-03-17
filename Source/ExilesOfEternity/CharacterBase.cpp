@@ -114,7 +114,7 @@ void ACharacterBase::SetBasicSpellDamage (float damage)
 	_basicSpellDamage = damage;
 }
 
-bool ACharacterBase::AddSpell (Spells spell, bool hack)
+bool ACharacterBase::AddSpell (Spells spell, int rank, bool hack)
 {
 	//If owned spells is full, return
 	if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell) || level + 1 <= _ownedSpells.Num ())
@@ -151,21 +151,27 @@ bool ACharacterBase::AddSpell (Spells spell, bool hack)
 	}
 
 	//Add spell to owned spells client-side
-	ClientAddOwnedSpell (spell);
+	ClientAddOwnedSpell (spell, rank);
 
-	//Set spell rank to 1
-	_spellRanks.Add (spell, 1);
+	//Set spell rank
+	if (rank == 0)
+		_spellRanks.Add (spell, 1);
+	else
+		_spellRanks.Add (spell, rank);
 
 	return true;
 }
 
-void ACharacterBase::ClientAddOwnedSpell_Implementation (Spells spell)
+void ACharacterBase::ClientAddOwnedSpell_Implementation (Spells spell, int rank)
 {
 	//Add spell
 	_ownedSpells.Add (spell);
 
-	//Set spell rank to 1
-	_spellRanks.Add (spell, 1);
+	//Set spell rank
+	if (rank == 0)
+		_spellRanks.Add (spell, 1);
+	else
+		_spellRanks.Add (spell, rank);
 }
 
 void ACharacterBase::UpgradeSpell_Implementation (Spells spell)
@@ -215,21 +221,22 @@ void ACharacterBase::DropSpell_Implementation (Spells spell)
 	if (!_ownedSpells.Contains (spell))
 		return;
 
+	//Declare spawn parameters
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	FVector spawnPosition = GetActorLocation () - FVector (0.0f, 0.0f, 88.0f);
+	FRotator spawnRotation = FRotator (0.0f, 0.0f, 0.0f);
+	spawnParams.Owner = this;
+
+	//Spawn spell capsule
+	GetWorld ()->SpawnActor <AActor> (USpellAttributes::GetSpellCapsule (spell), spawnPosition, spawnRotation, spawnParams);
+
 	//Remove spell from owned spells
 	_ownedSpells.Remove (spell);
 	_spellRanks.Remove (spell);
 
 	//Update spell drop client-side
 	ClientDropSpell (spell);
-
-	//Declare spawn parameters
-	FActorSpawnParameters spawnParams;
-	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	FVector spawnPosition = GetActorLocation () - FVector (0.0f, 0.0f, 88.0f);
-	FRotator spawnRotation = FRotator (0.0f, 0.0f, 0.0f);
-
-	//Spawn spell capsule
-	GetWorld ()->SpawnActor <AActor> (USpellAttributes::GetSpellCapsule (spell), spawnPosition, spawnRotation, spawnParams);
 }
 
 bool ACharacterBase::DropSpell_Validate (Spells spell)

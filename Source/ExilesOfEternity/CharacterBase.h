@@ -124,7 +124,7 @@ protected:
 	void ClientUpgradeSpellBP ();
 
 	UFUNCTION (BlueprintCallable)
-	bool AddSpell (Spells spell, bool hack); //REMINDER: Remove hack later
+	bool AddSpell (Spells spell, int rank, bool hack); //REMINDER: Remove hack later
 	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
 	void UpgradeSpell (Spells spell);
 
@@ -176,7 +176,7 @@ private:
 	void ServerInitializeCharacter ();
 
 	UFUNCTION (Client, Reliable)
-	void ClientAddOwnedSpell (Spells spell);
+	void ClientAddOwnedSpell (Spells spell, int rank);
 	UFUNCTION (Client, Reliable)
 	void ClientUpgradeSpell (Spells spell);
 	UFUNCTION (Client, Reliable)

@@ -119,9 +119,9 @@ void ABattleRoyalePlayerState::LevelUp ()
 	else if (_level < 6)
 	{
 		if (_level == 5)
-			Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage (FString::FromInt (_level + 1) + "/6 ability slots unlocked\nAbilities can now be upgraded to rank 3", _level);
+			Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("New ability slot unlocked\nAbilities can now be upgraded to rank 3", _level);
 		else
-			Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage (FString::FromInt (_level + 1) + "/6 ability slots unlocked", _level);
+			Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("New ability slot unlocked", _level);
 	}
 	else if (_level == _playerProgressionInfo->MaxLevel)
 		Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("Max level reached\nAn additional ability upgrade unlocked", _level);

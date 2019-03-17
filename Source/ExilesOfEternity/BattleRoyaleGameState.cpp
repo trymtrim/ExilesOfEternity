@@ -197,6 +197,16 @@ FVector ABattleRoyaleGameState::GetCircleScale ()
 	return _playAreaCircle->GetActorScale3D ();
 }
 
+FVector ABattleRoyaleGameState::GetNextCircleLocation ()
+{
+	return _playAreaCircle->GetEndLocation ();
+}
+
+FVector ABattleRoyaleGameState::GetNextCircleScale ()
+{
+	return FVector (_gameStageInfo->StageDiameters [_stage - 1], _gameStageInfo->StageDiameters [_stage - 1], 0.0f);
+}
+
 float ABattleRoyaleGameState::GetStageTimeLeft ()
 {
 	if (_stage == 4)

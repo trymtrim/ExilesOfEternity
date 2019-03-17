@@ -101,6 +101,10 @@ public:
 	FVector GetCircleLocation ();
 	UFUNCTION (BlueprintCallable)
 	FVector GetCircleScale ();
+	UFUNCTION (BlueprintCallable)
+	FVector GetNextCircleLocation ();
+	UFUNCTION (BlueprintCallable)
+	FVector GetNextCircleScale ();
 
 	UFUNCTION (BlueprintCallable)
 	float GetStageTimeLeft ();

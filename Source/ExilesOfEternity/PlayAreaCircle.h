@@ -24,14 +24,17 @@ public:
 	void StartShrinking (int stage);
 
 	bool GetActorInsidePlayArea (AActor* actor);
+	FVector GetEndLocation ();
 
 private:
 	void UpdateShrinking (float deltaTime);
 	void CheckPlayersOutsidePlayArea ();
 
+	UPROPERTY (Replicated)
 	int _stage = 1;
 	bool _currentlyShrinking = false;
 	FVector _startLocation;
+	UPROPERTY (Replicated)
 	FVector _endLocation;
 	float _totalMoveTime = 0.0f;
 

@@ -8,6 +8,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "PlayerControllerBase.h"
 #include "CharacterBase.h"
+#include "UnrealNetwork.h"
 
 APlayAreaCircle::APlayAreaCircle ()
 {
@@ -18,11 +19,11 @@ void APlayAreaCircle::LoadGameStageInfo (UGameStageInfo* gameStageInfo)
 {
 	_gameStageInfo = gameStageInfo;
 
+	//Set start location
+	_startLocation = GetActorLocation ();
+
 	if (GetWorld ()->IsServer ())
 	{
-		//Set start location
-		_startLocation = GetActorLocation ();
-
 		//Set a random end position from list of end positions
 		_endLocation = _gameStageInfo->StageEndPositions [FMath::RandRange (0, _gameStageInfo->StageEndPositions.Num () - 1)];
 
@@ -121,4 +122,41 @@ bool APlayAreaCircle::GetActorInsidePlayArea (AActor* actor)
 
 	//Otherwise, return true
 	return true;
+}
+
+FVector APlayAreaCircle::GetEndLocation ()
+{
+	if (_stage < 2)
+		return FVector (0.0f, 0.0f, 0.0f);
+
+	float shrinkSpeed = _gameStageInfo->ShrinkSpeed;
+
+	int startDiameter = _gameStageInfo->StageDiameters [0];
+	int endDiameter = _gameStageInfo->StageDiameters [_gameStageInfo->StageDiameters.Num () - 1];
+	int difference = startDiameter - endDiameter;
+
+	float totalMoveTime = (float) difference / shrinkSpeed;
+
+	float moveAlpha = 0.0f;
+
+	for (int i = 1; i < _stage; i++)
+	{
+		int startDiameter2 = _gameStageInfo->StageDiameters [i - 1];
+		int endDiameter2 = _gameStageInfo->StageDiameters [i];
+		int difference2 = startDiameter2 - endDiameter2;
+
+		float moveTime = (float) difference2 / shrinkSpeed;
+
+		moveAlpha += moveTime / totalMoveTime;
+	}
+
+	return FMath::Lerp (_startLocation, FVector (_endLocation.X, _endLocation.Y, _startLocation.Z), moveAlpha);
+}
+
+void APlayAreaCircle::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps (OutLifetimeProps);
+
+	DOREPLIFETIME (APlayAreaCircle, _endLocation);
+	DOREPLIFETIME (APlayAreaCircle, _stage);
 }

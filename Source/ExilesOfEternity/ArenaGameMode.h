@@ -11,7 +11,13 @@ class EXILESOFETERNITY_API AArenaGameMode : public AExilesOfEternityGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	AArenaGameMode ();
+
 protected:
 	//virtual void BeginPlay () override;
 	//virtual void ReportDeath (ACharacterBase* characterController) override;
+
+private:
+	void StartGame ();
 };

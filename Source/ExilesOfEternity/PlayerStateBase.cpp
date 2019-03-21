@@ -2,6 +2,7 @@
 
 #include "PlayerStateBase.h"
 #include "UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
 
 APlayerStateBase::APlayerStateBase ()
 {
@@ -15,6 +16,7 @@ void APlayerStateBase::SetNickname (FString name)
 
 void APlayerStateBase::SetTeamNumber (int number)
 {
+	//if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) != "ArenaLevel")
 	_teamNumber = number;
 }
 
@@ -64,4 +66,5 @@ void APlayerStateBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& O
 	DOREPLIFETIME (APlayerStateBase, _nickname);
 	DOREPLIFETIME (APlayerStateBase, _kills);
 	DOREPLIFETIME (APlayerStateBase, _deaths);
+	DOREPLIFETIME (APlayerStateBase, _teamNumber);
 }

@@ -8,6 +8,7 @@ UCreateGameRequest::UCreateGameRequest () {}
 UJoinGameRequest::UJoinGameRequest () {}
 URefreshRequest::URefreshRequest () {}
 UJoinLobbyRequest::UJoinLobbyRequest () {}
+UChangeTeamRequest::UChangeTeamRequest () {}
 ULeaveLobbyRequest::ULeaveLobbyRequest () {}
 UStartGameRequest::UStartGameRequest () {}
 

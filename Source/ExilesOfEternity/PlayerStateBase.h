@@ -36,6 +36,7 @@ protected:
 private:
 	UPROPERTY (Replicated)
 	FString _nickname;
+	UPROPERTY (Replicated)
 	int _teamNumber;
 	UPROPERTY (Replicated)
 	int _kills;

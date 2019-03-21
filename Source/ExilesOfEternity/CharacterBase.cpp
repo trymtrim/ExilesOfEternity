@@ -44,7 +44,7 @@ void ACharacterBase::BeginPlay ()
 		_staticHealthRegenTimer = _staticHealthRegenTime;
 
 		//Temp
-		if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel")
+		if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel" || UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "PracticeLevel")
 			level = 6;
 	}
 
@@ -97,7 +97,7 @@ void ACharacterBase::Tick (float DeltaTime)
 		{
 			if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "GameLevel")
 				SetActorLocation (FVector (40000.0f, 40000.0f, 0.0f));
-			else if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel")
+			else if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel" || UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "PractiseLevel")
 				SetActorLocation (FVector (0.0f, 0.0f, 5000.0f));
 		}
 	}

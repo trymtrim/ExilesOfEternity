@@ -31,6 +31,9 @@ public:
 	void Die ();
 	void ResetCharacter ();
 
+	UFUNCTION (BlueprintCallable)
+	bool AddSpell (Spells spell, int rank, bool hack); //REMINDER: Remove hack later
+
 	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
 	void DropSpell (Spells spell);
 	void AddSpellUpgrade ();
@@ -123,8 +126,6 @@ protected:
 	UFUNCTION (BlueprintImplementableEvent)
 	void ClientUpgradeSpellBP ();
 
-	UFUNCTION (BlueprintCallable)
-	bool AddSpell (Spells spell, int rank, bool hack); //REMINDER: Remove hack later
 	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
 	void UpgradeSpell (Spells spell);
 

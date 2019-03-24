@@ -83,7 +83,7 @@ void ABattleRoyaleGameMode::CheckForGameStart ()
 			playerController->RegisterGameStarting ();
 		}
 
-		//Officially start game after one second
+		//Officially start game after five seconds
 		FTimerHandle startGameTimerHandle;
 		GetWorld ()->GetTimerManager ().SetTimer (startGameTimerHandle, this, &ABattleRoyaleGameMode::StartGame, 5.0f, false);
 

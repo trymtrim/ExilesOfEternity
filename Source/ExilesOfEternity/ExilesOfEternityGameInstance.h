@@ -60,6 +60,7 @@ public:
 	FOnRefreshLobby OnRefreshLobbyBP;
 
 	//Temp
+	UPROPERTY (BlueprintReadWrite)
 	int arenaTeamNumber = 0;
 
 protected:

@@ -136,7 +136,7 @@ bool ACharacterBase::AddSpell (Spells spell, int rank, bool hack)
 	}
 
 	//Add unlock message
-	Cast <APlayerControllerBase> (GetController ())->AddMessage ("You unlocked " + USpellAttributes::GetName (spell), false);
+	//Cast <APlayerControllerBase> (GetController ())->AddMessage ("You unlocked " + USpellAttributes::GetName (spell), false);
 
 	//Add spell
 	_ownedSpells.Add (spell);

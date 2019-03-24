@@ -11,6 +11,9 @@ class EXILESOFETERNITY_API AArenaPlayerState : public APlayerStateBase
 {
 	GENERATED_BODY ()
 
+public:
+	virtual void Destroyed () override;
+
 protected:
-	//virtual void BeginPlay () override;
+	virtual void OnKill (APlayerState* playerState) override;
 };

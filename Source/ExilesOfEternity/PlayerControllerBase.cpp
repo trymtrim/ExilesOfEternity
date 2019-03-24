@@ -33,6 +33,11 @@ void APlayerControllerBase::AddMessage_Implementation (const FString& message, b
 	OnMessageBP.Broadcast (message, error);
 }
 
+void APlayerControllerBase::AddBigMessage_Implementation (const FString& message, float duration = 0.0f)
+{
+	OnBigMessageBP.Broadcast (message, duration);
+}
+
 void APlayerControllerBase::AddKillMessage_Implementation (const FString& message)
 {
 	OnKillMessageBP.Broadcast (message);

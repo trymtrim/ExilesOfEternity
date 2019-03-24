@@ -14,10 +14,11 @@ class EXILESOFETERNITY_API AArenaGameMode : public AExilesOfEternityGameModeBase
 public:
 	AArenaGameMode ();
 
+	virtual void Tick (float DeltaTime) override;
+
 protected:
-	//virtual void BeginPlay () override;
-	//virtual void ReportDeath (ACharacterBase* characterController) override;
+	virtual void ReportDeath (ACharacterBase* characterController) override;
 
 private:
-	void StartGame ();
+	void CheckForGameStart ();
 };

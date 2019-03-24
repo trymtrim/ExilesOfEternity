@@ -7,6 +7,7 @@
 #include "PlayerControllerBase.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams (FOnMessage, FString, message, bool, error);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams (FOnBigMessage, FString, message, float, duration);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnKillMessage, FString, message);
 
 UCLASS()
@@ -27,10 +28,14 @@ public:
 	UFUNCTION (Client, Reliable, BlueprintCallable)
 	void AddMessage (const FString& message, bool error);
 	UFUNCTION (Client, Reliable)
+	void AddBigMessage (const FString& message, float duration = 0.0f);
+	UFUNCTION (Client, Reliable)
 	void AddKillMessage (const FString& message);
 
 	UPROPERTY (BlueprintAssignable)
 	FOnMessage OnMessageBP;
+	UPROPERTY (BlueprintAssignable)
+	FOnBigMessage OnBigMessageBP;
 	UPROPERTY (BlueprintAssignable)
 	FOnKillMessage OnKillMessageBP;
 

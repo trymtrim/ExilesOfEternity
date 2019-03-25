@@ -57,7 +57,8 @@ AActor* AExilesOfEternityGameModeBase::ChoosePlayerStart_Implementation (AContro
 	_playerCount++;
 
 	//Set player team number
-	Cast <APlayerStateBase> (Player->PlayerState)->SetTeamNumber (_playerCount);
+	if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) != "ArenaLevel")
+		Cast <APlayerStateBase> (Player->PlayerState)->SetTeamNumber (_playerCount);
 
 	//Get all start locations
 	TArray <AActor*> playerStarts;

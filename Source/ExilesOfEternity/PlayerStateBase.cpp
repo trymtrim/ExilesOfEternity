@@ -16,7 +16,6 @@ void APlayerStateBase::SetNickname (FString name)
 
 void APlayerStateBase::SetTeamNumber (int number)
 {
-	//if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) != "ArenaLevel")
 	_teamNumber = number;
 }
 

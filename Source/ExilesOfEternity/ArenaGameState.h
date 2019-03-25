@@ -33,7 +33,7 @@ public:
 private:
 	void EndGame (int victoryTeamNumber);
 
-	int _gameStartTime = 5;
+	int _gameStartTime = 30;
 	int _winsRequiredToWin = 3;
 
 	int _round = 0;

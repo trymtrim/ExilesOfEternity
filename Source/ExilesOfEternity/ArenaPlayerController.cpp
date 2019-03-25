@@ -4,7 +4,6 @@
 #include "Engine/World.h"
 #include "PlayerStateBase.h"
 #include "CharacterBase.h"
-#include "ExilesOfEternityGameInstance.h"
 #include "GameFramework/PlayerStart.h"
 #include "PlayerControllerBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,7 +25,7 @@ void AArenaPlayerController::BeginPlay ()
 
 void AArenaPlayerController::InitialSetTeamNumber ()
 {
-	SetTeamNumber (Cast <UExilesOfEternityGameInstance> (GetGameInstance ())->arenaTeamNumber);
+	
 }
 
 void AArenaPlayerController::SetTeamNumber_Implementation (int teamNumber)

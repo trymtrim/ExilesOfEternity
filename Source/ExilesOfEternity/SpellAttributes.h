@@ -113,6 +113,7 @@ public:
 	static FString GetName (Spells spell);
 	UFUNCTION (BlueprintCallable)
 	static SpellTypes GetType (Spells spell);
+	UFUNCTION (BlueprintCallable)
 	static float GetCooldown (Spells spell, int rank);
 	UFUNCTION (BlueprintCallable)
 	static float GetDamage (Spells spell, int rank);

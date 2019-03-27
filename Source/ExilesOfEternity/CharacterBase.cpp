@@ -166,6 +166,7 @@ void ACharacterBase::ClientAddOwnedSpell_Implementation (Spells spell, int rank)
 {
 	//Add spell
 	_ownedSpells.Add (spell);
+	_globalCooldownsActivated.Add (spell, false);
 
 	//Set spell rank
 	if (rank == 0)
@@ -247,6 +248,7 @@ bool ACharacterBase::DropSpell_Validate (Spells spell)
 void ACharacterBase::ClientDropSpell_Implementation (Spells spell)
 {
 	_ownedSpells.Remove (spell);
+	_globalCooldownsActivated.Remove (spell);
 	_spellRanks.Remove (spell);
 
 	RemoveSpellBP (spell);
@@ -518,6 +520,9 @@ void ACharacterBase::ActivateGlobalCooldown ()
 			//Update cooldown
 			_spellCooldowns [spellToUpdate] = _globalCooldown;
 			_globalCooldownsActivated [spellToUpdate] = true;
+
+			//Update global cooldown client-side
+			ClientActivateGlobalCooldown (spellToUpdate, true);
 		}
 	}
 
@@ -540,6 +545,11 @@ void ACharacterBase::ActivateGlobalCooldown ()
 		_characterSpellCooldowns [BASIC] = _globalCooldown;
 		_basicCooldownsActivated = true;
 	}
+}
+
+void ACharacterBase::ClientActivateGlobalCooldown_Implementation (Spells spell, bool state)
+{
+	_globalCooldownsActivated [spell] = state;
 }
 
 int ACharacterBase::GetSpellRank (Spells spell)
@@ -601,6 +611,19 @@ bool ACharacterBase::GetCharacterSpellIsOnCooldown (CharacterSpells spell)
 	return true;
 }
 
+bool ACharacterBase::GetSpellIsOnGlobalCooldown (Spells spell)
+{
+	if (_globalCooldownsActivated.Contains (spell))
+	{
+		if (_globalCooldownsActivated [spell] == true)
+			return true;
+
+		return false;
+	}
+
+	return false;
+}
+
 bool ACharacterBase::GetSpellIsOnCooldown (CharacterSpells spell)
 {
 	if (IsLocallyControlled ())
@@ -646,7 +669,12 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 
 				//If cooldown has reached zero, deactivate global cooldown
 				if (_spellCooldowns [spellToUpdate] <= 0.0f)
+				{
 					_globalCooldownsActivated [spellToUpdate] = false;
+
+					//Update global cooldown client-side
+					ClientActivateGlobalCooldown (spellToUpdate, false);
+				}
 				else if (_currentlyProjectingSpell && _currentlyActivatedSpell == spellToUpdate)
 				{
 					//Prevent projection of spell when it is on cooldown, in case lag causes that to happen
@@ -670,13 +698,17 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 			if (_ultimateCooldownsActivated)
 			{
 				_ultimateSpellCooldownPercentage = _characterSpellCooldowns [ULTIMATE] / _globalCooldown;
+				_replicatedUltimateSpellCooldown = 0.0f;
 
 				//If cooldown has reached zero, deactivate global cooldown
 				if (_characterSpellCooldowns [ULTIMATE] <= 0.0f)
 					_ultimateCooldownsActivated = false;
 			}
 			else
+			{
 				_ultimateSpellCooldownPercentage = _characterSpellCooldowns [ULTIMATE] / _ultimateSpellCooldown;
+				_replicatedUltimateSpellCooldown = _characterSpellCooldowns [ULTIMATE];
+			}
 		}
 	}
 
@@ -751,6 +783,7 @@ void ACharacterBase::ResetCooldowns ()
 	{
 		_characterSpellCooldowns [ULTIMATE] = 0.0f;
 		_ultimateSpellCooldownPercentage = 0.0f;
+		_replicatedUltimateSpellCooldown = 0.0f;
 	}
 
 	//Handle basic spell cooldown system
@@ -1087,6 +1120,7 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION (ACharacterBase, _ultimateSpellUnlocked, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _ownedSpellsCooldownPercentages, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _ultimateSpellCooldownPercentage, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _replicatedUltimateSpellCooldown, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellCooldownPercentage, COND_OwnerOnly);
 
 	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellCharges, COND_OwnerOnly);

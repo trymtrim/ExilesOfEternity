@@ -72,6 +72,8 @@ public:
 	bool GetSpellIsOnCooldown (Spells spell);
 	UFUNCTION (BlueprintCallable)
 	bool GetCharacterSpellIsOnCooldown (CharacterSpells spell);
+	UFUNCTION (BlueprintCallable)
+	bool GetSpellIsOnGlobalCooldown (Spells spell);
 
 	UFUNCTION (BlueprintCallable)
 	int GetSpellSlotIndex ();
@@ -160,6 +162,8 @@ protected:
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _ultimateSpellCooldownPercentage;
 	UPROPERTY (Replicated, BlueprintReadOnly)
+	float _replicatedUltimateSpellCooldown;
+	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _basicSpellCooldownPercentage;
 
 	//Basic spell charging
@@ -218,6 +222,8 @@ private:
 	void PutSpellOnCooldown (CharacterSpells spell);
 
 	void ActivateGlobalCooldown ();
+	UFUNCTION (Client, Reliable)
+	void ClientActivateGlobalCooldown (Spells spell, bool state);
 
 	bool GetSpellIsOnCooldown (CharacterSpells spell);
 
@@ -255,6 +261,7 @@ private:
 
 	UPROPERTY (Replicated)
 	bool _ultimateSpellUnlocked = false;
+	UPROPERTY (EditAnywhere)
 	float _ultimateSpellCooldown = 90.0f;
 	float _basicSpellCooldown = 0.35f;
 
@@ -279,7 +286,6 @@ private:
 
 	TMap <Spells, int> _spellRanks;
 
-	UPROPERTY (EditAnywhere)
 	float _basicSpellDamage = 15.0f;
 
 	UPROPERTY (Replicated)

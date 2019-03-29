@@ -39,6 +39,9 @@ protected:
 
 private:
 	void CheckPlayerConnection ();
+
+	TSubclassOf <APawn> _serathCharacter;
+	TSubclassOf <APawn> _gideonCharacter;
 	
 	int _playerConnectionCheckCount = 0;
 	int _playerCount = 0;

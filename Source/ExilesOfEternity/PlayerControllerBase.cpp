@@ -71,7 +71,8 @@ void APlayerControllerBase::ShowMouseCursor_Implementation (bool state)
 		FInputModeGameOnly gameInputMode;
 		SetInputMode (gameInputMode);
 
-		Cast <ACharacterBase> (GetCharacter ())->SetMovingSpell (false);
+		if (GetCharacter () != nullptr)
+			Cast <ACharacterBase> (GetCharacter ())->SetMovingSpell (false);
 	}
 
 	//Set mouse position to center bottom of screen

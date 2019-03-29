@@ -28,12 +28,6 @@ protected:
 	virtual void BeginPlay () override;
 
 private:
-	//Temp
-	void InitialSetTeamNumber ();
-
-	UFUNCTION (Server, Reliable, WithValidation)
-	void SetTeamNumber (int teamNumber);
-
 	UFUNCTION (Client, Reliable)
 	void ClientSelectSpell (Spells spell);
 

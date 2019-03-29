@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE (FOnDisconnected);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnJoinGame, FString, ipAddress);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams (FOnRefresh, const TArray <FString>&, gameInstanceNames, const TArray <FString>&, gameInstanceGameModes);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams (FOnJoinLobby, FString, gameName, FString, gameMode, const TArray <FString>&, playerNames);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams (FOnRefreshLobby, FString, gameMode, const TArray <FString>&, playerNames, const TArray <int>&, playerTeams);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams (FOnRefreshLobby, FString, gameMode, const TArray <FString>&, playerNames, const TArray <int>&, playerTeams, const TArray <FString>&, playerCharacters);
 
 UCLASS()
 class EXILESOFETERNITY_API UExilesOfEternityGameInstance : public UGameInstance
@@ -35,7 +35,7 @@ public:
 	UFUNCTION (BlueprintCallable)
 	void JoinGame (FString gameName);
 	UFUNCTION (BlueprintCallable)
-	void JoinLobby (FString gameName, FString playerName, FString gameMode);
+	void JoinLobby (FString gameName, FString playerName, FString gameMode, FString characterName);
 	UFUNCTION (BlueprintCallable)
 	void ChangeTeam (FString gameName, int teamNumber);
 	UFUNCTION (BlueprintCallable)
@@ -62,6 +62,9 @@ public:
 	//Temp
 	UPROPERTY (BlueprintReadWrite)
 	int arenaTeamNumber = 0;
+
+	UPROPERTY (BlueprintReadWrite)
+	FString selectedCharacter = "Serath";
 
 protected:
 	virtual void Init () override;

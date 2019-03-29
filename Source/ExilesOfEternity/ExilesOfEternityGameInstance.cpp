@@ -92,7 +92,7 @@ void UExilesOfEternityGameInstance::OnMessage (FString message)
 	else if (type == "RefreshLobby")
 	{
 		URefreshLobbyResponse* refreshLobbyResponse = Cast <URefreshLobbyResponse> (UWebSocketBlueprintLibrary::JsonToObject (message, URefreshLobbyResponse::StaticClass (), false));
-		OnRefreshLobbyBP.Broadcast (refreshLobbyResponse->gameMode, refreshLobbyResponse->playerNames, refreshLobbyResponse->playerTeams);
+		OnRefreshLobbyBP.Broadcast (refreshLobbyResponse->gameMode, refreshLobbyResponse->playerNames, refreshLobbyResponse->playerTeams, refreshLobbyResponse->playerCharacters);
 	}
 }
 
@@ -132,7 +132,7 @@ void UExilesOfEternityGameInstance::JoinGame (FString gameName)
 	_webSocket->SendText (message);
 }
 
-void UExilesOfEternityGameInstance::JoinLobby (FString gameName, FString playerName, FString gameMode)
+void UExilesOfEternityGameInstance::JoinLobby (FString gameName, FString playerName, FString gameMode, FString characterName)
 {
 	FString message;
 	UJoinLobbyRequest* request = NewObject <UJoinLobbyRequest> ();
@@ -140,6 +140,7 @@ void UExilesOfEternityGameInstance::JoinLobby (FString gameName, FString playerN
 	request->type = "JoinLobby";
 	request->gameName = gameName;
 	request->gameMode = gameMode;
+	request->characterName = characterName;
 
 	if (playerName == "")
 		request->playerName = "Player";

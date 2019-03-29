@@ -19,10 +19,13 @@ AExilesOfEternityGameModeBase::AExilesOfEternityGameModeBase ()
 	PlayerStateClass = APlayerStateBase::StaticClass ();
 
 	//Set default pawn class
-	static ConstructorHelpers::FClassFinder <APawn> PlayerPawnClass (TEXT ("/Game/Blueprints/Characters/Serath_BP"));
+	static ConstructorHelpers::FClassFinder <APawn> serathPawnClass (TEXT ("/Game/Blueprints/Characters/Serath_BP"));
+	if (serathPawnClass.Class != NULL)
+		_serathCharacter = serathPawnClass.Class;
 
-	if (PlayerPawnClass.Class != NULL)
-		DefaultPawnClass = PlayerPawnClass.Class;
+	static ConstructorHelpers::FClassFinder <APawn> gideonPawnClass (TEXT ("/Game/Blueprints/Characters/Gideon_BP"));
+	if (gideonPawnClass.Class != NULL)
+		_gideonCharacter = gideonPawnClass.Class;
 }
 
 void AExilesOfEternityGameModeBase::BeginPlay ()
@@ -41,6 +44,26 @@ FString AExilesOfEternityGameModeBase::InitNewPlayer (APlayerController* NewPlay
 		playerName = "Player";
 
 	Cast <APlayerStateBase> (NewPlayerController->PlayerState)->SetNickname (playerName);
+
+	//Declare spawn parameters
+	FActorSpawnParameters spawnParams;
+	spawnParams.Owner = this;
+	FVector spawnPosition = FVector (0.0f, 0.0f, 100.0f);
+	FRotator spawnRotation = FRotator (0.0f, 0.0f, 0.0f);
+
+	TSubclassOf <APawn> characterClass = nullptr;
+	FString characterName = UGameplayStatics::ParseOption (Options, "CharacterName");
+
+	if (characterName == "Serath")
+		characterClass = _serathCharacter;
+	else if (characterName == "Gideon")
+		characterClass = _gideonCharacter;
+	else
+		characterClass = _serathCharacter;
+
+	//Spawn spell capsule
+	APawn* character = GetWorld ()->SpawnActor <APawn> (characterClass, spawnPosition, spawnRotation, spawnParams);
+	NewPlayerController->Possess (character);
 
 	//Cast <APlayerControllerBase> (NewPlayerController)->SetPlayerName (playerName);
 
@@ -66,8 +89,12 @@ AActor* AExilesOfEternityGameModeBase::ChoosePlayerStart_Implementation (AContro
 
 	//Set player start location
 	if (playerStarts.Num () >= _playerCount)
+	{
+		Player->GetPawn ()->SetActorLocation (playerStarts [_playerCount - 1]->GetActorLocation ());
 		return playerStarts [_playerCount - 1];
+	}
 
+	Player->GetPawn ()->SetActorLocation (playerStarts [playerStarts.Num () - 1]->GetActorLocation ());
 	return playerStarts [playerStarts.Num () - 1];
 }
 

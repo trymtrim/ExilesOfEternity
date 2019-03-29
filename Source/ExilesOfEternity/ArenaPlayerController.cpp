@@ -13,30 +13,6 @@ void AArenaPlayerController::BeginPlay ()
 {
 	//Set input mode to UI only
 	SetInputUIOnly ();
-
-	//Initialize client specific elements
-	if (!GetWorld ()->IsServer ())
-	{
-		//Temp
-		FTimerHandle startGameTimerHandle;
-		GetWorld ()->GetTimerManager ().SetTimer (startGameTimerHandle, this, &AArenaPlayerController::InitialSetTeamNumber, 2.0f, false);
-	}	
-}
-
-void AArenaPlayerController::InitialSetTeamNumber ()
-{
-	
-}
-
-void AArenaPlayerController::SetTeamNumber_Implementation (int teamNumber)
-{
-	if (teamNumber > 0)
-		Cast <APlayerStateBase> (PlayerState)->SetTeamNumber (teamNumber);
-}
-
-bool AArenaPlayerController::SetTeamNumber_Validate (int teamNumber)
-{
-	return true;
 }
 
 void AArenaPlayerController::SelectSpell_Implementation (Spells spell)

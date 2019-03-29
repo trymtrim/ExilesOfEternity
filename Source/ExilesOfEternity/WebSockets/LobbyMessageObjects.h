@@ -79,6 +79,8 @@ public:
 	FString gameMode;
 	UPROPERTY (EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = true), Category = MessageObjects)
 	FString playerName;
+	UPROPERTY (EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = true), Category = MessageObjects)
+	FString characterName;
 };
 
 UCLASS(BlueprintType, Blueprintable)
@@ -188,4 +190,6 @@ public:
 	TArray <FString> playerNames;
 	UPROPERTY (EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = true), Category = MessageObjects)
 	TArray <int> playerTeams;
+	UPROPERTY (EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = true), Category = MessageObjects)
+	TArray <FString> playerCharacters;
 };

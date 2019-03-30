@@ -43,11 +43,15 @@ void ACharacterBase::BeginPlay ()
 		//Set static health regen timer
 		_staticHealthRegenTimer = _staticHealthRegenTime;
 
+		//Set basic spell charges
+		_basicSpellCharges = _maxBasicSpellCharges;
+		_basicSpellChargeTimer = _basicSpellChargeTime;
+
 		//Temp
 		if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel" || UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "PracticeLevel")
 			level = 6;
 	}
-
+	
 	//GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "THIS IS A TEST YO!");
 
 	Super::BeginPlay ();
@@ -351,12 +355,24 @@ void ACharacterBase::UpdateUsingBasicSpell ()
 		return;
 
 	//Use basic spell
-	UseSpellInput (0);
+	if (_maxBasicSpellCharges == 5) //Temp
+		UseSpellInput (0);
+	else if (!_chargingBasicSpell) //Temp
+	{
+		_chargingBasicSpell = true; //Temp
+		ChargeUpBasicSpellBP (); //Temp
+	}
 }
 
 void ACharacterBase::StopUsingBasicSpell ()
 {
 	_usingBasicSpell = false;
+
+	if (!GetSpellIsOnCooldown (BASIC) && _chargingBasicSpell) //Temp
+	{
+		_chargingBasicSpell = false; //Temp
+		UseSpellInput (0); //Temp
+	}
 }
 
 void ACharacterBase::UseSpell_Implementation (Spells spell)

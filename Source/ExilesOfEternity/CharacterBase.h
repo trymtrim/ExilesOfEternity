@@ -128,6 +128,10 @@ protected:
 	UFUNCTION (BlueprintImplementableEvent)
 	void ClientUpgradeSpellBP ();
 
+	//Temp
+	UFUNCTION (BlueprintImplementableEvent)
+	void ChargeUpBasicSpellBP ();
+
 	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
 	void UpgradeSpell (Spells spell);
 
@@ -167,11 +171,11 @@ protected:
 	float _basicSpellCooldownPercentage;
 
 	//Basic spell charging
-	UPROPERTY (BlueprintReadOnly)
+	UPROPERTY (BlueprintReadOnly, EditAnywhere)
 	int _maxBasicSpellCharges = 5;
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	int _basicSpellCharges = 5;
-	UPROPERTY (BlueprintReadOnly)
+	UPROPERTY (BlueprintReadOnly, EditAnywhere)
 	float _basicSpellChargeTime = 2.0f;
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _basicSpellChargeTimer = 2.0f;
@@ -263,6 +267,7 @@ private:
 	bool _ultimateSpellUnlocked = false;
 	UPROPERTY (EditAnywhere)
 	float _ultimateSpellCooldown = 90.0f;
+	UPROPERTY (EditAnywhere)
 	float _basicSpellCooldown = 0.35f;
 
 	float _globalCooldown = 0.35f;
@@ -301,4 +306,6 @@ private:
 
 	int _currentSpellSlotIndex = -1;
 	bool _currentlyMovingSpell = false;
+
+	bool _chargingBasicSpell = false;
 };

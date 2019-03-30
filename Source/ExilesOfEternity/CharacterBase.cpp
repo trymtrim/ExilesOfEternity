@@ -359,9 +359,14 @@ void ACharacterBase::UpdateUsingBasicSpell ()
 		UseSpellInput (0);
 	else if (!_chargingBasicSpell) //Temp
 	{
-		_chargingBasicSpell = true; //Temp
-		ChargeUpBasicSpellBP (); //Temp
-	}
+		if (_currentlyProjectingSpell)
+			UseSpellInput (0);
+		else
+		{
+			_chargingBasicSpell = true; //Temp
+			ChargeUpBasicSpellBP (); //Temp
+		}
+	}	
 }
 
 void ACharacterBase::StopUsingBasicSpell ()

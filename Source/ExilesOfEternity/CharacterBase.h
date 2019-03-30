@@ -203,6 +203,7 @@ private:
 
 	void StartUsingBasicSpell ();
 	void UpdateUsingBasicSpell ();
+	UFUNCTION (BlueprintCallable)
 	void StopUsingBasicSpell ();
 
 	//Basic and ultimate spell

@@ -85,6 +85,16 @@ public:
 	UFUNCTION (BlueprintImplementableEvent)
 	void OnDealDamageBP (AActor* actor, float damage);
 
+	//Spell effects
+	UFUNCTION (BlueprintCallable)
+	void SetSlowEffect (float value, float duration); //Default = 1.0f
+	UFUNCTION (BlueprintCallable)
+	float GetSlowEffect ();
+	UFUNCTION (BlueprintCallable)
+	bool GetSlowed ();
+
+	void ResetSpellEffects ();
+
 	//Used for specific game modes
 	UFUNCTION (BlueprintImplementableEvent)
 	void GainExperienceBP (int experience);
@@ -129,6 +139,10 @@ protected:
 	void StopUsingUltimateSpellBP (bool finished);
 	UFUNCTION (BlueprintImplementableEvent)
 	void ClientUpgradeSpellBP ();
+
+	//Spell effects
+	UFUNCTION (BlueprintImplementableEvent)
+	void SetSlowEffectBP (float value, float duration);
 
 	//Temp
 	UFUNCTION (BlueprintImplementableEvent)
@@ -207,6 +221,7 @@ private:
 	void UpdateUsingBasicSpell ();
 	UFUNCTION (BlueprintCallable)
 	void StopUsingBasicSpell ();
+	void DelayedStopUsingBasicSpell ();
 
 	//Basic and ultimate spell
 	UFUNCTION (Server, Reliable, WithValidation)
@@ -234,7 +249,7 @@ private:
 
 	bool GetSpellIsOnCooldown (CharacterSpells spell);
 
-	void UpdateCooldowns (float deltaTime);
+	void UpdateCooldowns (float deltaTime, bool reset = false);
 
 	void UpdateCooldownPercentages (float deltaTime);
 	float GetCooldownPercentage (Spells spell);
@@ -311,6 +326,12 @@ private:
 	bool _currentlyMovingSpell = false;
 
 	bool _chargingBasicSpell = false;
+
+	//Spell effects
+	UPROPERTY (Replicated)
+	bool _slowed = false;
+	UPROPERTY (Replicated)
+	float _slowEffect = 1.0f;
 
 	//Temp
 	bool _clientUsingUltimateSpell = false;

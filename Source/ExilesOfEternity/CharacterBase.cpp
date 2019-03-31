@@ -8,6 +8,7 @@
 #include "PlayerControllerBase.h"
 #include "PlayerStateBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Public/TimerManager.h"
 
 //Sets default values
 ACharacterBase::ACharacterBase ()
@@ -55,7 +56,7 @@ void ACharacterBase::BeginPlay ()
 	//GEngine->AddOnScreenDebugMessage (-1, 15.0f, FColor::Yellow, "THIS IS A TEST YO!");
 
 	Super::BeginPlay ();
-
+	
 	//Initialize server specific elements after everything else is set up
 	if (IsLocallyControlled ())
 		ServerInitializeCharacter ();
@@ -242,6 +243,8 @@ void ACharacterBase::DropSpell_Implementation (Spells spell)
 
 	//Update spell drop client-side
 	ClientDropSpell (spell);
+
+	UpdateCooldowns (GetWorld ()->GetDeltaSeconds (), true);
 }
 
 bool ACharacterBase::DropSpell_Validate (Spells spell)
@@ -381,6 +384,12 @@ void ACharacterBase::StopUsingBasicSpell ()
 		_chargingBasicSpell = false; //Temp
 		UseSpellInput (0); //Temp
 	}
+}
+
+//REMINDER: Do something here to fix Gideon basic spell bug
+void ACharacterBase::DelayedStopUsingBasicSpell ()
+{
+
 }
 
 void ACharacterBase::UseSpell_Implementation (Spells spell)
@@ -666,7 +675,7 @@ bool ACharacterBase::GetSpellIsOnCooldown (CharacterSpells spell)
 	return true;
 }
 
-void ACharacterBase::UpdateCooldowns (float deltaTime)
+void ACharacterBase::UpdateCooldowns (float deltaTime, bool reset)
 {
 	//Update general spell cooldowns
 	for (int i = 0; i < _ownedSpells.Num (); i++)
@@ -674,7 +683,7 @@ void ACharacterBase::UpdateCooldowns (float deltaTime)
 		Spells spellToUpdate = _ownedSpells [i];
 
 		//If spell is on cooldown
-		if (_spellCooldowns [spellToUpdate] > 0.0f)
+		if (_spellCooldowns [spellToUpdate] > 0.0f || reset)
 		{
 			//Get the spell's original cooldown
 			float originalSpellCooldown = USpellAttributes::GetCooldown (spellToUpdate, GetSpellRank (spellToUpdate));
@@ -942,6 +951,9 @@ void ACharacterBase::Die ()
 
 	_dead = true;
 
+	//Reset spell effects
+	ResetSpellEffects ();
+
 	DieBP ();
 	
 	//Cancel current spell
@@ -1064,6 +1076,35 @@ void ACharacterBase::ResetSpellSlotIndex ()
 	_currentSpellSlotIndex = -1;
 }
 
+void ACharacterBase::SetSlowEffect (float value, float duration)
+{
+	_slowEffect = value;
+
+	if (value == 1.0f)
+		_slowed = false;
+	else
+	{
+		_slowed = true;
+		SetSlowEffectBP (value, duration);
+	}
+}
+
+float ACharacterBase::GetSlowEffect ()
+{
+	return _slowEffect;
+}
+
+bool ACharacterBase::GetSlowed ()
+{
+	return _slowed;
+}
+
+void ACharacterBase::ResetSpellEffects ()
+{
+	_slowed = false;
+	_slowEffect = 1.0f;
+}
+
 void ACharacterBase::LevelUp (int newLevel)
 {
 	level = newLevel;
@@ -1164,6 +1205,9 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION (ACharacterBase, _usingUltimateSpell, COND_OwnerOnly);
 
 	DOREPLIFETIME_CONDITION (ACharacterBase, _victorious, COND_OwnerOnly);
+
+	DOREPLIFETIME_CONDITION (ACharacterBase, _slowEffect, COND_OwnerOnly);
+	DOREPLIFETIME (ACharacterBase, _slowed);
 }
 
 //Called to bind functionality to input

@@ -17,7 +17,8 @@ enum Spells
 	BLINK,
 	CONTAINMENT_FENCE,
 	CYCLONE,
-	MEDITATE
+	MEDITATE,
+	FROSTBOLT
 };
 
 UENUM (BlueprintType)

@@ -48,6 +48,8 @@ public:
 
 	UFUNCTION (BlueprintCallable)
 	void StopUsingUltimateSpell (bool finished);
+	UFUNCTION (Client, Reliable)
+	void ClientStopUsingUltimateSpell ();
 
 	void MakeVictorious ();
 
@@ -309,4 +311,7 @@ private:
 	bool _currentlyMovingSpell = false;
 
 	bool _chargingBasicSpell = false;
+
+	//Temp
+	bool _clientUsingUltimateSpell = false;
 };

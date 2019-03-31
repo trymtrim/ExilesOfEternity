@@ -313,6 +313,9 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 
 		//Use ultimate spell
 		UseCharacterSpell (ULTIMATE);
+
+		//Temp
+		_clientUsingUltimateSpell = true;
 	}
 	else if (hotkeyIndex == 0)
 	{
@@ -361,7 +364,7 @@ void ACharacterBase::UpdateUsingBasicSpell ()
 	{
 		if (_currentlyProjectingSpell)
 			UseSpellInput (0);
-		else
+		else if (!_usingUltimateSpell)
 		{
 			_chargingBasicSpell = true; //Temp
 			ChargeUpBasicSpellBP (); //Temp
@@ -976,6 +979,14 @@ void ACharacterBase::StopUsingUltimateSpell (bool finished)
 {
 	_usingUltimateSpell = false;
 	StopUsingUltimateSpellBP (finished);
+	
+	ClientStopUsingUltimateSpell ();
+}
+
+void ACharacterBase::ClientStopUsingUltimateSpell_Implementation ()
+{
+	//Temp
+	_clientUsingUltimateSpell = false;
 }
 
 void ACharacterBase::MakeVictorious ()
@@ -997,6 +1008,10 @@ bool ACharacterBase::GetCanMove ()
 {
 	//If character is dead or has won the game, return false
 	if (_dead || _victorious)
+		return false;
+
+	//Temp
+	if (_clientUsingUltimateSpell && _maxBasicSpellCharges != 5)
 		return false;
 
 	return true;

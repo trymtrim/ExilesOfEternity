@@ -352,6 +352,8 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 void ACharacterBase::StartUsingBasicSpell ()
 {
 	_usingBasicSpell = true;
+
+	UpdateUsingBasicSpell ();
 }
 
 void ACharacterBase::UpdateUsingBasicSpell ()
@@ -384,12 +386,6 @@ void ACharacterBase::StopUsingBasicSpell ()
 		_chargingBasicSpell = false; //Temp
 		UseSpellInput (0); //Temp
 	}
-}
-
-//REMINDER: Do something here to fix Gideon basic spell bug
-void ACharacterBase::DelayedStopUsingBasicSpell ()
-{
-
 }
 
 void ACharacterBase::UseSpell_Implementation (Spells spell)

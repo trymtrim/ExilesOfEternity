@@ -233,7 +233,7 @@ void ABattleRoyalePlayerState::DiePermanently ()
 	int placement = gameState->GetPlayerCount () - gameState->GetPermanentDeadPlayers ().Num ();
 
 	//Set game over text
-	_gameOverText = "You placed " + FString::FromInt (placement) + ". out of " + FString::FromInt (gameState->GetPlayerCount ()) + " players";
+	_gameOverText = "You placed #" + FString::FromInt (placement) + " out of " + FString::FromInt (gameState->GetPlayerCount ()) + " players";
 
 	//Update player state in game state
 	gameState->ReportPermanentDeath (this);

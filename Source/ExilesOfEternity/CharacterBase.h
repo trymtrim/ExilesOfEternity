@@ -221,7 +221,6 @@ private:
 	void UpdateUsingBasicSpell ();
 	UFUNCTION (BlueprintCallable)
 	void StopUsingBasicSpell ();
-	void DelayedStopUsingBasicSpell ();
 
 	//Basic and ultimate spell
 	UFUNCTION (Server, Reliable, WithValidation)

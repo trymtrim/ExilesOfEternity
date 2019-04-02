@@ -269,8 +269,8 @@ void ACharacterBase::UnlockUltimateSpell ()
 
 void ACharacterBase::UseSpellInput (int hotkeyIndex)
 {
-	//If dead, victorious or currently using ultimate spell, return
-	if (_dead || _victorious || _usingUltimateSpell && hotkeyIndex != -1)
+	//If dead, victorious, stunned or currently using ultimate spell, return
+	if (_dead || _victorious || GetStunned () || _usingUltimateSpell && hotkeyIndex != -1)
 		return;
 
 	//If the spell is not basic or ultimate and the spell slot with the given hotkey index doesn't have a spell, return
@@ -358,8 +358,8 @@ void ACharacterBase::StartUsingBasicSpell ()
 
 void ACharacterBase::UpdateUsingBasicSpell ()
 {
-	//If spell is on cooldown, return
-	if (GetSpellIsOnCooldown (BASIC))
+	//If spell is on cooldown, or player is dead, victorious or stunned, return
+	if (GetSpellIsOnCooldown (BASIC) || _dead || _victorious || GetStunned ())
 		return;
 
 	//Use basic spell
@@ -390,8 +390,8 @@ void ACharacterBase::StopUsingBasicSpell ()
 
 void ACharacterBase::UseSpell_Implementation (Spells spell)
 {
-	//If the player is dead, victorious, doesn't have the spell, the spell is on cooldown or currently using ultimate spell, return
-	if (_dead || _victorious || !_ownedSpells.Contains (spell) || GetSpellIsOnCooldown (spell) || _usingUltimateSpell)
+	//If the player is dead, victorious, stunned, doesn't have the spell, the spell is on cooldown or currently using ultimate spell, return
+	if (_dead || _victorious || GetStunned () ||!_ownedSpells.Contains (spell) || GetSpellIsOnCooldown (spell) || _usingUltimateSpell)
 		return;
 
 	//If spell is not usable while moving, check if character is moving before using spell
@@ -918,6 +918,10 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	}
 	else if (Damage > 0.0f)
 	{
+		//Cancel stun
+		if (_stunned)
+			SetStunEffect (true, 0.0f);
+
 		OnDamageBP ();
 		OnFloatingDamageBP (Damage);
 	}
@@ -955,11 +959,16 @@ void ACharacterBase::Die ()
 	//Cancel current spell
 	CancelCurrentSpellBP ();
 
+	//Cancel basic spell charge - Gideon
+	CancelBasicSpellChargeBP ();
+
 	Cast <AExilesOfEternityGameModeBase> (GetWorld ()->GetAuthGameMode ())->ReportDeath (this);
 }
 
 void ACharacterBase::ClientDie_Implementation ()
 {
+	_chargingBasicSpell = false;
+
 	//Cancel current projection spell
 	CancelSpell ();
 }
@@ -1014,8 +1023,8 @@ float ACharacterBase::GetBasicSpellDamage ()
 
 bool ACharacterBase::GetCanMove ()
 {
-	//If character is dead or has won the game, return false
-	if (_dead || _victorious)
+	//If character is dead, stunned or has won the game, return false
+	if (_dead || _stunned || _victorious)
 		return false;
 
 	//Temp
@@ -1095,10 +1104,25 @@ bool ACharacterBase::GetSlowed ()
 	return _slowed;
 }
 
+void ACharacterBase::SetStunEffect (bool state, float duration)
+{
+	_stunned = state;
+
+	if (state)
+		SetStunEffectBP (duration);
+}
+
+bool ACharacterBase::GetStunned ()
+{
+	return _stunned;
+}
+
 void ACharacterBase::ResetSpellEffects ()
 {
 	_slowed = false;
 	_slowEffect = 1.0f;
+
+	_stunned = false;
 }
 
 void ACharacterBase::LevelUp (int newLevel)
@@ -1204,6 +1228,7 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 
 	DOREPLIFETIME_CONDITION (ACharacterBase, _slowEffect, COND_OwnerOnly);
 	DOREPLIFETIME (ACharacterBase, _slowed);
+	DOREPLIFETIME (ACharacterBase, _stunned);
 }
 
 //Called to bind functionality to input

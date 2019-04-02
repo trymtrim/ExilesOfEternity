@@ -92,6 +92,10 @@ public:
 	float GetSlowEffect ();
 	UFUNCTION (BlueprintCallable)
 	bool GetSlowed ();
+	UFUNCTION (BlueprintCallable)
+	void SetStunEffect (bool state, float duration);
+	UFUNCTION (BlueprintCallable)
+	bool GetStunned ();
 
 	void ResetSpellEffects ();
 
@@ -143,10 +147,14 @@ protected:
 	//Spell effects
 	UFUNCTION (BlueprintImplementableEvent)
 	void SetSlowEffectBP (float value, float duration);
+	UFUNCTION (BlueprintImplementableEvent)
+	void SetStunEffectBP (float duration);
 
 	//Temp
 	UFUNCTION (BlueprintImplementableEvent)
 	void ChargeUpBasicSpellBP ();
+	UFUNCTION (BlueprintImplementableEvent)
+	void CancelBasicSpellChargeBP ();
 
 	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
 	void UpgradeSpell (Spells spell);
@@ -331,6 +339,8 @@ private:
 	bool _slowed = false;
 	UPROPERTY (Replicated)
 	float _slowEffect = 1.0f;
+	UPROPERTY (Replicated)
+	bool _stunned = false;
 
 	//Temp
 	bool _clientUsingUltimateSpell = false;

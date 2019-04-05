@@ -65,6 +65,8 @@ public:
 
 	UPROPERTY (BlueprintReadWrite)
 	FString selectedCharacter = "Serath";
+	UPROPERTY (BlueprintReadWrite)
+	FString ipAddress = "35.228.159.15";
 
 protected:
 	virtual void Init () override;

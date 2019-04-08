@@ -1248,10 +1248,10 @@ void ACharacterBase::SetupPlayerInputComponent (UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction ("UseSpell5", IE_Pressed, this, &ACharacterBase::UseSpellInput <5>);
 	PlayerInputComponent->BindAction ("UseSpell6", IE_Pressed, this, &ACharacterBase::UseSpellInput <6>);
 
-	PlayerInputComponent->BindAction ("UpgradeSpell1", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <1>);
-	PlayerInputComponent->BindAction ("UpgradeSpell2", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <2>);
-	PlayerInputComponent->BindAction ("UpgradeSpell3", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <3>);
-	PlayerInputComponent->BindAction ("UpgradeSpell4", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <4>);
-	PlayerInputComponent->BindAction ("UpgradeSpell5", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <5>);
-	PlayerInputComponent->BindAction ("UpgradeSpell6", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <6>);
+	PlayerInputComponent->BindAction ("UpgradeSpell_1", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <1>);
+	PlayerInputComponent->BindAction ("UpgradeSpell_2", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <2>);
+	PlayerInputComponent->BindAction ("UpgradeSpell_3", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <3>);
+	PlayerInputComponent->BindAction ("UpgradeSpell_4", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <4>);
+	PlayerInputComponent->BindAction ("UpgradeSpell_5", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <5>);
+	PlayerInputComponent->BindAction ("UpgradeSpell_6", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <6>);
 }

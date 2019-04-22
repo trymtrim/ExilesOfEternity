@@ -311,7 +311,7 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 	if (hotkeyIndex == -1)
 	{
 		//If spell is on cooldown, return
-		if (GetSpellIsOnCooldown (ULTIMATE))
+		if (GetSpellIsOnCooldown (ULTIMATE) || !_ultimateSpellUnlocked)
 			return;
 
 		//Use ultimate spell

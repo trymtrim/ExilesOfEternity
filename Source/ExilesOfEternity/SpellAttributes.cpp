@@ -13,8 +13,18 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 	return map;
 }
 
-void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
+TMap <Items, Item> USpellAttributes::_itemMap = USpellAttributes::InitializeItemAttributes ();
+
+TMap <Items, Item> USpellAttributes::InitializeItemAttributes ()
 {
+	TMap <Items, Item> map;
+	return map;
+}
+
+void USpellAttributes::LoadSpells (UDataTable* spellDataTable, UDataTable* itemDataTable)
+{
+	//LOAD SPELLS
+
 	//Reset spell count
 	_spellCount = 0;
 
@@ -24,7 +34,7 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 	//Declare map
 	TMap <Spells, Spell> map;
 	
-	//Add emtpy spell to the map
+	//Add emtpy spell to the map (NOT USED?)
 	Spell emptySpell;
 
 	emptySpell.Name = "Empty";
@@ -63,6 +73,38 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable)
 	}
 
 	_spellMap = map;
+
+	//LOAD ITEMS
+
+	//Load item data table
+	UDataTable* ItemStatsDataTable = itemDataTable;
+
+	//Declare map
+	TMap <Items, Item> itemMap;
+
+	//Iterate through all rows in the data table and add the item attributes to the map
+	int currentItemRow = 1;
+
+	for (auto it : ItemStatsDataTable->GetRowMap ())
+	{
+		FItemStats* stats = (FItemStats*) (it.Value);
+
+		Item item;
+
+		item.Name = stats->Name;
+		item.Stone = stats->Stone;
+		item.UseTime = stats->UseTime;
+		item.Duration = stats->Duration;
+		item.Icon = stats->Icon;
+		item.Tooltip = stats->Tooltip;
+		item.ItemBlueprint = stats->ItemBlueprint;
+
+		itemMap.Add (Items (currentItemRow), item);
+
+		currentItemRow++;
+	}
+
+	_itemMap = itemMap;
 }
 
 FString USpellAttributes::GetName (Spells spell)
@@ -138,4 +180,39 @@ TSubclassOf <AActor> USpellAttributes::GetSpellCapsule (Spells spell)
 int USpellAttributes::GetSpellCount ()
 {
 	return _spellCount;
+}
+
+FString USpellAttributes::GetItemName (Items item)
+{
+	return _itemMap [item].Name;
+}
+
+bool USpellAttributes::GetItemStone (Items item)
+{
+	return _itemMap [item].Stone;
+}
+
+float USpellAttributes::GetItemUseTime (Items item)
+{
+	return _itemMap [item].UseTime;
+}
+
+float USpellAttributes::GetItemDuration (Items item)
+{
+	return _itemMap [item].Duration;
+}
+
+UTexture2D * USpellAttributes::GetItemIcon (Items item)
+{
+	return _itemMap [item].Icon;
+}
+
+FString USpellAttributes::GetItemTooltip (Items item)
+{
+	return _itemMap [item].Tooltip;
+}
+
+TSubclassOf <AActor> USpellAttributes::GetItemBlueprint (Items item)
+{
+	return _itemMap [item].ItemBlueprint;
 }

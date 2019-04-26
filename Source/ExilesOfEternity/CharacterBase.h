@@ -78,6 +78,9 @@ public:
 	bool GetSpellIsOnGlobalCooldown (Spells spell);
 
 	UFUNCTION (BlueprintCallable)
+	int GetSpellSlots ();
+
+	UFUNCTION (BlueprintCallable)
 	int GetSpellSlotIndex ();
 	UFUNCTION (BlueprintCallable)
 	void ResetSpellSlotIndex ();
@@ -98,6 +101,29 @@ public:
 	bool GetStunned ();
 
 	void ResetSpellEffects ();
+
+	void AddSpellSlot ();
+
+	//Items
+	UFUNCTION (BlueprintCallable)
+	bool AddItem (Items item);
+	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
+	void DropItem (Items item);
+	UFUNCTION (Server, Reliable, WithValidation, BlueprintCallable)
+	void SwitchItemPosition ();
+
+	UFUNCTION (BlueprintCallable)
+	Items GetFirstItem ();
+	UFUNCTION (BlueprintCallable)
+	Items GetSecondItem ();
+	UFUNCTION (BlueprintCallable)
+	Items GetStone ();
+	UFUNCTION (BlueprintCallable)
+	int GetFirstItemAmount ();
+	UFUNCTION (BlueprintCallable)
+	int GetSecondItemAmount ();
+	UFUNCTION (BlueprintCallable)
+	bool GetHasStone ();
 
 	//Used for specific game modes
 	UFUNCTION (BlueprintImplementableEvent)
@@ -143,6 +169,8 @@ protected:
 	void StopUsingUltimateSpellBP (bool finished);
 	UFUNCTION (BlueprintImplementableEvent)
 	void ClientUpgradeSpellBP ();
+	UFUNCTION (BlueprintImplementableEvent)
+	void UseItemBP (Items item);
 
 	//Spell effects
 	UFUNCTION (BlueprintImplementableEvent)
@@ -333,6 +361,9 @@ private:
 	bool _currentlyMovingSpell = false;
 
 	bool _chargingBasicSpell = false;
+	
+	UPROPERTY (Replicated)
+	int _spellSlots = 2;
 
 	//Spell effects
 	UPROPERTY (Replicated)
@@ -341,6 +372,29 @@ private:
 	float _slowEffect = 1.0f;
 	UPROPERTY (Replicated)
 	bool _stunned = false;
+
+	//Items
+	UFUNCTION (Client, Reliable)
+	void ClientAddItem (Items item, int slot);
+	UFUNCTION (Client, Reliable)
+	void ClientDropItem (Items item, int remainingAmount);
+	UFUNCTION (Client, Reliable)
+	void ClientSwitchItemPosition ();
+
+	void UseFirstItemInput ();
+	void UseSecondItemInput ();
+	UFUNCTION (Server, Reliable, WithValidation)
+	void UseItem (int slot);
+
+	Items _firstItem = EMPTY_ITEM;
+	Items _secondItem = EMPTY_ITEM;
+	Items _stone = EMPTY_ITEM;
+	UPROPERTY (Replicated)
+	int _firstItemAmount = 0;
+	UPROPERTY (Replicated)
+	int _secondItemAmount = 0;
+	UPROPERTY (Replicated)
+	bool _hasStone = false;
 
 	//Temp
 	bool _clientUsingUltimateSpell = false;

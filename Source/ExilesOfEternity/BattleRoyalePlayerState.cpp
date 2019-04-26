@@ -85,10 +85,6 @@ void ABattleRoyalePlayerState::LevelUp ()
 	//Add spell upgrade
 	characterController->AddSpellUpgrade ();
 
-	//If player reached max level, add another spell upgrade
-	if (_level == _playerProgressionInfo->MaxLevel)
-		characterController->AddSpellUpgrade ();
-
 	//If player reached max level
 	if (_level == _playerProgressionInfo->MaxLevel)
 	{
@@ -116,15 +112,8 @@ void ABattleRoyalePlayerState::LevelUp ()
 		//Show level-up message
 		Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("Ultimate ability unlocked", _level);
 	}
-	else if (_level < 6)
-	{
-		if (_level == 5)
-			Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("New ability slot unlocked\nAbilities can now be upgraded to rank 3", _level);
-		else
-			Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("New ability slot unlocked", _level);
-	}
 	else if (_level == _playerProgressionInfo->MaxLevel)
-		Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("Max level reached\nAn additional ability upgrade unlocked", _level);
+		Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("Max level reached", _level);
 	else
 		Cast <ABattleRoyalePlayerController> (characterController->GetController ())->ShowLevelUpMessage ("", _level);
 
@@ -143,6 +132,16 @@ void ABattleRoyalePlayerState::OnKill (APlayerState* playerState)
 		//If there are no required redeem kills left, stop timer
 		if (_requiredRedeemKills == 0)
 			ActivateRedeemKillTimer (false);
+	}
+
+	ACharacterBase* characterController = Cast <ACharacterBase> (GetPawn ());
+	//Add spell slot
+	if (characterController->GetSpellSlots () < 6)
+	{
+		characterController->AddSpellSlot ();
+
+		//Add spell slot message
+		Cast <ABattleRoyalePlayerController> (characterController->GetController ())->AddMessage ("New ability slot unlocked", false);
 	}
 
 	//Gain experience

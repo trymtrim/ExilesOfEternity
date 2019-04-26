@@ -122,22 +122,25 @@ void ACharacterBase::SetBasicSpellDamage (float damage)
 bool ACharacterBase::AddSpell (Spells spell, int rank, bool hack)
 {
 	//If owned spells is full, return
-	if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell) || level + 1 <= _ownedSpells.Num ())
+	if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "GameLevel")
 	{
-		//Add error message
-		if (_ownedSpells.Contains (spell))
-			Cast <APlayerControllerBase> (GetController ())->AddMessage ("You already have that ability", true);
-		else
-			Cast <APlayerControllerBase> (GetController ())->AddMessage ("Not enough ability slots", true);
-
-		//Temp solution propably
-		if (level <= _ownedSpells.Num () && _ownedSpells.Num () != 6 && !_ownedSpells.Contains (spell))
+		if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell) || _spellSlots <= _ownedSpells.Num ())
 		{
-			if (!hack)
+			//Add error message
+			if (_ownedSpells.Contains (spell))
+				Cast <APlayerControllerBase> (GetController ())->AddMessage ("You already have that ability", true);
+			else
+				Cast <APlayerControllerBase> (GetController ())->AddMessage ("Not enough ability slots", true);
+
+			//Temp solution propably
+			if (_spellSlots <= _ownedSpells.Num () && _ownedSpells.Num () != 6 && !_ownedSpells.Contains (spell))
+			{
+				if (!hack)
+					return false;
+			}
+			else
 				return false;
 		}
-		else
-			return false;
 	}
 
 	//Add unlock message
@@ -185,13 +188,6 @@ void ACharacterBase::UpgradeSpell_Implementation (Spells spell)
 	//If spell already is at max rank, return
 	if (_spellRanks [spell] == 3 || _spellUpgradesAvailable == 0)
 		return;
-
-	//If spell rank is 2 and player level is below 5, return
-	if (_spellRanks [spell] == 2 && level > 0)
-	{
-		if (level < 5)
-			return;
-	}
 
 	//Set spell rank to one higher
 	_spellRanks [spell]++;
@@ -963,6 +959,16 @@ void ACharacterBase::Die ()
 	CancelBasicSpellChargeBP ();
 
 	Cast <AExilesOfEternityGameModeBase> (GetWorld ()->GetAuthGameMode ())->ReportDeath (this);
+
+	//Drop items
+	if (_stone != EMPTY_ITEM)
+		DropItem (_stone);
+
+	for (int i = 0; i < _firstItemAmount; i++)
+		DropItem (_firstItem);
+
+	for (int i = 0; i < _secondItemAmount; i++)
+		DropItem (_secondItem);
 }
 
 void ACharacterBase::ClientDie_Implementation ()
@@ -1069,6 +1075,11 @@ bool ACharacterBase::GetMovingSpell ()
 	return _currentlyMovingSpell;
 }
 
+int ACharacterBase::GetSpellSlots ()
+{
+	return _spellSlots;
+}
+
 int ACharacterBase::GetSpellSlotIndex ()
 {
 	_currentSpellSlotIndex++;
@@ -1123,6 +1134,308 @@ void ACharacterBase::ResetSpellEffects ()
 	_slowEffect = 1.0f;
 
 	_stunned = false;
+}
+
+void ACharacterBase::AddSpellSlot ()
+{
+	if (_spellSlots == 6)
+		return;
+
+	_spellSlots++;
+}
+
+bool ACharacterBase::AddItem (Items item)
+{
+	//If item is stone
+	if (USpellAttributes::GetItemStone (item))
+	{
+		//If player doesn't have a stone already, add item as stone
+		if (_stone == EMPTY_ITEM)
+		{
+			_stone = item;
+			_hasStone = true;
+			ClientAddItem (item, 0);
+
+			//Add item message
+
+			return true;
+		}
+		else
+		{
+			//Add stone error message
+
+			return false;
+		}
+
+		return false;
+	}
+	else //If item is regular item
+	{
+		//If player doesn't have the item already, add item
+		if (_firstItem != item && _secondItem != item)
+		{
+			if (_firstItem == EMPTY_ITEM)
+			{
+				_firstItem = item;
+				_firstItemAmount = 1;
+				ClientAddItem (item, 1);
+
+				//Add item message
+
+				return true;
+			}
+			else if (_secondItem == EMPTY_ITEM)
+			{
+				_secondItem = item;
+				_secondItemAmount = 1;
+				ClientAddItem (item, 2);
+
+				//Add item message
+
+				return true;
+			}
+			else
+			{
+				//Add item error message
+
+				return false;
+			}
+		}
+		else //If player has the item already
+		{
+			if (_firstItem == item)
+			{
+				//If inventory is not full, add item
+				if (_firstItemAmount < 3)
+				{
+					_firstItemAmount++;
+					ClientAddItem (item, 1);
+
+					//Add item message
+
+					return true;
+				}
+				else
+				{
+					//Add item error message
+
+					return false;
+				}
+			}
+			else if (_secondItem == item)
+			{
+				//If inventory is not full, add item
+				if (_secondItemAmount < 3)
+				{
+					_secondItemAmount++;
+					ClientAddItem (item, 2);
+
+					//Add item message
+
+					return true;
+				}
+				else
+				{
+					//Add item error message
+
+					return false;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	return false;
+}
+
+void ACharacterBase::ClientAddItem_Implementation (Items item, int slot)
+{
+	switch (slot)
+	{
+	case 0:
+		_stone = item;
+		break;
+	case 1:
+		_firstItem = item;
+		break;
+	case 2:
+		_secondItem = item;
+		break;
+	}
+}
+
+void ACharacterBase::DropItem_Implementation (Items item)
+{
+	if (_stone != item && _firstItem != item && _secondItem != item)
+		return;
+
+	//Declare spawn parameters
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	FVector spawnPosition = GetActorLocation () - FVector (0.0f, 0.0f, 88.0f);
+	FRotator spawnRotation = FRotator (0.0f, 0.0f, 0.0f);
+	spawnParams.Owner = this;
+
+	//Spawn spell capsule
+	GetWorld ()->SpawnActor <AActor> (USpellAttributes::GetItemBlueprint (item), spawnPosition, spawnRotation, spawnParams);
+
+	if (_stone == item)
+	{
+		_stone = EMPTY_ITEM;
+		_hasStone = false;
+
+		ClientDropItem (item, 0);
+	}
+	else if (_firstItem == item)
+	{
+		_firstItemAmount--;
+
+		if (_firstItemAmount == 0)
+			_firstItem = EMPTY_ITEM;
+
+		ClientDropItem (item, _firstItemAmount);
+	}
+	else if (_secondItem == item)
+	{
+		_secondItemAmount--;
+
+		if (_secondItemAmount == 0)
+			_secondItem = EMPTY_ITEM;
+
+		ClientDropItem (item, _secondItemAmount);
+	}
+}
+
+bool ACharacterBase::DropItem_Validate (Items item)
+{
+	return true;
+}
+
+void ACharacterBase::ClientDropItem_Implementation (Items item, int remainingAmount)
+{
+	if (_stone == item)
+		_stone = EMPTY_ITEM;
+	else if (_firstItem == item)
+	{
+		if (remainingAmount == 0)
+			_firstItem = EMPTY_ITEM;
+	}
+	else if (_secondItem == item)
+	{
+		if (remainingAmount == 0)
+			_secondItem = EMPTY_ITEM;
+	}
+}
+
+void ACharacterBase::SwitchItemPosition_Implementation ()
+{
+	Items tempFirstItem = _firstItem;
+	int tempFirstItemAmount = _firstItemAmount;
+
+	_firstItem = _secondItem;
+	_firstItemAmount = _secondItemAmount;
+
+	_secondItem = tempFirstItem;
+	_secondItemAmount = tempFirstItemAmount;
+
+	ClientSwitchItemPosition ();
+}
+
+bool ACharacterBase::SwitchItemPosition_Validate ()
+{
+	return true;
+}
+
+void ACharacterBase::ClientSwitchItemPosition_Implementation ()
+{
+	Items tempFirstItem = _firstItem;
+
+	_firstItem = _secondItem;
+	_secondItem = tempFirstItem;
+}
+
+void ACharacterBase::UseFirstItemInput ()
+{
+	//If item is empty, return
+	if (_firstItem == EMPTY_ITEM || _firstItemAmount == 0)
+		return;
+
+	UseItem (1);
+}
+
+void ACharacterBase::UseSecondItemInput ()
+{
+	//If item is empty, return
+	if (_secondItem == EMPTY_ITEM || _secondItemAmount == 0)
+		return;
+
+	UseItem (2);
+}
+
+void ACharacterBase::UseItem_Implementation (int slot)
+{
+	if (slot == 1)
+	{
+		//If item is empty, return
+		if (_firstItem == EMPTY_ITEM)
+			return;
+
+		UseItemBP (_firstItem);
+
+		_firstItemAmount--;
+
+		if (_firstItemAmount == 0)
+			_firstItem = EMPTY_ITEM;
+	}
+	else if (slot == 2)
+	{
+		//If item is empty, return
+		if (_secondItem == EMPTY_ITEM)
+			return;
+
+		UseItemBP (_secondItem);
+
+		_secondItemAmount--;
+
+		if (_secondItemAmount == 0)
+			_secondItem = EMPTY_ITEM;
+	}
+}
+
+bool ACharacterBase::UseItem_Validate (int slot)
+{
+	return true;
+}
+
+Items ACharacterBase::GetFirstItem ()
+{
+	return _firstItem;
+}
+
+Items ACharacterBase::GetSecondItem ()
+{
+	return _secondItem;
+}
+
+Items ACharacterBase::GetStone ()
+{
+	return _stone;
+}
+
+int ACharacterBase::GetFirstItemAmount ()
+{
+	return _firstItemAmount;
+}
+
+int ACharacterBase::GetSecondItemAmount ()
+{
+	return _secondItemAmount;
+}
+
+bool ACharacterBase::GetHasStone ()
+{
+	return _hasStone;
 }
 
 void ACharacterBase::LevelUp (int newLevel)
@@ -1224,6 +1537,12 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION (ACharacterBase, _basicSpellChargeTimer, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _usingUltimateSpell, COND_OwnerOnly);
 
+	DOREPLIFETIME_CONDITION (ACharacterBase, _spellSlots, COND_OwnerOnly);
+
+	DOREPLIFETIME_CONDITION (ACharacterBase, _firstItemAmount, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _secondItemAmount, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _hasStone, COND_OwnerOnly);
+
 	DOREPLIFETIME_CONDITION (ACharacterBase, _victorious, COND_OwnerOnly);
 
 	DOREPLIFETIME_CONDITION (ACharacterBase, _slowEffect, COND_OwnerOnly);
@@ -1254,4 +1573,7 @@ void ACharacterBase::SetupPlayerInputComponent (UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction ("UpgradeSpell_4", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <4>);
 	PlayerInputComponent->BindAction ("UpgradeSpell_5", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <5>);
 	PlayerInputComponent->BindAction ("UpgradeSpell_6", IE_Pressed, this, &ACharacterBase::UpgradeSpellInput <6>);
+
+	PlayerInputComponent->BindAction ("UseItem1", IE_Pressed, this, &ACharacterBase::UseFirstItemInput);
+	PlayerInputComponent->BindAction ("UseItem2", IE_Pressed, this, &ACharacterBase::UseSecondItemInput);
 }

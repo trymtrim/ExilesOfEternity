@@ -102,6 +102,57 @@ struct FSpellStats : public FTableRowBase
 	TSubclassOf <AActor> SpellCapsule;
 };
 
+UENUM (BlueprintType)
+enum Items
+{
+	EMPTY_ITEM,
+	HEALTH_POTION,
+	RECHARGE_POTION,
+	CLOAK_ELIXIR,
+	DEFENSE_ELIXIR,
+	TELEPORTATION_RUNE,
+	LAUNCH_RUNE,
+	SOUL_STONE,
+	TRACKING_STONE,
+	HUNTING_STONE,
+	CONSTITUTION_STONE,
+	LIFESTEAL_STONE
+};
+
+struct Item
+{
+	FString Name;
+	bool Stone;
+	float UseTime;
+	float Duration;
+	UTexture2D* Icon;
+	FString Tooltip;
+	TSubclassOf <AActor> ItemBlueprint;
+};
+
+USTRUCT (BlueprintType)
+struct FItemStats : public FTableRowBase
+{
+	GENERATED_BODY ()
+
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	TEnumAsByte <Items> Item;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	FString Name;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	bool Stone;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	float UseTime;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	float Duration;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	UTexture2D* Icon;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly, meta = (MultiLine = true))
+	FString Tooltip;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf <AActor> ItemBlueprint;
+};
+
 UCLASS()
 class EXILESOFETERNITY_API USpellAttributes : public UObject
 {
@@ -109,7 +160,7 @@ class EXILESOFETERNITY_API USpellAttributes : public UObject
 	
 public:
 	UFUNCTION (BlueprintCallable)
-	static void LoadSpells (UDataTable* spellDataTable);
+	static void LoadSpells (UDataTable* spellDataTable, UDataTable* itemDataTable);
 
 	UFUNCTION (BlueprintCallable)
 	static FString GetName (Spells spell);
@@ -140,9 +191,27 @@ public:
 
 	static int GetSpellCount ();
 
+	UFUNCTION (BlueprintCallable)
+	static FString GetItemName (Items item);
+	UFUNCTION (BlueprintCallable)
+	static bool GetItemStone (Items item);
+	UFUNCTION (BlueprintCallable)
+	static float GetItemUseTime (Items item);
+	UFUNCTION (BlueprintCallable)
+	static float GetItemDuration (Items item);
+	UFUNCTION (BlueprintCallable)
+	static UTexture2D* GetItemIcon (Items item);
+	UFUNCTION (BlueprintCallable)
+	static FString GetItemTooltip (Items item);
+	UFUNCTION (BlueprintCallable)
+	static TSubclassOf <AActor> GetItemBlueprint (Items item);
+
 private:
 	static TMap <Spells, Spell> InitializeSpellAttributes ();
 	static TMap <Spells, Spell> _spellMap;
 
 	static int _spellCount;
+
+	static TMap <Items, Item> InitializeItemAttributes ();
+	static TMap <Items, Item> _itemMap;
 };

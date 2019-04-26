@@ -20,7 +20,7 @@ void AArenaPlayerController::SelectSpell_Implementation (Spells spell)
 	if (_selectedSpells.Num () >= 6)
 		return;
 
-	Cast <ACharacterBase> (GetCharacter ())->AddSpell (spell, 1, false);
+	Cast <ACharacterBase> (GetCharacter ())->AddSpell (spell, 1, true);
 
 	_selectedSpells.Add (spell);
 

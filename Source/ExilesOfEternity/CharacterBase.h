@@ -124,6 +124,10 @@ public:
 	int GetSecondItemAmount ();
 	UFUNCTION (BlueprintCallable)
 	bool GetHasStone ();
+	UFUNCTION (BlueprintCallable)
+	bool GetCurrentlyUsingItem ();
+	UFUNCTION (BlueprintCallable)
+	float GetCurrentItemTimerPercentage ();
 
 	//Used for specific game modes
 	UFUNCTION (BlueprintImplementableEvent)
@@ -221,6 +225,13 @@ protected:
 	float _replicatedUltimateSpellCooldown;
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	float _basicSpellCooldownPercentage;
+
+	//Items
+	UFUNCTION (BlueprintCallable)
+	void RegainHealth (int percent);
+
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	int _currentlyUsedItemIndex = 0;
 
 	//Basic spell charging
 	UPROPERTY (BlueprintReadOnly, EditAnywhere)
@@ -385,6 +396,9 @@ private:
 	void UseSecondItemInput ();
 	UFUNCTION (Server, Reliable, WithValidation)
 	void UseItem (int slot);
+	void UpdateUsingItem (float deltaTime);
+	void FinishUsingItem ();
+	void CancelUsingItem ();
 
 	Items _firstItem = EMPTY_ITEM;
 	Items _secondItem = EMPTY_ITEM;
@@ -395,6 +409,8 @@ private:
 	int _secondItemAmount = 0;
 	UPROPERTY (Replicated)
 	bool _hasStone = false;
+	UPROPERTY (Replicated)
+	float _currentItemTimer = 0.0f;
 
 	//Temp
 	bool _clientUsingUltimateSpell = false;

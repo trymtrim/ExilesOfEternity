@@ -97,6 +97,10 @@ void ACharacterBase::Tick (float DeltaTime)
 		//Regain health
 		StaticHealthRegen (DeltaTime);
 
+		//Update item usage
+		if (GetCurrentlyUsingItem ())
+			UpdateUsingItem (DeltaTime);
+
 		//If character is under world bounds, teleport to center of map
 		if (GetActorLocation ().Z < -20000.0f)
 		{
@@ -266,7 +270,7 @@ void ACharacterBase::UnlockUltimateSpell ()
 void ACharacterBase::UseSpellInput (int hotkeyIndex)
 {
 	//If dead, victorious, stunned or currently using ultimate spell, return
-	if (_dead || _victorious || GetStunned () || _usingUltimateSpell && hotkeyIndex != -1)
+	if (_dead || _victorious || GetStunned () || _usingUltimateSpell && hotkeyIndex != -1 || GetCurrentlyUsingItem ())
 		return;
 
 	//If the spell is not basic or ultimate and the spell slot with the given hotkey index doesn't have a spell, return
@@ -355,7 +359,7 @@ void ACharacterBase::StartUsingBasicSpell ()
 void ACharacterBase::UpdateUsingBasicSpell ()
 {
 	//If spell is on cooldown, or player is dead, victorious or stunned, return
-	if (GetSpellIsOnCooldown (BASIC) || _dead || _victorious || GetStunned ())
+	if (GetSpellIsOnCooldown (BASIC) || _dead || _victorious || GetStunned () || GetCurrentlyUsingItem ())
 		return;
 
 	//Use basic spell
@@ -387,7 +391,7 @@ void ACharacterBase::StopUsingBasicSpell ()
 void ACharacterBase::UseSpell_Implementation (Spells spell)
 {
 	//If the player is dead, victorious, stunned, doesn't have the spell, the spell is on cooldown or currently using ultimate spell, return
-	if (_dead || _victorious || GetStunned () ||!_ownedSpells.Contains (spell) || GetSpellIsOnCooldown (spell) || _usingUltimateSpell)
+	if (_dead || _victorious || GetStunned () ||!_ownedSpells.Contains (spell) || GetSpellIsOnCooldown (spell) || _usingUltimateSpell || GetCurrentlyUsingItem ())
 		return;
 
 	//If spell is not usable while moving, check if character is moving before using spell
@@ -960,6 +964,9 @@ void ACharacterBase::Die ()
 
 	Cast <AExilesOfEternityGameModeBase> (GetWorld ()->GetAuthGameMode ())->ReportDeath (this);
 
+	//Cancel using item
+	CancelUsingItem ();
+
 	//Drop items
 	if (_stone != EMPTY_ITEM)
 		DropItem (_stone);
@@ -1119,6 +1126,10 @@ void ACharacterBase::SetStunEffect (bool state, float duration)
 {
 	_stunned = state;
 
+	StopUsingBasicSpell ();
+
+	CancelUsingItem ();
+
 	if (state)
 		SetStunEffectBP (duration);
 }
@@ -1156,18 +1167,17 @@ bool ACharacterBase::AddItem (Items item)
 			_hasStone = true;
 			ClientAddItem (item, 0);
 
-			//Add item message
+			//Add item message - currently in blueprint
 
 			return true;
 		}
 		else
 		{
 			//Add stone error message
+			Cast <APlayerControllerBase> (GetController ())->AddMessage ("You already have a stone in your inventory", true);
 
 			return false;
 		}
-
-		return false;
 	}
 	else //If item is regular item
 	{
@@ -1180,7 +1190,7 @@ bool ACharacterBase::AddItem (Items item)
 				_firstItemAmount = 1;
 				ClientAddItem (item, 1);
 
-				//Add item message
+				//Add item message - currently in blueprint
 
 				return true;
 			}
@@ -1190,13 +1200,14 @@ bool ACharacterBase::AddItem (Items item)
 				_secondItemAmount = 1;
 				ClientAddItem (item, 2);
 
-				//Add item message
+				//Add item message - currently in blueprint
 
 				return true;
 			}
 			else
 			{
 				//Add item error message
+				Cast <APlayerControllerBase> (GetController ())->AddMessage ("Your inventory is full", true);
 
 				return false;
 			}
@@ -1211,13 +1222,14 @@ bool ACharacterBase::AddItem (Items item)
 					_firstItemAmount++;
 					ClientAddItem (item, 1);
 
-					//Add item message
+					//Add item message - currently in blueprint
 
 					return true;
 				}
 				else
 				{
 					//Add item error message
+					Cast <APlayerControllerBase> (GetController ())->AddMessage ("You already have 3 of that item", true);
 
 					return false;
 				}
@@ -1230,20 +1242,19 @@ bool ACharacterBase::AddItem (Items item)
 					_secondItemAmount++;
 					ClientAddItem (item, 2);
 
-					//Add item message
+					//Add item message - currently in blueprint
 
 					return true;
 				}
 				else
 				{
 					//Add item error message
+					Cast <APlayerControllerBase> (GetController ())->AddMessage ("You already have 3 of that item", true);
 
 					return false;
 				}
 			}
 		}
-
-		return false;
 	}
 
 	return false;
@@ -1357,6 +1368,9 @@ void ACharacterBase::ClientSwitchItemPosition_Implementation ()
 
 void ACharacterBase::UseFirstItemInput ()
 {
+	if (_dead || _victorious || GetStunned () || _usingUltimateSpell || GetCurrentlyUsingItem ())
+		return;
+
 	//If item is empty, return
 	if (_firstItem == EMPTY_ITEM || _firstItemAmount == 0)
 		return;
@@ -1366,6 +1380,9 @@ void ACharacterBase::UseFirstItemInput ()
 
 void ACharacterBase::UseSecondItemInput ()
 {
+	if (_dead || _victorious || GetStunned () || _usingUltimateSpell || GetCurrentlyUsingItem ())
+		return;
+
 	//If item is empty, return
 	if (_secondItem == EMPTY_ITEM || _secondItemAmount == 0)
 		return;
@@ -1375,18 +1392,32 @@ void ACharacterBase::UseSecondItemInput ()
 
 void ACharacterBase::UseItem_Implementation (int slot)
 {
+	if (_dead || _victorious || GetStunned () || _usingUltimateSpell || GetCurrentlyUsingItem ())
+		return;
+
+	//Stop using basic spell
+	StopUsingBasicSpell ();
+
 	if (slot == 1)
 	{
 		//If item is empty, return
 		if (_firstItem == EMPTY_ITEM)
 			return;
 
-		UseItemBP (_firstItem);
+		if (USpellAttributes::GetItemUseTime (_firstItem) > 0.0f)
+		{
+			_currentItemTimer = USpellAttributes::GetItemUseTime (_firstItem);
+			_currentlyUsedItemIndex = 1;
+		}
+		else
+		{
+			UseItemBP (_firstItem);
 
-		_firstItemAmount--;
+			_firstItemAmount--;
 
-		if (_firstItemAmount == 0)
-			_firstItem = EMPTY_ITEM;
+			if (_firstItemAmount == 0)
+				_firstItem = EMPTY_ITEM;
+		}
 	}
 	else if (slot == 2)
 	{
@@ -1394,6 +1425,49 @@ void ACharacterBase::UseItem_Implementation (int slot)
 		if (_secondItem == EMPTY_ITEM)
 			return;
 
+		if (USpellAttributes::GetItemUseTime (_secondItem) > 0.0f)
+		{
+			_currentItemTimer = USpellAttributes::GetItemUseTime (_secondItem);
+			_currentlyUsedItemIndex = 2;
+		}
+		else
+		{
+			UseItemBP (_secondItem);
+
+			_secondItemAmount--;
+
+			if (_secondItemAmount == 0)
+				_secondItem = EMPTY_ITEM;
+		}
+	}
+}
+
+bool ACharacterBase::UseItem_Validate (int slot)
+{
+	return true;
+}
+
+void ACharacterBase::UpdateUsingItem (float deltaTime)
+{
+	_currentItemTimer -= deltaTime;
+
+	if (_currentItemTimer <= 0.0f)
+		FinishUsingItem ();
+}
+
+void ACharacterBase::FinishUsingItem ()
+{
+	if (_currentlyUsedItemIndex == 1)
+	{
+		UseItemBP (_firstItem);
+
+		_firstItemAmount--;
+
+		if (_firstItemAmount == 0)
+			_firstItem = EMPTY_ITEM;
+	}
+	else
+	{
 		UseItemBP (_secondItem);
 
 		_secondItemAmount--;
@@ -1401,11 +1475,23 @@ void ACharacterBase::UseItem_Implementation (int slot)
 		if (_secondItemAmount == 0)
 			_secondItem = EMPTY_ITEM;
 	}
+
+	_currentItemTimer = 0.0f;
+	_currentlyUsedItemIndex = 0;
 }
 
-bool ACharacterBase::UseItem_Validate (int slot)
+void ACharacterBase::CancelUsingItem ()
 {
-	return true;
+	_currentItemTimer = 0.0f;
+	_currentlyUsedItemIndex = 0;
+}
+
+void ACharacterBase::RegainHealth (int percent)
+{
+	_currentHealth += _maxHealth * (float) percent / 100.0f;
+
+	if (_currentHealth > _maxHealth)
+		_currentHealth = _maxHealth;
 }
 
 Items ACharacterBase::GetFirstItem ()
@@ -1436,6 +1522,22 @@ int ACharacterBase::GetSecondItemAmount ()
 bool ACharacterBase::GetHasStone ()
 {
 	return _hasStone;
+}
+
+bool ACharacterBase::GetCurrentlyUsingItem ()
+{
+	if (_currentlyUsedItemIndex == 0)
+		return false;
+
+	return true;
+}
+
+float ACharacterBase::GetCurrentItemTimerPercentage ()
+{
+	if (_currentlyUsedItemIndex == 1)
+		return 1 - _currentItemTimer / USpellAttributes::GetItemUseTime (_firstItem);
+
+	return 1 - _currentItemTimer / USpellAttributes::GetItemUseTime (_secondItem);
 }
 
 void ACharacterBase::LevelUp (int newLevel)
@@ -1542,6 +1644,8 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION (ACharacterBase, _firstItemAmount, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _secondItemAmount, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _hasStone, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _currentlyUsedItemIndex, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION (ACharacterBase, _currentItemTimer, COND_OwnerOnly);
 
 	DOREPLIFETIME_CONDITION (ACharacterBase, _victorious, COND_OwnerOnly);
 

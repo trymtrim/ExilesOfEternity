@@ -7,6 +7,7 @@
 #include "CharacterBase.h"
 #include "BattleRoyalePlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "SpellAttributes.h"
 
 AAICharacterBase::AAICharacterBase ()
 {
@@ -153,6 +154,64 @@ void AAICharacterBase::Die (AActor* damageCauser)
 		
 		if (playerState)
 			playerState->GainExperience (_experience);
+	}
+
+	//Spawn item
+	int randomNumber = FMath::RandRange (0, 99);
+
+	if (randomNumber < 40)
+	{
+		TSubclassOf <AActor> spawnableItem = USpellAttributes::GetItemBlueprint (HEALTH_POTION);
+
+		int randomLoot = FMath::RandRange (0, 4);
+
+		switch (randomLoot)
+		{
+		case 0:
+			spawnableItem = USpellAttributes::GetItemBlueprint (HEALTH_POTION);
+			break;
+		case 1:
+			spawnableItem = USpellAttributes::GetItemBlueprint (RECHARGE_POTION);
+			break;
+		case 2:
+			spawnableItem = USpellAttributes::GetItemBlueprint (LAUNCH_RUNE);
+			break;
+		case 3:
+			spawnableItem = USpellAttributes::GetItemBlueprint (TELEPORTATION_RUNE);
+			break;
+		case 4:
+			spawnableItem = USpellAttributes::GetItemBlueprint (CONSTITUTION_STONE);
+			break;
+		}
+
+		//Declare spawn parameters
+		FActorSpawnParameters spawnParams;
+		spawnParams.Owner = this;
+		FVector spawnPosition = GetActorLocation () - FVector (0.0f, 0.0f, 88.0f);
+		FRotator spawnRotation = GetActorRotation ();
+
+		//Spawn item
+		GetWorld ()->SpawnActor <AActor> (spawnableItem, spawnPosition, spawnRotation, spawnParams);
+		
+		/*for (int i = 1; i < USpellAttributes::GetItemCount () + 1; i++)
+		{
+			for (int j = 0; j < spellCapsuleAmountForEachSpell; j++)
+			{
+				TSubclassOf <AActor> spawnableSpellCapsule = USpellAttributes::GetSpellCapsule (Spells (i));
+
+				//Declare spawn parameters
+				FActorSpawnParameters spawnParams;
+				spawnParams.Owner = this;
+				FVector spawnPosition;
+				FRotator spawnRotation = FRotator (0.0f, 0.0f, 0.0f);
+
+				//Spawn spell capsule
+				AActor* spellCapsule = GetWorld ()->SpawnActor <AActor> (spawnableSpellCapsule, spawnPosition, spawnRotation, spawnParams);
+
+				//Set the spell capsule's location
+				SetSpellCapsuleLocation (spellCapsule);
+			}
+		}*/
 	}
 }
 

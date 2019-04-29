@@ -206,6 +206,8 @@ public:
 	UFUNCTION (BlueprintCallable)
 	static TSubclassOf <AActor> GetItemBlueprint (Items item);
 
+	static int GetItemCount ();
+
 private:
 	static TMap <Spells, Spell> InitializeSpellAttributes ();
 	static TMap <Spells, Spell> _spellMap;
@@ -214,4 +216,6 @@ private:
 
 	static TMap <Items, Item> InitializeItemAttributes ();
 	static TMap <Items, Item> _itemMap;
+
+	static int _itemCount;
 };

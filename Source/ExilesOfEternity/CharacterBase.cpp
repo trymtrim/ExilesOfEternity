@@ -146,6 +146,11 @@ bool ACharacterBase::AddSpell (Spells spell, int rank, bool hack)
 				return false;
 		}
 	}
+	else
+	{
+		if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell))
+			return false;
+	}
 
 	//Add unlock message
 	//Cast <APlayerControllerBase> (GetController ())->AddMessage ("You unlocked " + USpellAttributes::GetName (spell), false);

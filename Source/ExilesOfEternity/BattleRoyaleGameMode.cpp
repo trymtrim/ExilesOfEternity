@@ -15,7 +15,7 @@ ABattleRoyaleGameMode::ABattleRoyaleGameMode ()
 {
 	//Set default player controller class
 	PlayerControllerClass = ABattleRoyalePlayerController::StaticClass ();
-
+	
 	//Set default game state class
 	GameStateClass = ABattleRoyaleGameState::StaticClass ();
 

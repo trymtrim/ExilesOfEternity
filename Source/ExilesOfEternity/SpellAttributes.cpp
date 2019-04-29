@@ -14,6 +14,7 @@ TMap <Spells, Spell> USpellAttributes::InitializeSpellAttributes ()
 }
 
 TMap <Items, Item> USpellAttributes::_itemMap = USpellAttributes::InitializeItemAttributes ();
+int USpellAttributes::_itemCount = 0;
 
 TMap <Items, Item> USpellAttributes::InitializeItemAttributes ()
 {
@@ -76,6 +77,9 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable, UDataTable* itemD
 
 	//LOAD ITEMS
 
+	//Reset item count
+	_itemCount = 0;
+
 	//Load item data table
 	UDataTable* ItemStatsDataTable = itemDataTable;
 
@@ -102,6 +106,9 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable, UDataTable* itemD
 		itemMap.Add (Items (currentItemRow), item);
 
 		currentItemRow++;
+
+		//Update item count
+		_itemCount++;
 	}
 
 	_itemMap = itemMap;
@@ -215,4 +222,9 @@ FString USpellAttributes::GetItemTooltip (Items item)
 TSubclassOf <AActor> USpellAttributes::GetItemBlueprint (Items item)
 {
 	return _itemMap [item].ItemBlueprint;
+}
+
+int USpellAttributes::GetItemCount ()
+{
+	return _itemCount;
 }

@@ -205,6 +205,8 @@ protected:
 	FRotator GetAimRotation (FVector startPosition);
 	UFUNCTION (BlueprintCallable)
 	FVector GetAimLocation (float maxDistance, bool initialCheck);
+	UFUNCTION (BlueprintCallable)
+	FVector GetTeleportAimLocation (float maxDistance);
 
 	UPROPERTY (Replicated)
 	TEnumAsByte <Spells> _currentlyActivatedSpell;

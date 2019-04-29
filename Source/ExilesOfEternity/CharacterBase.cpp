@@ -105,7 +105,7 @@ void ACharacterBase::Tick (float DeltaTime)
 		if (GetActorLocation ().Z < -20000.0f)
 		{
 			if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "GameLevel")
-				SetActorLocation (FVector (40000.0f, 40000.0f, 0.0f));
+				SetActorLocation (FVector (38710.0f, 61300.0f, 1330.0f));
 			else if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel" || UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "PractiseLevel")
 				SetActorLocation (FVector (0.0f, 0.0f, 5000.0f));
 		}
@@ -860,6 +860,8 @@ void ACharacterBase::StaticHealthRegen (float deltaTime)
 
 		//Reset static health regen timer
 		_staticHealthRegenTimer = _staticHealthRegenTime;
+
+		OnDealDamageBP (this, -(_maxHealth / 33.3f));
 	}
 }
 
@@ -971,10 +973,13 @@ void ACharacterBase::Die ()
 	if (_stone != EMPTY_ITEM)
 		DropItem (_stone);
 
-	for (int i = 0; i < _firstItemAmount; i++)
+	int tempFirstItemAmount = _firstItemAmount;
+	int tempSecondItemAmount = _secondItemAmount;
+
+	for (int i = 0; i < tempFirstItemAmount; i++)
 		DropItem (_firstItem);
 
-	for (int i = 0; i < _secondItemAmount; i++)
+	for (int i = 0; i < tempSecondItemAmount; i++)
 		DropItem (_secondItem);
 }
 
@@ -1169,6 +1174,15 @@ bool ACharacterBase::AddItem (Items item)
 
 			//Add item message - currently in blueprint
 
+			//Constitution Stone
+			if (item == CONSTITUTION_STONE)
+			{
+				float currentHealthPercentage = _currentHealth / _maxHealth;
+
+				_maxHealth += 40.0f;
+				_currentHealth = _maxHealth * currentHealthPercentage;
+			}
+
 			return true;
 		}
 		else
@@ -1293,6 +1307,15 @@ void ACharacterBase::DropItem_Implementation (Items item)
 
 	if (_stone == item)
 	{
+		//Constitution Stone
+		if (item == CONSTITUTION_STONE)
+		{
+			float currentHealthPercentage = _currentHealth / _maxHealth;
+
+			_maxHealth -= 40.0f;
+			_currentHealth = _maxHealth * currentHealthPercentage;
+		}
+
 		_stone = EMPTY_ITEM;
 		_hasStone = false;
 
@@ -1488,10 +1511,13 @@ void ACharacterBase::CancelUsingItem ()
 
 void ACharacterBase::RegainHealth (int percent)
 {
-	_currentHealth += _maxHealth * (float) percent / 100.0f;
+	float healthRegain = _maxHealth * (float) percent / 100.0f;
+	_currentHealth += healthRegain;
 
 	if (_currentHealth > _maxHealth)
 		_currentHealth = _maxHealth;
+
+	OnDealDamageBP (this, -healthRegain);
 }
 
 Items ACharacterBase::GetFirstItem ()
@@ -1613,6 +1639,40 @@ FVector ACharacterBase::GetAimLocation (float maxDistance, bool initialCheck)
 
 		return GetAimLocation (newMaxDistance, false);
 	}
+
+	return aimLocation;
+}
+
+FVector ACharacterBase::GetTeleportAimLocation (float maxDistance)
+{
+	//Line trace from camera to check if there is something in the crosshair's sight
+	FCollisionQueryParams traceParams = FCollisionQueryParams (FName (TEXT ("RV_Trace")), true, this);
+	traceParams.bTraceComplex = true;
+	traceParams.bReturnPhysicalMaterial = false;
+
+	FHitResult hit (ForceInit);
+
+	//Declare start and end position of the line trace based on camera position and rotation
+	FVector start = _cameraComponent->GetComponentLocation ();
+	FVector end = start + (_cameraComponent->GetForwardVector () * maxDistance);
+
+	FVector aimLocation;
+
+	//If line trace hits anything, set aim location to what it hits
+	if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Visibility, traceParams))
+		aimLocation = hit.ImpactPoint;
+	else //If line trace doesn't hit anything, line trace downwards to get location
+	{
+		start = end;
+		end = end + -FVector::UpVector * maxDistance;
+
+		if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Visibility, traceParams))
+			aimLocation = hit.ImpactPoint;
+	}
+
+	aimLocation += FVector (0.0f, 0.0f, 88.0f);
+
+	aimLocation -= _cameraComponent->GetForwardVector () * 60.0f;
 
 	return aimLocation;
 }

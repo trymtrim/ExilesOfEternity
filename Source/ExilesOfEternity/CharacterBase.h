@@ -207,6 +207,8 @@ protected:
 	FVector GetAimLocation (float maxDistance, bool initialCheck);
 	UFUNCTION (BlueprintCallable)
 	FVector GetTeleportAimLocation (float maxDistance);
+	UFUNCTION (BlueprintCallable)
+	AActor* GetActorAimedAt (float maxDistance);
 
 	UPROPERTY (Replicated)
 	TEnumAsByte <Spells> _currentlyActivatedSpell;

@@ -10,6 +10,8 @@ APlayerControllerBase::APlayerControllerBase ()
 {
 	//Set cheat manager class
 	CheatClass = UExilesOfEternityCheatManager::StaticClass ();
+
+	bEnableMouseOverEvents = true;
 }
 
 void APlayerControllerBase::BeginPlay ()
@@ -75,12 +77,12 @@ void APlayerControllerBase::ShowMouseCursor_Implementation (bool state)
 			Cast <ACharacterBase> (GetCharacter ())->SetMovingSpell (false);
 	}
 
-	//Set mouse position to center bottom of screen
+	//Set mouse position to bottom center of screen
 	int viewPortX;
 	int viewPortY;
 
 	GetViewportSize (viewPortX, viewPortY);
-	GetWorld ()->GetFirstPlayerController ()->SetMouseLocation (viewPortX / 2, viewPortY - (viewPortY / 8));
+	SetMouseLocation (viewPortX / 2, viewPortY - (viewPortY / 8));
 }
 
 void APlayerControllerBase::SetupInputComponent ()

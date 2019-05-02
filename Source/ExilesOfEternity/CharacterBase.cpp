@@ -1682,6 +1682,26 @@ FVector ACharacterBase::GetTeleportAimLocation (float maxDistance)
 	return aimLocation;
 }
 
+AActor* ACharacterBase::GetActorAimedAt (float maxDistance)
+{
+	//Line trace from camera to check if there is something in the crosshair's sight
+	FCollisionQueryParams traceParams = FCollisionQueryParams (FName (TEXT ("RV_Trace")), true, this);
+	traceParams.bTraceComplex = true;
+	traceParams.bReturnPhysicalMaterial = false;
+
+	FHitResult hit (ForceInit);
+
+	//Declare start and end position of the line trace based on camera position and rotation
+	FVector start = _cameraComponent->GetComponentLocation ();
+	FVector end = start + (_cameraComponent->GetForwardVector () * maxDistance);
+
+	//If line trace hits anything, return the actor hit
+	if (GetWorld ()->LineTraceSingleByChannel (hit, start, end, ECC_Visibility, traceParams))
+		return hit.Actor.Get ();
+
+	return nullptr;
+}
+
 void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps (OutLifetimeProps);

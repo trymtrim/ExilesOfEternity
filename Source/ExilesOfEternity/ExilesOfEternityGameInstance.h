@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "UserWidget.h"
+#include "Widget.h"
 #include "ExilesOfEternityGameInstance.generated.h"
 
 class UWebSocketBase;
@@ -21,6 +23,8 @@ class EXILESOFETERNITY_API UExilesOfEternityGameInstance : public UGameInstance
 	GENERATED_BODY ()
 
 public:
+	UExilesOfEternityGameInstance ();
+
 	UFUNCTION (BlueprintCallable)
 	void ConnectToMasterServer ();
 	UFUNCTION (BlueprintCallable)
@@ -42,6 +46,9 @@ public:
 	void LeaveLobby (FString gameName, FString playerName);
 	UFUNCTION (BlueprintCallable)
 	void StartGame (FString gameName, FString gameMode);
+
+	UFUNCTION (BlueprintCallable)
+	void RemoveLoadingScreen ();
 
 	UFUNCTION (BlueprintCallable)
 	bool GetIsConnected ();
@@ -94,4 +101,7 @@ private:
 	UWebSocketBase* _webSocket;
 
 	bool _isConnected = false;
+
+	TSubclassOf <UUserWidget> _loadingScreenUI;
+	UUserWidget* _loadingScreenWidget;
 };

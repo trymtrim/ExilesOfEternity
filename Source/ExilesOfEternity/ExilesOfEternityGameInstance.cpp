@@ -8,6 +8,16 @@
 #include "WebSockets/GameServerMessageObjects.h"
 #include "BattleRoyaleGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/GameViewportClient.h"
+#include "ConstructorHelpers.h"
+
+UExilesOfEternityGameInstance::UExilesOfEternityGameInstance ()
+{
+	//Set default pawn class
+	static ConstructorHelpers::FClassFinder <UUserWidget> loadingScreenUI (TEXT ("/Game/UI/Lobby/BattleRoyaleLoadingScreen_UI"));
+	if (loadingScreenUI.Class != NULL)
+		_loadingScreenUI = loadingScreenUI.Class;
+}
 
 void UExilesOfEternityGameInstance::ConnectToMasterServer ()
 {
@@ -76,6 +86,10 @@ void UExilesOfEternityGameInstance::OnMessage (FString message)
 
 	if (type == "JoinGame")
 	{
+		//UUserWidget* MyWidget = nullptr;
+		_loadingScreenWidget = CreateWidget (GetFirstLocalPlayerController (), _loadingScreenUI);
+		GetGameViewportClient ()->AddViewportWidgetContent (_loadingScreenWidget->TakeWidget (), 10);
+
 		UJoinGameResponse* joinGameResponse = Cast <UJoinGameResponse> (UWebSocketBlueprintLibrary::JsonToObject (message, UJoinGameResponse::StaticClass (), false));
 		OnJoinGameBP.Broadcast (joinGameResponse->ipAddress);
 	}
@@ -247,6 +261,12 @@ void UExilesOfEternityGameInstance::ObtainGameInfo ()
 
 	UWebSocketBlueprintLibrary::ObjectToJson (request, message);
 	_webSocket->SendText (message);
+}
+
+void UExilesOfEternityGameInstance::RemoveLoadingScreen ()
+{
+	if (_loadingScreenWidget != nullptr)
+		GetGameViewportClient ()->RemoveViewportWidgetContent (_loadingScreenWidget->TakeWidget ());
 }
 
 bool UExilesOfEternityGameInstance::GetIsConnected ()

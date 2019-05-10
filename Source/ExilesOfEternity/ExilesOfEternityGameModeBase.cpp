@@ -18,7 +18,7 @@ AExilesOfEternityGameModeBase::AExilesOfEternityGameModeBase ()
 	//Set default player state class
 	PlayerStateClass = APlayerStateBase::StaticClass ();
 
-	//Set default pawn class
+	//Set default pawn classes
 	static ConstructorHelpers::FClassFinder <APawn> serathPawnClass (TEXT ("/Game/Blueprints/Characters/Serath_BP"));
 	if (serathPawnClass.Class != NULL)
 		_serathCharacter = serathPawnClass.Class;

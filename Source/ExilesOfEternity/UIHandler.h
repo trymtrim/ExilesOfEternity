@@ -42,4 +42,8 @@ private:
 	bool _spellPositionChanged = false;
 	
 	TArray <Spells> _spellPanelSpells = {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY};
+
+	int _currentEmptySpellIndex = -1;
+	int _currentSpellIndex = 0;
+	int _currentSpellAmount = 0;
 };

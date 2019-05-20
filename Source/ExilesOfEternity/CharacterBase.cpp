@@ -917,11 +917,11 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 	//If current health is zero or less, die
 	if (_currentHealth <= 0.0f)
 	{
-		Die ();
-
 		//Update kill count for player who caused the killing blow
-		if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
+		if (_stone != SOUL_STONE && DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
 			Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->AddKill (GetPlayerState ());
+
+		Die ();
 	}
 	else if (Damage > 0.0f)
 	{
@@ -957,6 +957,7 @@ void ACharacterBase::Die ()
 		SoulStoneRespawnBP ();
 		ClientDropItem (_stone, 0);
 		_stone = EMPTY_ITEM;
+		_hasStone = false;
 
 		return;
 	}

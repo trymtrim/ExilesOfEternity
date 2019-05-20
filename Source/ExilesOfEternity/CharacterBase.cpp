@@ -951,7 +951,7 @@ void ACharacterBase::Die ()
 	if (_stone == SOUL_STONE)
 	{
 		_soulStoneRespawn = true;
-		SetStunEffect (true, 2.0f);
+		SetStunEffect (true, 3.0f);
 		_currentHealth = _maxHealth * 0.25f;
 		UseSpellBP (SHIELD);
 		SoulStoneRespawnBP ();

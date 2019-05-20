@@ -234,8 +234,13 @@ protected:
 	UFUNCTION (BlueprintCallable)
 	void RegainHealth (int percent);
 
+	UFUNCTION (BlueprintImplementableEvent)
+	void SoulStoneRespawnBP ();
+
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	int _currentlyUsedItemIndex = 0;
+	UPROPERTY (Replicated, BlueprintReadWrite)
+	bool _soulStoneRespawn = false;
 
 	//Basic spell charging
 	UPROPERTY (BlueprintReadOnly, EditAnywhere)

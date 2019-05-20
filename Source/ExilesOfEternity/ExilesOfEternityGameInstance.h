@@ -15,7 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE (FOnDisconnected);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnJoinGame, FString, ipAddress);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams (FOnRefresh, const TArray <FString>&, gameInstanceNames, const TArray <FString>&, gameInstanceGameModes);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams (FOnJoinLobby, FString, gameName, FString, gameMode, const TArray <FString>&, playerNames);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams (FOnRefreshLobby, FString, gameMode, const TArray <FString>&, playerNames, const TArray <int>&, playerTeams, const TArray <FString>&, playerCharacters);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams (FOnRefreshLobby, FString, gameMode, bool, lobbyMaster, const TArray <FString>&, playerNames, const TArray <int>&, playerTeams, const TArray <FString>&, playerCharacters);
 
 UCLASS()
 class EXILESOFETERNITY_API UExilesOfEternityGameInstance : public UGameInstance

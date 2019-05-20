@@ -106,7 +106,7 @@ void UExilesOfEternityGameInstance::OnMessage (FString message)
 	else if (type == "RefreshLobby")
 	{
 		URefreshLobbyResponse* refreshLobbyResponse = Cast <URefreshLobbyResponse> (UWebSocketBlueprintLibrary::JsonToObject (message, URefreshLobbyResponse::StaticClass (), false));
-		OnRefreshLobbyBP.Broadcast (refreshLobbyResponse->gameMode, refreshLobbyResponse->playerNames, refreshLobbyResponse->playerTeams, refreshLobbyResponse->playerCharacters);
+		OnRefreshLobbyBP.Broadcast (refreshLobbyResponse->gameMode, refreshLobbyResponse->lobbyMaster, refreshLobbyResponse->playerNames, refreshLobbyResponse->playerTeams, refreshLobbyResponse->playerCharacters);
 	}
 }
 

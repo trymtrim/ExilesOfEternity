@@ -947,6 +947,20 @@ void ACharacterBase::Die ()
 	if (_dead)
 		return;
 
+	//If player has soul stone, respawn
+	if (_stone == SOUL_STONE)
+	{
+		_soulStoneRespawn = true;
+		SetStunEffect (true, 2.0f);
+		_currentHealth = _maxHealth * 0.25f;
+		UseSpellBP (SHIELD);
+		SoulStoneRespawnBP ();
+		ClientDropItem (_stone, 0);
+		_stone = EMPTY_ITEM;
+
+		return;
+	}
+
 	//Set health to zero
 	_currentHealth = 0.0f;
 	
@@ -1731,6 +1745,8 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION (ACharacterBase, _hasStone, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _currentlyUsedItemIndex, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION (ACharacterBase, _currentItemTimer, COND_OwnerOnly);
+
+	DOREPLIFETIME (ACharacterBase, _soulStoneRespawn);
 
 	DOREPLIFETIME_CONDITION (ACharacterBase, _victorious, COND_OwnerOnly);
 

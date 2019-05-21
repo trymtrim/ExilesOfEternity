@@ -463,6 +463,8 @@ void ACharacterBase::UseCharacterSpell_Implementation (CharacterSpells spell)
 
 	UseCharacterSpellBP (spell);
 
+	CancelCloakBP ();
+
 	//Put the spell on cooldown
 	PutSpellOnCooldown (spell);
 }
@@ -934,6 +936,10 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 		_currentHealth -= Damage * 0.85f;
 	else
 		_currentHealth -= Damage;
+
+	//Cancel cloak elixir
+	if (Damage > 0.0f)
+		CancelCloakBP ();
 
 	//If current health is zero or less, die
 	if (_currentHealth <= 0.0f)

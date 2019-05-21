@@ -245,6 +245,8 @@ protected:
 
 	UFUNCTION (BlueprintImplementableEvent)
 	void SoulStoneRespawnBP ();
+	UFUNCTION (BlueprintImplementableEvent)
+	void CancelCloakBP ();
 
 	UPROPERTY (Replicated, BlueprintReadOnly)
 	int _currentlyUsedItemIndex = 0;

@@ -100,6 +100,7 @@ void USpellAttributes::LoadSpells (UDataTable* spellDataTable, UDataTable* itemD
 		item.UseTime = stats->UseTime;
 		item.Duration = stats->Duration;
 		item.Icon = stats->Icon;
+		item.IconColor = stats->IconColor;
 		item.Tooltip = stats->Tooltip;
 		item.ItemBlueprint = stats->ItemBlueprint;
 
@@ -217,6 +218,11 @@ UTexture2D * USpellAttributes::GetItemIcon (Items item)
 FString USpellAttributes::GetItemTooltip (Items item)
 {
 	return _itemMap [item].Tooltip;
+}
+
+FColor USpellAttributes::GetItemIconColor (Items item)
+{
+	return _itemMap [item].IconColor;
 }
 
 TSubclassOf <AActor> USpellAttributes::GetItemBlueprint (Items item)

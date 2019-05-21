@@ -126,6 +126,7 @@ struct Item
 	float UseTime;
 	float Duration;
 	UTexture2D* Icon;
+	FColor IconColor;
 	FString Tooltip;
 	TSubclassOf <AActor> ItemBlueprint;
 };
@@ -149,6 +150,8 @@ struct FItemStats : public FTableRowBase
 	UTexture2D* Icon;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly, meta = (MultiLine = true))
 	FString Tooltip;
+	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
+	FColor IconColor;
 	UPROPERTY (BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf <AActor> ItemBlueprint;
 };
@@ -203,6 +206,8 @@ public:
 	static UTexture2D* GetItemIcon (Items item);
 	UFUNCTION (BlueprintCallable)
 	static FString GetItemTooltip (Items item);
+	UFUNCTION (BlueprintCallable)
+	static FColor GetItemIconColor (Items item);
 	UFUNCTION (BlueprintCallable)
 	static TSubclassOf <AActor> GetItemBlueprint (Items item);
 

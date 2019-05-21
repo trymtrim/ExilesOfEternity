@@ -116,8 +116,16 @@ float AAICharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEven
 	if (_dead)
 		return 0.0f;
 
+	float finalDamage = Damage;
+
+	if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
+	{
+		if (Cast <ACharacterBase> (DamageCauser)->GetStone () == HUNTING_STONE)
+			finalDamage += Damage * 0.25f;
+	}
+
 	//Reduce the damage taken from current health
-	_currentHealth -= Damage;
+	_currentHealth -= finalDamage;
 
 	//If current health is zero or less, die
 	if (_currentHealth <= 0.0f)
@@ -129,7 +137,21 @@ float AAICharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEven
 
 	//If the damage causer is a player, call on deal damage event on the damage causer
 	if (DamageCauser->GetClass ()->IsChildOf (ACharacterBase::StaticClass ()))
-		Cast <ACharacterBase> (DamageCauser)->OnDealDamageBP (this, Damage);
+	{
+		ACharacterBase* damageCauserCharacter = Cast <ACharacterBase> (DamageCauser);
+		
+		damageCauserCharacter->OnDealDamageBP (this, finalDamage);
+
+		if (damageCauserCharacter->GetStone () == LIFESTEAL_STONE && Damage > 0.0f)
+		{
+			float lifesteal = -Damage * 0.2f;
+
+			if (damageCauserCharacter->GetCurrentHealth () < damageCauserCharacter->GetMaxHealth ())
+				damageCauserCharacter->OnDealDamageBP (damageCauserCharacter, lifesteal);
+
+			UGameplayStatics::ApplyDamage (damageCauserCharacter, lifesteal, nullptr, this, nullptr);
+		}
+	}
 
 	return Super::TakeDamage (Damage, DamageEvent, EventInstigator, DamageCauser);
 }

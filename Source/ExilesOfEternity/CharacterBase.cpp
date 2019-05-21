@@ -890,7 +890,7 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 		int damageCauserTeamNumber = Cast <APlayerStateBase> (Cast <ACharacter> (DamageCauser)->GetPlayerState ())->GetTeamNumber ();
 		int ourTeamNumber = Cast <APlayerStateBase> (GetPlayerState ())->GetTeamNumber ();
 
-		//Call on deal damage event on the damage causer
+		//Call deal damage event on the damage causer
 		if (Damage < 0.0f)
 		{
 			_currentHealing -= Damage;
@@ -902,17 +902,38 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 			}
 		}
 		else if (damageCauserTeamNumber != ourTeamNumber)
-			Cast <ACharacterBase> (DamageCauser)->OnDealDamageBP (this, Damage);
+		{
+			if (_defenseElixirActivated)
+				Cast <ACharacterBase> (DamageCauser)->OnDealDamageBP (this, Damage * 0.85f);
+			else
+				Cast <ACharacterBase> (DamageCauser)->OnDealDamageBP (this, Damage);
+		}
 
 		if (damageCauserTeamNumber == ourTeamNumber && Damage > 0.0f)
 			return 0.0f;
+
+		//Lifesteal Stone
+		ACharacterBase* damageCauserCharacter = Cast <ACharacterBase> (DamageCauser);
+
+		if (damageCauserCharacter->GetStone () == LIFESTEAL_STONE && Damage > 0.0f)
+		{
+			float lifesteal = -Damage * 0.2f;
+
+			if (damageCauserCharacter->GetCurrentHealth () < damageCauserCharacter->GetMaxHealth ())
+				damageCauserCharacter->OnDealDamageBP (damageCauserCharacter, lifesteal);
+
+			UGameplayStatics::ApplyDamage (damageCauserCharacter, lifesteal, nullptr, this, nullptr);
+		}
 	}
 
 	//Delay static health regen
 	_staticHealthRegenTimer = 10.0f + _staticHealthRegenTime;
 
 	//Reduce the damage taken from current health
-	_currentHealth -= Damage;
+	if (_defenseElixirActivated)
+		_currentHealth -= Damage * 0.85f;
+	else
+		_currentHealth -= Damage;
 
 	//If current health is zero or less, die
 	if (_currentHealth <= 0.0f)
@@ -930,7 +951,11 @@ float ACharacterBase::TakeDamage (float Damage, FDamageEvent const& DamageEvent,
 			SetStunEffect (true, 0.0f);
 
 		OnDamageBP ();
-		OnFloatingDamageBP (Damage);
+
+		if (_defenseElixirActivated)
+			OnFloatingDamageBP (Damage * 0.85f);
+		else
+			OnFloatingDamageBP (Damage);
 	}
 	else if (Damage < 0.0f)
 	{
@@ -961,6 +986,10 @@ void ACharacterBase::Die ()
 
 		return;
 	}
+
+	//If defense elixir is activated, deactivate it
+	if (_defenseElixirActivated)
+		DeactivateDefenseElixir ();
 
 	//Set health to zero
 	_currentHealth = 0.0f;
@@ -1110,6 +1139,16 @@ bool ACharacterBase::GetMovingSpell ()
 int ACharacterBase::GetSpellSlots ()
 {
 	return _spellSlots;
+}
+
+float ACharacterBase::GetCurrentHealth ()
+{
+	return _currentHealth;
+}
+
+float ACharacterBase::GetMaxHealth ()
+{
+	return _maxHealth;
 }
 
 int ACharacterBase::GetSpellSlotIndex ()
@@ -1540,6 +1579,21 @@ void ACharacterBase::RegainHealth (int percent)
 	OnDealDamageBP (this, -healthRegain);
 }
 
+void ACharacterBase::ActivateDefenseElixir ()
+{
+	_defenseElixirActivated = true;
+}
+
+void ACharacterBase::DeactivateDefenseElixir ()
+{
+	_defenseElixirActivated = false;
+}
+
+bool ACharacterBase::GetDefenseElixirActivated ()
+{
+	return _defenseElixirActivated;
+}
+
 Items ACharacterBase::GetFirstItem ()
 {
 	return _firstItem;
@@ -1748,6 +1802,7 @@ void ACharacterBase::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION (ACharacterBase, _currentItemTimer, COND_OwnerOnly);
 
 	DOREPLIFETIME (ACharacterBase, _soulStoneRespawn);
+	DOREPLIFETIME (ACharacterBase, _defenseElixirActivated);
 
 	DOREPLIFETIME_CONDITION (ACharacterBase, _victorious, COND_OwnerOnly);
 

@@ -79,6 +79,9 @@ public:
 
 	UFUNCTION (BlueprintCallable)
 	int GetSpellSlots ();
+	
+	float GetCurrentHealth ();
+	float GetMaxHealth ();
 
 	UFUNCTION (BlueprintCallable)
 	int GetSpellSlotIndex ();
@@ -233,6 +236,12 @@ protected:
 	//Items
 	UFUNCTION (BlueprintCallable)
 	void RegainHealth (int percent);
+	UFUNCTION (BlueprintCallable)
+	void ActivateDefenseElixir ();
+	UFUNCTION (BlueprintCallable)
+	void DeactivateDefenseElixir ();
+	UFUNCTION (BlueprintCallable)
+	bool GetDefenseElixirActivated ();
 
 	UFUNCTION (BlueprintImplementableEvent)
 	void SoulStoneRespawnBP ();
@@ -420,6 +429,8 @@ private:
 	bool _hasStone = false;
 	UPROPERTY (Replicated)
 	float _currentItemTimer = 0.0f;
+	UPROPERTY (Replicated)
+	bool _defenseElixirActivated = false;
 
 	//Temp
 	bool _clientUsingUltimateSpell = false;

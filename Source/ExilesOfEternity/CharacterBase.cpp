@@ -106,7 +106,7 @@ void ACharacterBase::Tick (float DeltaTime)
 		{
 			if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "GameLevel")
 				SetActorLocation (FVector (38710.0f, 61300.0f, 1330.0f));
-			else if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel" || UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "PractiseLevel")
+			else if (UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "ArenaLevel" || UGameplayStatics::GetCurrentLevelName (GetWorld ()) == "PracticeLevel")
 				SetActorLocation (FVector (0.0f, 0.0f, 5000.0f));
 		}
 	}
@@ -1239,6 +1239,10 @@ void ACharacterBase::AddSpellSlot ()
 
 bool ACharacterBase::AddItem (Items item)
 {
+	//If player is dead, return
+	if (_dead)
+		return false;
+
 	//If item is stone
 	if (USpellAttributes::GetItemStone (item))
 	{

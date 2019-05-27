@@ -77,8 +77,13 @@ void ABattleRoyalePlayerState::LevelUp ()
 	_level++;
 
 	ACharacterBase* characterController = Cast <ACharacterBase> (GetPawn ());
+
 	//Upgrade health
-	characterController->SetHealth (_playerProgressionInfo->HealthPerLevel [_level - 1]);
+	if (characterController->GetStone () == CONSTITUTION_STONE)
+		characterController->SetHealth (_playerProgressionInfo->HealthPerLevel [_level - 1] + 40.0f);
+	else
+		characterController->SetHealth (_playerProgressionInfo->HealthPerLevel [_level - 1]);
+
 	//Upgrade basic spell damage
 	characterController->SetBasicSpellDamage (_playerProgressionInfo->BasicSpellDamagePerLevel [_level - 1]);
 

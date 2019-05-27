@@ -149,7 +149,15 @@ bool ACharacterBase::AddSpell (Spells spell, int rank, bool hack)
 	else
 	{
 		if (_ownedSpells.Num () == 6 || _ownedSpells.Contains (spell))
+		{
+			//Add error message
+			if (_ownedSpells.Contains (spell))
+				Cast <APlayerControllerBase> (GetController ())->AddMessage ("You already have that ability", true);
+			else
+				Cast <APlayerControllerBase> (GetController ())->AddMessage ("Not enough ability slots", true);
+
 			return false;
+		}
 	}
 
 	//Add unlock message
@@ -194,6 +202,10 @@ void ACharacterBase::ClientAddOwnedSpell_Implementation (Spells spell, int rank)
 
 void ACharacterBase::UpgradeSpell_Implementation (Spells spell)
 {
+	//If player doesn't have spell, return
+	if (!_spellRanks.Contains (spell))
+		return;
+
 	//If spell already is at max rank, return
 	if (_spellRanks [spell] == 3 || _spellUpgradesAvailable == 0)
 		return;

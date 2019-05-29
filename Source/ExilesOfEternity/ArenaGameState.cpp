@@ -58,9 +58,9 @@ void AArenaGameState::CheckForVictory (AArenaPlayerState* disconnectedPlayer)
 		EndGame (2);
 	else if (redPlayers == 0)
 		EndGame (1);
-	else if (bluePlayers == deadBluePlayers)
+	else if (bluePlayers == deadBluePlayers && redPlayers != deadRedPlayers)
 		FinishRound (2);
-	else if (redPlayers == deadRedPlayers)
+	else if (redPlayers == deadRedPlayers && bluePlayers != deadBluePlayers)
 		FinishRound (1);
 }
 

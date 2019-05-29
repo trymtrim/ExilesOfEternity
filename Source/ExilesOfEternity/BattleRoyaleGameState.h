@@ -155,8 +155,11 @@ private:
 	UPROPERTY (Replicated)
 	int _stage = 1;
 
+	UPROPERTY ()
 	UGameStageInfo* _gameStageInfo;
+	UPROPERTY ()
 	UPlayerProgressionInfo* _playerProgressionInfo;
+	UPROPERTY ()
 	APlayAreaCircle* _playAreaCircle;
 
 	int _playerCount = 0;
@@ -174,4 +177,7 @@ private:
 
 	UPROPERTY (Replicated)
 	TArray <FPlayerStats> _scoreboardPlayerStats;
+
+	UPROPERTY (Replicated)
+	float _stageDurationMultiplier = 1.0f;
 };

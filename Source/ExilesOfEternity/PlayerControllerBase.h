@@ -39,6 +39,9 @@ public:
 	UPROPERTY (BlueprintAssignable)
 	FOnKillMessage OnKillMessageBP;
 
+	UPROPERTY (BlueprintReadWrite)
+	bool gameFinished = false;
+
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;

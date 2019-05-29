@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "UserWidget.h"
 #include "Widget.h"
+#include "Sound/SoundClass.h"
 #include "ExilesOfEternityGameInstance.generated.h"
 
 class UWebSocketBase;
@@ -16,6 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam (FOnJoinGame, FString, ipAddress);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams (FOnRefresh, const TArray <FString>&, gameInstanceNames, const TArray <FString>&, gameInstanceGameModes);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams (FOnJoinLobby, FString, gameName, FString, gameMode, const TArray <FString>&, playerNames);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams (FOnRefreshLobby, FString, gameMode, bool, lobbyMaster, const TArray <FString>&, playerNames, const TArray <int>&, playerTeams, const TArray <FString>&, playerCharacters);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE (FOnConnectionCheck);
 
 UCLASS()
 class EXILESOFETERNITY_API UExilesOfEternityGameInstance : public UGameInstance
@@ -51,6 +53,8 @@ public:
 	void RemoveLoadingScreen ();
 
 	UFUNCTION (BlueprintCallable)
+	bool GetIsConnecting ();
+	UFUNCTION (BlueprintCallable)
 	bool GetIsConnected ();
 
 	UPROPERTY (BlueprintAssignable)
@@ -65,6 +69,8 @@ public:
 	FOnJoinLobby OnJoinLobbyBP;
 	UPROPERTY (BlueprintAssignable)
 	FOnRefreshLobby OnRefreshLobbyBP;
+	UPROPERTY (BlueprintAssignable)
+	FOnConnectionCheck OnConnectionCheckBP;
 
 	//Temp
 	UPROPERTY (BlueprintReadWrite)
@@ -75,6 +81,12 @@ public:
 	UPROPERTY (BlueprintReadWrite)
 	FString ipAddress = "35.228.159.15";
 
+	//Audio settings
+	UFUNCTION (BlueprintCallable)
+	void SetSoundClassVolume (USoundClass* targetSoundClass, float newVolume);
+	UFUNCTION (BlueprintCallable)
+	float GetSoundClassVolume (USoundClass* targetSoundClass);
+
 protected:
 	virtual void Init () override;
 	virtual void OnStart () override;
@@ -84,7 +96,7 @@ private:
 	UFUNCTION ()
 	void OnConnectionComplete ();
 	UFUNCTION ()
-	void OnConnectionError ();
+	void OnConnectionError (FString error);
 	UFUNCTION ()
 	void OnConnectionClosed ();
 	UFUNCTION ()
@@ -100,6 +112,7 @@ private:
 	UPROPERTY ()
 	UWebSocketBase* _webSocket;
 
+	bool _isConnecting = false;
 	bool _isConnected = false;
 
 	TSubclassOf <UUserWidget> _loadingScreenUI;

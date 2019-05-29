@@ -1553,6 +1553,25 @@ bool ACharacterBase::UseItem_Validate (int slot)
 
 void ACharacterBase::UpdateUsingItem (float deltaTime)
 {
+	if (_currentlyUsedItemIndex == 1)
+	{
+		if (_firstItem == EMPTY_ITEM || _firstItemAmount == 0)
+		{
+			_currentlyUsedItemIndex = 0;
+			_currentItemTimer = 0.0f;
+			return;
+		}
+	}
+	else
+	{
+		if (_secondItem == EMPTY_ITEM || _secondItemAmount == 0)
+		{
+			_currentlyUsedItemIndex = 0;
+			_currentItemTimer = 0.0f;
+			return;
+		}
+	}
+
 	_currentItemTimer -= deltaTime;
 
 	if (_currentItemTimer <= 0.0f)

@@ -43,13 +43,22 @@ void ABattleRoyaleGameState::StartGame ()
 	//Assign player count
 	_playerCount = PlayerArray.Num ();
 
+	//Scale circle timers with player count
+	if (_playerCount < 10)
+	{
+		_stageDurationMultiplier = (float) _playerCount / 10.0f;
+
+		if (_stageDurationMultiplier < 0.35f)
+			_stageDurationMultiplier = 0.35f;
+	}
+
 	//Initialize scoreboard player stats
 	for (int i = 0; i < PlayerArray.Num (); i++)
 		AddScoreboardPlayerStats (Cast <ABattleRoyalePlayerState> (PlayerArray [i]));
 
 	//Start timer for current stage and start next stage when timer is finished
 	FTimerHandle startNextStageTimerHandle;
-	GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
+	GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1] * _stageDurationMultiplier, false);
 
 	//Initialize player states
 	for (int i = 0; i < PlayerArray.Num (); i++)
@@ -78,7 +87,7 @@ void ABattleRoyaleGameState::StartNextStage ()
 	if (_stage != 4)
 	{
 		FTimerHandle startNextStageTimerHandle;
-		GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1], false);
+		GetWorld ()->GetTimerManager ().SetTimer (startNextStageTimerHandle, this, &ABattleRoyaleGameState::StartNextStage, _gameStageInfo->StageDurations [_stage - 1] * _stageDurationMultiplier, false);
 	}
 }
 
@@ -184,7 +193,7 @@ int ABattleRoyaleGameState::GetStage ()
 
 int ABattleRoyaleGameState::GetStageDuration (int stageIndex)
 {
-	return _gameStageInfo->StageDurations [stageIndex - 1];
+	return _gameStageInfo->StageDurations [stageIndex - 1] * _stageDurationMultiplier;
 }
 
 FVector ABattleRoyaleGameState::GetCircleLocation ()
@@ -212,10 +221,10 @@ float ABattleRoyaleGameState::GetStageTimeLeft ()
 	if (_stage == 4)
 		return 0.0f;
 
-	float stageTimeLeft = _startTime + 1;
+	float stageTimeLeft = _startTime + 1.0f;
 
 	for (int i = 0; i < _stage; i++)
-		stageTimeLeft += _gameStageInfo->StageDurations [i];
+		stageTimeLeft += _gameStageInfo->StageDurations [i] * _stageDurationMultiplier;
 
 	stageTimeLeft -= GetServerWorldTimeSeconds ();
 
@@ -331,4 +340,5 @@ void ABattleRoyaleGameState::GetLifetimeReplicatedProps (TArray <FLifetimeProper
 	DOREPLIFETIME (ABattleRoyaleGameState, _stage);
 	DOREPLIFETIME (ABattleRoyaleGameState, _scoreboardPlayerStats);
 	DOREPLIFETIME (ABattleRoyaleGameState, _currentStageStartTime);
+	DOREPLIFETIME (ABattleRoyaleGameState, _stageDurationMultiplier);
 }

@@ -23,6 +23,8 @@ void UExilesOfEternityGameInstance::ConnectToMasterServer ()
 {
 	UE_LOG (LogTemp, Warning, TEXT ("Connecting to master server"));
 
+	_isConnecting = true;
+
 	//Connect to websocket
 	_webSocket = UWebSocketBlueprintLibrary::Connect ("ws://" + ipAddress + ":1337"); //35.228.16.16
 
@@ -49,6 +51,8 @@ void UExilesOfEternityGameInstance::ConnectToMasterServer ()
 
 void UExilesOfEternityGameInstance::DisconnectFromMasterServer ()
 {
+	_isConnecting = false;
+
 	//Close connection
 	_webSocket->Close ();
 }
@@ -59,13 +63,16 @@ void UExilesOfEternityGameInstance::OnConnectionComplete ()
 	
 	OnConnectedBP.Broadcast ();
 
+	_isConnecting = false;
 	_isConnected = true;
 
 	UE_LOG (LogTemp, Warning, TEXT ("Connected to master server"));
 }
 
-void UExilesOfEternityGameInstance::OnConnectionError ()
+void UExilesOfEternityGameInstance::OnConnectionError (FString error)
 {
+	UE_LOG (LogTemp, Warning, TEXT ("ERROR"));
+
 	//Disconnect
 	DisconnectFromMasterServer ();
 }
@@ -86,7 +93,6 @@ void UExilesOfEternityGameInstance::OnMessage (FString message)
 
 	if (type == "JoinGame")
 	{
-		//UUserWidget* MyWidget = nullptr;
 		_loadingScreenWidget = CreateWidget (GetFirstLocalPlayerController (), _loadingScreenUI);
 		GetGameViewportClient ()->AddViewportWidgetContent (_loadingScreenWidget->TakeWidget (), 10);
 
@@ -108,6 +114,8 @@ void UExilesOfEternityGameInstance::OnMessage (FString message)
 		URefreshLobbyResponse* refreshLobbyResponse = Cast <URefreshLobbyResponse> (UWebSocketBlueprintLibrary::JsonToObject (message, URefreshLobbyResponse::StaticClass (), false));
 		OnRefreshLobbyBP.Broadcast (refreshLobbyResponse->gameMode, refreshLobbyResponse->lobbyMaster, refreshLobbyResponse->playerNames, refreshLobbyResponse->playerTeams, refreshLobbyResponse->playerCharacters);
 	}
+
+	OnConnectionCheckBP.Broadcast ();
 }
 
 void UExilesOfEternityGameInstance::CreateGame (FString gameName, FString gameMode)
@@ -269,9 +277,24 @@ void UExilesOfEternityGameInstance::RemoveLoadingScreen ()
 		GetGameViewportClient ()->RemoveViewportWidgetContent (_loadingScreenWidget->TakeWidget ());
 }
 
+bool UExilesOfEternityGameInstance::GetIsConnecting ()
+{
+	return _isConnecting;
+}
+
 bool UExilesOfEternityGameInstance::GetIsConnected ()
 {
 	return _isConnected;
+}
+
+void UExilesOfEternityGameInstance::SetSoundClassVolume (USoundClass* targetSoundClass, float newVolume)
+{
+	targetSoundClass->Properties.Volume = newVolume;
+}
+
+float UExilesOfEternityGameInstance::GetSoundClassVolume (USoundClass* targetSoundClass)
+{
+	return targetSoundClass->Properties.Volume;
 }
 
 void UExilesOfEternityGameInstance::Init ()

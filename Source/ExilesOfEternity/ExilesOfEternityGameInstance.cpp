@@ -274,7 +274,10 @@ void UExilesOfEternityGameInstance::ObtainGameInfo ()
 void UExilesOfEternityGameInstance::RemoveLoadingScreen ()
 {
 	if (_loadingScreenWidget != nullptr)
+	{
 		GetGameViewportClient ()->RemoveViewportWidgetContent (_loadingScreenWidget->TakeWidget ());
+		_loadingScreenWidget = nullptr;
+	}
 }
 
 bool UExilesOfEternityGameInstance::GetIsConnecting ()

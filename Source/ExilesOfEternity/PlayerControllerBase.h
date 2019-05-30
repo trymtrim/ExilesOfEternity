@@ -42,13 +42,13 @@ public:
 	UPROPERTY (BlueprintReadWrite)
 	bool gameFinished = false;
 
+	UFUNCTION (Client, Reliable, BlueprintCallable)
+	void ShowMouseCursor (bool state);
+
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;
 	virtual void Possess (APawn* InPawn) override;
-
-	UFUNCTION (Client, Reliable)
-	void ShowMouseCursor (bool state);
 
 private:
 	template <bool state>

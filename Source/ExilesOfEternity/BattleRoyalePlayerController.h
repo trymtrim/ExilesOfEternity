@@ -56,6 +56,10 @@ public:
 	UPROPERTY (BlueprintAssignable)
 	FOnLevelUpMessage OnLevelUpMessageBP;
 
+	UFUNCTION (BlueprintCallable)
+	void StartSpectating ();
+	void ChangeSpectatingTarget ();
+
 protected:
 	virtual void BeginPlay () override;
 
@@ -76,4 +80,6 @@ private:
 	UPROPERTY (Replicated)
 	int _recentPlayerSpawnPosition;
 	int _selectedPlayerSpawnPosition = 0;
+
+	int _spectatingIndex = 0;
 };

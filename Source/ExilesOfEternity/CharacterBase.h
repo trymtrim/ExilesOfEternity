@@ -140,6 +140,11 @@ public:
 	void OnLevelUpBP (int level);
 	int level = 1;
 
+	UPROPERTY (BlueprintReadOnly)
+	ACharacterBase* spectatingTarget = nullptr;
+	UPROPERTY (BlueprintReadOnly)
+	bool spectating = false;
+
 protected:
 	//Called when the game starts or when spawned
 	virtual void BeginPlay () override;

@@ -10,6 +10,7 @@
 #include "BattleRoyalePlayerState.h"
 #include "CharacterBase.h"
 #include "Runtime/Engine/Public/TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 #include "BattleRoyaleGameMode.h"
 
 void ABattleRoyalePlayerController::BeginPlay ()
@@ -204,6 +205,95 @@ void ABattleRoyalePlayerController::ActivateRedeemTimer (bool state)
 void ABattleRoyalePlayerController::ShowLevelUpMessage_Implementation (const FString& message, int level)
 {
 	OnLevelUpMessageBP.Broadcast (message, level);
+}
+
+void ABattleRoyalePlayerController::StartSpectating ()
+{
+	Cast <ACharacterBase> (GetCharacter ())->spectating = true;
+
+	//Set input mode to game
+	FInputModeGameOnly gameInputMode;
+	SetInputMode (gameInputMode);
+
+	//Disable mouse cursor
+	bShowMouseCursor = false;
+
+	TArray <AActor*> players;
+	UGameplayStatics::GetAllActorsOfClass (GetWorld (), ACharacterBase::StaticClass (), players);
+
+	for (int i = 0; i < players.Num (); i++)
+	{
+		if (!Cast <ACharacterBase> (players [i])->GetDead ())
+		{
+			SetViewTargetWithBlend (players [i]);
+			Cast <ACharacterBase> (GetCharacter ())->spectatingTarget = Cast <ACharacterBase> (players [i]);
+
+			_spectatingIndex = i;
+
+			break;
+		}
+	}
+
+	/*for (int i = 0; i < GetWorld ()->GetGameState ()->PlayerArray.Num (); i++)
+	{
+		if (GetWorld ()->GetGameState ()->PlayerArray [i] != PlayerState)
+		{
+			SetViewTargetWithBlend (GetWorld ()->GetGameState ()->playerarr	
+
+			break;
+		}
+	}*/
+}
+
+void ABattleRoyalePlayerController::ChangeSpectatingTarget ()
+{
+	TArray <AActor*> players;
+	UGameplayStatics::GetAllActorsOfClass (GetWorld (), ACharacterBase::StaticClass (), players);
+
+	for (int i = 0; i < players.Num (); i++)
+	{
+		if (i > _spectatingIndex)
+		{
+			if (!Cast <ACharacterBase> (players [i])->GetDead ())
+			{
+				SetViewTargetWithBlend (players [i]);
+				Cast <ACharacterBase> (GetCharacter ())->spectatingTarget = Cast <ACharacterBase> (players [i]);
+
+				_spectatingIndex = i;
+
+				if (i == players.Num () - 1)
+					_spectatingIndex = -1;
+
+				break;
+			}
+		}
+
+		if (i == players.Num () - 1)
+		{
+			_spectatingIndex = -1;
+
+			//
+			for (int j = 0; j < players.Num (); j++)
+			{
+				if (j > _spectatingIndex)
+				{
+					if (!Cast <ACharacterBase> (players [j])->GetDead ())
+					{
+						SetViewTargetWithBlend (players [j]);
+						Cast <ACharacterBase> (GetCharacter ())->spectatingTarget = Cast <ACharacterBase> (players [j]);
+
+						_spectatingIndex = j;
+
+						break;
+					}
+				}
+
+				if (j == players.Num () - 1)
+					_spectatingIndex = -1;
+			}
+			//
+		}
+	}
 }
 
 bool ABattleRoyalePlayerController::GetStartingZoneChosen ()

@@ -9,6 +9,7 @@
 #include "PlayerStateBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Public/TimerManager.h"
+#include "BattleRoyalePlayerController.h"
 
 //Sets default values
 ACharacterBase::ACharacterBase ()
@@ -28,7 +29,7 @@ void ACharacterBase::BeginPlay ()
 		//Get camera component
 		TArray <UCameraComponent*> cameraComps;
 		GetComponents <UCameraComponent> (cameraComps);
-		_cameraComponent = cameraComps [0];
+		_cameraComponent = cameraComps [1];
 	}
 
 	//Initialize server specific elements
@@ -368,6 +369,13 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 
 void ACharacterBase::StartUsingBasicSpell ()
 {
+	if (spectating)
+	{
+		Cast <ABattleRoyalePlayerController> (GetController ())->ChangeSpectatingTarget ();
+
+		return;
+	}
+
 	_usingBasicSpell = true;
 
 	UpdateUsingBasicSpell ();

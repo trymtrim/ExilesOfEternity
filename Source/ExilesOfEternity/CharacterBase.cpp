@@ -1520,6 +1520,8 @@ void ACharacterBase::UseItem_Implementation (int slot)
 		{
 			_currentItemTimer = USpellAttributes::GetItemUseTime (_firstItem);
 			_currentlyUsedItemIndex = 1;
+
+			UsePotionOrElixirBP (_firstItem);
 		}
 		else
 		{
@@ -1541,6 +1543,8 @@ void ACharacterBase::UseItem_Implementation (int slot)
 		{
 			_currentItemTimer = USpellAttributes::GetItemUseTime (_secondItem);
 			_currentlyUsedItemIndex = 2;
+
+			UsePotionOrElixirBP (_secondItem);
 		}
 		else
 		{
@@ -1592,6 +1596,8 @@ void ACharacterBase::FinishUsingItem ()
 	{
 		UseItemBP (_firstItem);
 
+		StopUsingPotionOrElixirBP (_firstItem);
+
 		_firstItemAmount--;
 
 		if (_firstItemAmount == 0)
@@ -1600,6 +1606,8 @@ void ACharacterBase::FinishUsingItem ()
 	else
 	{
 		UseItemBP (_secondItem);
+
+		StopUsingPotionOrElixirBP (_secondItem);
 
 		_secondItemAmount--;
 
@@ -1613,6 +1621,11 @@ void ACharacterBase::FinishUsingItem ()
 
 void ACharacterBase::CancelUsingItem ()
 {
+	if (_currentlyUsedItemIndex == 1)
+		StopUsingPotionOrElixirBP (_firstItem);
+	else if (_currentlyUsedItemIndex == 2)
+		StopUsingPotionOrElixirBP (_secondItem);
+
 	_currentItemTimer = 0.0f;
 	_currentlyUsedItemIndex = 0;
 }

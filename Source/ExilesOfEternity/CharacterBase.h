@@ -183,6 +183,10 @@ protected:
 	void ClientUpgradeSpellBP ();
 	UFUNCTION (BlueprintImplementableEvent)
 	void UseItemBP (Items item);
+	UFUNCTION (BlueprintImplementableEvent)
+	void UsePotionOrElixirBP (Items item);
+	UFUNCTION (BlueprintImplementableEvent)
+	void StopUsingPotionOrElixirBP (Items item);
 
 	//Spell effects
 	UFUNCTION (BlueprintImplementableEvent)

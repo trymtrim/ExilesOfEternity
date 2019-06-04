@@ -17,7 +17,7 @@ void AArenaPlayerController::BeginPlay ()
 
 void AArenaPlayerController::SelectSpell_Implementation (Spells spell)
 {
-	if (_selectedSpells.Num () >= 6)
+	if (_selectedSpells.Num () >= 3)
 		return;
 
 	Cast <ACharacterBase> (GetCharacter ())->AddSpell (spell, 1, true);
@@ -39,7 +39,7 @@ void AArenaPlayerController::ClientSelectSpell_Implementation (Spells spell)
 
 void AArenaPlayerController::RegisterGameStart ()
 {
-	if (_selectedSpells.Num () < 6) 
+	if (_selectedSpells.Num () < 3) 
 	{
 		for (int i = 1; i < USpellAttributes::GetSpellCount () + 1; i++)
 		{
@@ -48,7 +48,7 @@ void AArenaPlayerController::RegisterGameStart ()
 			if (!_selectedSpells.Contains (spell))
 				SelectSpell (spell);
 
-			if (_selectedSpells.Num () == 6)
+			if (_selectedSpells.Num () == 3)
 				break;
 		}
 	}

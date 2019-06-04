@@ -79,7 +79,7 @@ public:
 	UPROPERTY (BlueprintReadWrite)
 	FString selectedCharacter = "Serath";
 	UPROPERTY (BlueprintReadWrite)
-	FString ipAddress = "35.228.159.15";
+	FString ipAddress = "35.228.209.156";
 
 	//Audio settings
 	UFUNCTION (BlueprintCallable)

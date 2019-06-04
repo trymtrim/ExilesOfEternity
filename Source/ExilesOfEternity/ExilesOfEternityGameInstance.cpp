@@ -26,7 +26,7 @@ void UExilesOfEternityGameInstance::ConnectToMasterServer ()
 	_isConnecting = true;
 
 	//Connect to websocket
-	_webSocket = UWebSocketBlueprintLibrary::Connect ("ws://" + ipAddress + ":1337"); //35.228.16.16
+	_webSocket = UWebSocketBlueprintLibrary::Connect ("ws://" + ipAddress + ":1337"); //35.228.209.156
 
 	//Bind on connection complete
 	FScriptDelegate onConnectionCompleteDelegate;

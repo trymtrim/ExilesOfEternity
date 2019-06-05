@@ -48,8 +48,6 @@ public:
 
 	UFUNCTION (BlueprintCallable)
 	void StopUsingUltimateSpell (bool finished);
-	UFUNCTION (Client, Reliable)
-	void ClientStopUsingUltimateSpell ();
 
 	void MakeVictorious ();
 

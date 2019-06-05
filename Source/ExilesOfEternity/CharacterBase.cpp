@@ -334,9 +334,6 @@ void ACharacterBase::UseSpellInput (int hotkeyIndex)
 
 		//Use ultimate spell
 		UseCharacterSpell (ULTIMATE);
-
-		//Temp
-		_clientUsingUltimateSpell = true;
 	}
 	else if (hotkeyIndex == 0)
 	{
@@ -1089,14 +1086,6 @@ void ACharacterBase::StopUsingUltimateSpell (bool finished)
 {
 	_usingUltimateSpell = false;
 	StopUsingUltimateSpellBP (finished);
-	
-	ClientStopUsingUltimateSpell ();
-}
-
-void ACharacterBase::ClientStopUsingUltimateSpell_Implementation ()
-{
-	//Temp
-	_clientUsingUltimateSpell = false;
 }
 
 void ACharacterBase::MakeVictorious ()
@@ -1121,7 +1110,7 @@ bool ACharacterBase::GetCanMove ()
 		return false;
 
 	//Temp
-	if (_clientUsingUltimateSpell && _maxBasicSpellCharges != 5)
+	if (_usingUltimateSpell && _maxBasicSpellCharges != 5)
 		return false;
 
 	return true;

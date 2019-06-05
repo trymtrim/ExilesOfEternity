@@ -58,7 +58,7 @@ void APlayerControllerBase::Possess (APawn* InPawn)
 
 void APlayerControllerBase::ShowMouseCursor_Implementation (bool state)
 {
-	if (gameFinished)
+	if (gameFinished && !Cast <ACharacterBase> (GetCharacter ())->spectating)
 		return;
 
 	//Enable or disable mouse cursor

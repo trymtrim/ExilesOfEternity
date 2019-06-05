@@ -24,6 +24,9 @@ public:
 	UFUNCTION (BlueprintCallable)
 	int GetSelectedSpellsCount ();
 
+	UPROPERTY (BlueprintReadOnly)
+	bool _gameStarted = false;
+
 protected:
 	virtual void BeginPlay () override;
 
@@ -35,6 +38,4 @@ private:
 	void ClientRegisterGameStart ();
 
 	TArray <Spells> _selectedSpells;
-
-	bool _gameStarted = false;
 };

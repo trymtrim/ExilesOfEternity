@@ -60,6 +60,9 @@ public:
 	void StartSpectating ();
 	void ChangeSpectatingTarget ();
 
+	UPROPERTY (BlueprintReadOnly)
+	bool _gameStarted = false;
+
 protected:
 	virtual void BeginPlay () override;
 
@@ -71,8 +74,6 @@ private:
 
 	bool _gameStarting = false;
 	int _gameStartingWorldSeconds;
-
-	bool _gameStarted = false;
 
 	bool _redeemTimerActivated = false;
 	ABattleRoyalePlayerState* _playerState;

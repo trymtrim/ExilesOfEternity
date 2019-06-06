@@ -443,4 +443,7 @@ private:
 
 	//Temp
 	bool _clientUsingUltimateSpell = false;
+	bool _canUseBasicSpell = true;
+
+	void MakeBasicSpellPossible ();
 };

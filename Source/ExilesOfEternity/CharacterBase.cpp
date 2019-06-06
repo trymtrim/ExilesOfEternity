@@ -373,9 +373,21 @@ void ACharacterBase::StartUsingBasicSpell ()
 		return;
 	}
 
+	if (_usingBasicSpell)
+		return;
+
 	_usingBasicSpell = true;
 
 	UpdateUsingBasicSpell ();
+
+	if (_maxBasicSpellCharges == 3)
+	{
+		_canUseBasicSpell = false;
+
+		//Update respawn timer every second
+		FTimerHandle canUseSpellTimerHandle;
+		GetWorld ()->GetTimerManager ().SetTimer (canUseSpellTimerHandle, this, &ACharacterBase::MakeBasicSpellPossible, _basicSpellCooldown, false);
+	}
 }
 
 void ACharacterBase::UpdateUsingBasicSpell ()
@@ -387,11 +399,11 @@ void ACharacterBase::UpdateUsingBasicSpell ()
 	//Use basic spell
 	if (_maxBasicSpellCharges == 5) //Temp
 		UseSpellInput (0);
-	else if (!_chargingBasicSpell) //Temp
+	else if (!_chargingBasicSpell && _usingBasicSpell) //Temp
 	{
 		if (_currentlyProjectingSpell)
 			UseSpellInput (0);
-		else if (!_usingUltimateSpell)
+		else if (!_usingUltimateSpell && _canUseBasicSpell)
 		{
 			_chargingBasicSpell = true; //Temp
 			ChargeUpBasicSpellBP (); //Temp
@@ -401,6 +413,9 @@ void ACharacterBase::UpdateUsingBasicSpell ()
 
 void ACharacterBase::StopUsingBasicSpell ()
 {
+	if (!_usingBasicSpell)
+		return;
+
 	_usingBasicSpell = false;
 
 	if (!GetSpellIsOnCooldown (BASIC) && _chargingBasicSpell) //Temp
@@ -408,6 +423,11 @@ void ACharacterBase::StopUsingBasicSpell ()
 		_chargingBasicSpell = false; //Temp
 		UseSpellInput (0); //Temp
 	}
+}
+
+void ACharacterBase::MakeBasicSpellPossible ()
+{
+	_canUseBasicSpell = true;
 }
 
 void ACharacterBase::UseSpell_Implementation (Spells spell)

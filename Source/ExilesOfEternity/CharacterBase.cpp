@@ -1227,6 +1227,9 @@ void ACharacterBase::SetStunEffect (bool state, float duration)
 
 	StopUsingBasicSpell ();
 
+	//Cancel basic spell charge - Gideon
+	CancelBasicSpellChargeBP ();
+
 	CancelUsingItem ();
 
 	if (state)

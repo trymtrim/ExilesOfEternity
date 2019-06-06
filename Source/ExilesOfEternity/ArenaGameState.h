@@ -30,6 +30,11 @@ public:
 	UFUNCTION (BlueprintCallable)
 	FString GetGameOverText ();
 
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	int _blueVictories = 0;
+	UPROPERTY (Replicated, BlueprintReadOnly)
+	int _redVictories = 0;
+
 private:
 	void EndGame (int victoryTeamNumber);
 
@@ -37,9 +42,6 @@ private:
 	int _winsRequiredToWin = 3;
 
 	int _round = 0;
-
-	int _blueVictories = 0;
-	int _redVictories = 0;
 
 	UPROPERTY (Replicated)
 	bool _gameEnded = false;

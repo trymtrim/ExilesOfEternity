@@ -196,4 +196,6 @@ void AArenaGameState::GetLifetimeReplicatedProps (TArray <FLifetimeProperty>& Ou
 	DOREPLIFETIME (AArenaGameState, _gameStarted);
 	DOREPLIFETIME (AArenaGameState, _gameEnded);
 	DOREPLIFETIME (AArenaGameState, _gameOverText);
+	DOREPLIFETIME (AArenaGameState, _blueVictories);
+	DOREPLIFETIME (AArenaGameState, _redVictories);
 }
